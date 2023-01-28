@@ -1,0 +1,177 @@
+C51 COMPILER V7.06   BLCON                                                                 05/13/2009 12:26:49 PAGE 1   
+
+
+C51 COMPILER V7.06, COMPILATION OF MODULE BLCON
+OBJECT MODULE PLACED IN BLcon.OBJ
+COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE BLcon.c BROWSE DEBUG OBJECTEXTEND
+
+stmt level    source
+
+   1          
+   2          /*1-VSS 2-VDD 3-V0 4-RS 5-R/W 6-E 7-14 DB0-DB7 15-BLA 16-BLK*/
+   3          
+   4          /*-----------------------------------------------
+   5            名称：LCD1602
+   6            公司：上海浩豚电子科技有限公司
+   7            编写：师访
+   8            日期：2009.5
+   9            修改：无
+  10            内容：通过标准程序静态显示2行字符
+  11          ------------------------------------------------*/
+  12          #include<reg52.h> //包含头文件，一般情况不需要改动，头文件包含特殊功能寄存器的定义
+  13          #include<stdio.h> //标准输入输出
+  14          #include<intrins.h>
+  15          
+  16          
+  17          sbit RS = P2^4; //Pin4
+  18          sbit RW = P2^5; //Pin5
+  19          sbit E  = P2^6; //Pin6
+  20          
+  21          sbit BLCtrl = P2^7;//背光控制端口
+  22          sbit KEY    = P3^3;//按键端口
+  23          
+  24          #define Data  P0   //数据端口
+  25          
+  26          char data TimeNum[]="                ";
+  27          char data Test1[]="                  ";
+  28          /******************************************************************/
+  29          /*                    函数声明                                    */
+  30          /******************************************************************/
+  31          /******************************************************************/
+  32          /*                    微秒延时函数                                */
+  33          /******************************************************************/
+  34          void DelayUs(unsigned char us)//delay us
+  35          {
+  36   1       unsigned char uscnt;
+  37   1       uscnt=us>>1;        /*12MHz频率*/
+  38   1       while(--uscnt);
+  39   1      }
+  40          /******************************************************************/
+  41          /*                    毫秒函数声明                                */
+  42          /******************************************************************/
+  43          void DelayMs(unsigned char ms)
+  44          {
+  45   1       while(--ms)
+  46   1         {
+  47   2           DelayUs(250);
+  48   2           DelayUs(250);
+  49   2               DelayUs(250);
+  50   2               DelayUs(250);
+  51   2         }
+  52   1      }
+  53          /******************************************************************/
+  54          /*                   写入命令函数                                 */
+  55          /******************************************************************/
+C51 COMPILER V7.06   BLCON                                                                 05/13/2009 12:26:49 PAGE 2   
+
+  56          void WriteCommand(unsigned char c)
+  57          {
+  58   1       DelayMs(5);//操作前短暂延时，保证信号稳定
+  59   1       E=0;
+  60   1       RS=0;
+  61   1       RW=0;
+  62   1       _nop_();
+  63   1       E=1;
+  64   1       Data=c;
+  65   1       E=0;
+  66   1      }
+  67          /******************************************************************/
+  68          /*                   写入数据函数                                 */
+  69          /******************************************************************/
+  70          void WriteData(unsigned char c)
+  71          {
+  72   1       DelayMs(5);  //操作前短暂延时，保证信号稳定
+  73   1       E=0;
+  74   1       RS=1;
+  75   1       RW=0;
+  76   1       _nop_();
+  77   1       E=1;
+  78   1       Data=c;
+  79   1       E=0;
+  80   1       RS=0;
+  81   1      }
+  82          /******************************************************************/
+  83          /*                   写入字节函数                                 */
+  84          /******************************************************************/
+  85          void ShowChar(unsigned char pos,unsigned char c)
+  86          {
+  87   1       unsigned char p;
+  88   1       if (pos>=0x10)
+  89   1          p=pos+0xb0; //是第二行则命令代码高4位为0xc
+  90   1       else 
+  91   1          p=pos+0x80; //是第二行则命令代码高4位为0x8
+  92   1       WriteCommand (p);//写命令
+  93   1       WriteData (c);   //写数据
+  94   1      }
+  95          /******************************************************************/
+  96          /*                   写入字符串函数                               */
+  97          /******************************************************************/
+  98          void ShowString (unsigned char line,char *ptr)
+  99          {
+ 100   1       unsigned char l,i;
+ 101   1       l=line<<4;
+ 102   1       for (i=0;i<16;i++)
+ 103   1        ShowChar (l++,*(ptr+i));//循环显示16个字符
+ 104   1      }
+ 105          /******************************************************************/
+ 106          /*                   初始化函数                                   */
+ 107          /******************************************************************/
+ 108          void InitLcd()
+ 109          {
+ 110   1       DelayMs(15);
+ 111   1       WriteCommand(0x38); //display mode
+ 112   1       WriteCommand(0x38); //display mode
+ 113   1       WriteCommand(0x38); //display mode
+ 114   1       WriteCommand(0x06); //显示光标移动位置
+ 115   1       WriteCommand(0x0c); //显示开及光标设置
+ 116   1       WriteCommand(0x01); //显示清屏
+ 117   1      
+C51 COMPILER V7.06   BLCON                                                                 05/13/2009 12:26:49 PAGE 3   
+
+ 118   1      }
+ 119          
+ 120          void main(void)
+ 121          
+ 122          {
+ 123   1      
+ 124   1      
+ 125   1      InitLcd();//初始化液晶
+ 126   1      DelayMs(15);
+ 127   1      
+ 128   1      sprintf(Test1," www.haotun.com ");  //第一行
+ 129   1      ShowString(0,Test1);
+ 130   1      
+ 131   1      sprintf(TimeNum,"LCM1602 Test ok!");//第二行
+ 132   1      ShowString(1,TimeNum);
+ 133   1      
+ 134   1      while(1){
+ 135   2      if(!KEY)
+ 136   2        {
+ 137   3        DelayMs(10);   //按下去抖 
+ 138   3        while(!KEY);
+ 139   3        if(KEY)
+ 140   3          {
+ 141   4           DelayMs(10);//释放去抖
+ 142   4               if(KEY)
+ 143   4           BLCtrl=!BLCtrl; //背光关掉或者打开
+ 144   4          }
+ 145   3       }
+ 146   2      }
+ 147   1      
+ 148   1      }
+ 149          
+ 150          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    277    ----
+   CONSTANT SIZE    =     34    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     36       5
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,123 @@
+C51 COMPILER V7.06   LED8X8                                                                07/19/2010 11:10:52 PAGE 1   
+
+
+C51 COMPILER V7.06, COMPILATION OF MODULE LED8X8
+OBJECT MODULE PLACED IN .\obj\LED8x8.obj
+COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE LED8x8.c BROWSE DEBUG OBJECTEXTEND PRINT(.\obj\LED8x8.lst) OBJECT(.\obj\LED
+                    -8x8.obj)
+
+stmt level    source
+
+   1          /*-----------------------------------------------
+   2            名称：双色点阵
+   3            论坛：www.doflye.net
+   4            编写：shifang
+   5            修改：无
+   6            内容：使用hc595驱动双色点阵  
+   7          ------------------------------------------------*/
+   8          #include<reg52.h>    //包含头文件，一般情况不需要改动，头文件包含特殊功能寄存器的定义
+   9          #include <intrins.h> 
+  10          #include "LED8x8.h"
+  11          #include "delay.h"
+  12          
+  13          unsigned char  segout[8]={0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80}; //8列
+  14          /*------------------------------------------------
+  15                          硬件端口定义
+  16          ------------------------------------------------*/
+  17          
+  18          sbit LATCH = P1^0; 
+  19          sbit SRCLK= P1^1;
+  20          sbit SER  = P1^2;
+  21          
+  22          
+  23          sbit LATCH_B = P2^2;
+  24          sbit SRCLK_B= P2^1;
+  25          sbit SER_B= P2^0;
+  26          
+  27          
+  28          /*------------------------------------------------
+  29                          发送字节程序
+  30          ------------------------------------------------*/
+  31          void Send1Byte(unsigned char dat)
+  32          {    
+  33   1        unsigned char i; 
+  34   1              
+  35   1         for(i=0;i<8;i++)
+  36   1              {
+  37   2               SRCLK=0;
+  38   2               SER=dat&0x80;
+  39   2               dat<<=1;
+  40   2               SRCLK=1;
+  41   2               }
+  42   1               
+  43   1      }
+  44          /*------------------------------------------------
+  45                          发送双字节程序
+  46               595级联，n个595，就需要发送n字节后锁存
+  47          ------------------------------------------------*/
+  48          void Send2Byte(unsigned char dat1,unsigned char dat2)
+  49          {    
+  50   1         Send1Byte(dat1);
+  51   1         Send1Byte(dat2);      
+  52   1      }
+  53          /*------------------------------------------------
+  54                             595锁存程序
+C51 COMPILER V7.06   LED8X8                                                                07/19/2010 11:10:52 PAGE 2   
+
+  55                            595级联发送数据后，锁存有效
+  56          ------------------------------------------------*/
+  57          void Out595(void)
+  58          {
+  59   1              LATCH=0;
+  60   1              _nop_();
+  61   1              LATCH=1;
+  62   1      }
+  63          
+  64          /*------------------------------------------------
+  65                          发送位码字节程序
+  66                         使用另外一片单独595
+  67          ------------------------------------------------*/
+  68          void SendSeg(unsigned char dat)
+  69          {    
+  70   1      unsigned char i; 
+  71   1              
+  72   1         for(i=0;i<8;i++)  //发送字节
+  73   1              {
+  74   2               SRCLK_B=0;
+  75   2               SER_B=dat&0x80;
+  76   2               dat<<=1;
+  77   2               SRCLK_B=1;
+  78   2               }
+  79   1            LATCH_B=0;    //锁存
+  80   1            _nop_();
+  81   1            LATCH_B=1;
+  82   1               
+  83   1               
+  84   1      }
+  85          /*------------------------------------------------
+  86                             全屏显示
+  87          ------------------------------------------------*/
+  88          void LED8x8Display(void)
+  89          {
+  90   1       static unsigned char i;
+  91   1       SendSeg(segout[i]);
+  92   1       Send2Byte(0,0);
+  93   1       Out595();
+  94   1       i++;
+  95   1       if(i==8)
+  96   1         i=0;
+  97   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     87    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      9    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

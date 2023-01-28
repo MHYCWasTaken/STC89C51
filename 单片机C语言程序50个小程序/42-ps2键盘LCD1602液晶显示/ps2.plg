@@ -1,0 +1,31 @@
+<html>
+<body>
+<pre>
+<h1>礦ision2 Build Log</h1>
+<h2>Project:</h2>
+F:\51开发板\DY_mini80光盘资料\5、配套程序\复件 c语言配套程序\42-ps2键盘LCD1602液晶显示\ps2.uv2
+Project File Date:  03/27/2009
+
+<h2>Output:</h2>
+Build target 'Target 1'
+compiling ps2.c...
+compiling LCD1602.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_SHOWSTRING?LCD1602
+Program Size: data=55.3 xdata=0 code=935
+creating hex file from "ps2"...
+"ps2" - 0 Error(s), 1 Warning(s).
+Build target 'Target 1'
+compiling LCD1602.c...
+LCD1602.C(34): warning C206: 'DelayUs': missing function-prototype
+LCD1602.C(34): error C267: 'DelayUs': requires ANSI-style prototype
+Target not created
+Build target 'Target 1'
+compiling LCD1602.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_SHOWSTRING?LCD1602
+Program Size: data=55.3 xdata=0 code=935
+creating hex file from "ps2"...
+"ps2" - 0 Error(s), 1 Warning(s).

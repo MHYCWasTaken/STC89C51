@@ -1,0 +1,257 @@
+BL51 BANKED LINKER/LOCATER V5.12                                                        04/14/2010  01:27:32  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V5.12, INVOKED BY:
+D:\PROGRAM FILES\KEIL\C51\BIN\BL51.EXE 时钟.obj TO 时钟 RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  时钟.obj (时钟)
+  D:\PROGRAM FILES\KEIL\C51\LIB\C51S.LIB (?C_STARTUP)
+  D:\PROGRAM FILES\KEIL\C51\LIB\C51S.LIB (?C_INIT)
+
+
+LINK MAP OF MODULE:  时钟 (时钟)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     000DH     UNIT         ?DT?时钟
+            IDATA   0015H     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     0007H     UNIT         ?C_INITSEG
+                    000AH     0001H                  *** GAP ***
+            CODE    000BH     0003H     ABSOLUTE     
+            CODE    000EH     000AH     UNIT         ?CO?时钟
+                    0018H     0003H                  *** GAP ***
+            CODE    001BH     0003H     ABSOLUTE     
+            CODE    001EH     008CH     UNIT         ?C_C51STARTUP
+            CODE    00AAH     0078H     UNIT         ?PR?TIME1_ISR?时钟
+            CODE    0122H     0064H     UNIT         ?PR?TIM?时钟
+            CODE    0186H     005FH     UNIT         ?PR?MAIN?时钟
+            CODE    01E5H     0046H     UNIT         ?PR?DISPLAYPRO?时钟
+            CODE    022BH     000EH     UNIT         ?PR?_DELAY?时钟
+
+
+
+OVERLAY MAP OF MODULE:   时钟 (时钟)
+
+
+SEGMENT
+  +--> CALLED SEGMENT
+---------------------
+?PR?TIM?时钟
+  +--> ?PR?DISPLAYPRO?时钟
+
+?PR?DISPLAYPRO?时钟
+  +--> ?CO?时钟
+
+*** NEW ROOT ***************************************************
+
+?C_C51STARTUP
+  +--> ?PR?MAIN?时钟
+  +--> ?C_INITSEG
+BL51 BANKED LINKER/LOCATER V5.12                                                      04/14/2010  01:27:32  PAGE 2
+
+
+
+?PR?MAIN?时钟
+  +--> ?PR?DISPLAYPRO?时钟
+  +--> ?PR?_DELAY?时钟
+
+
+
+SYMBOL TABLE OF MODULE:  时钟 (时钟)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        时钟
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:000AH         PUBLIC        second
+  D:0080H         PUBLIC        P0
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  D:00B0H         PUBLIC        P3
+  B:00A8H.7       PUBLIC        EA
+  D:00A8H         PUBLIC        IE
+  C:00AAH         PUBLIC        time1_isr
+  D:000BH         PUBLIC        minute
+  D:00B8H         PUBLIC        IP
+  B:00B0H.2       PUBLIC        KEY1
+  B:00B0H.3       PUBLIC        KEY2
+  B:00B0H.4       PUBLIC        KEY3
+  C:0186H         PUBLIC        main
+  C:01E5H         PUBLIC        Displaypro
+  D:0098H         PUBLIC        SCON
+  D:0089H         PUBLIC        TMOD
+  D:0088H         PUBLIC        TCON
+  C:000EH         PUBLIC        tab
+  D:000CH         PUBLIC        hour
+  B:00A8H.1       PUBLIC        ET0
+  B:00A8H.3       PUBLIC        ET1
+  C:0122H         PUBLIC        tim
+  D:008CH         PUBLIC        TH0
+  D:008DH         PUBLIC        TH1
+  D:008AH         PUBLIC        TL0
+  D:008BH         PUBLIC        TL1
+  D:000DH         PUBLIC        StrTab
+  B:0090H.2       PUBLIC        LED
+  B:0088H.4       PUBLIC        TR0
+  B:0088H.6       PUBLIC        TR1
+  D:00C8H         PUBLIC        T2CON
+  C:022FH         PUBLIC        _delay
+  D:00D0H         PUBLIC        PSW
+  C:022BH         SYMBOL        L?0053
+  -------         PROC          L?0052
+  -------         ENDPROC       L?0052
+  C:022BH         SYMBOL        L?0053
+  -------         PROC          _DELAY
+  D:0006H         SYMBOL        cnt
+  C:022FH         LINE#         27
+  C:022FH         LINE#         28
+  C:022FH         LINE#         29
+BL51 BANKED LINKER/LOCATER V5.12                                                      04/14/2010  01:27:32  PAGE 3
+
+
+  C:0238H         LINE#         30
+  -------         ENDPROC       _DELAY
+  -------         PROC          DISPLAYPRO
+  C:01E5H         LINE#         33
+  C:01E5H         LINE#         34
+  C:01E5H         LINE#         36
+  C:01F1H         LINE#         37
+  C:01FCH         LINE#         38
+  C:01FFH         LINE#         39
+  C:0208H         LINE#         40
+  C:0213H         LINE#         41
+  C:0216H         LINE#         42
+  C:021FH         LINE#         43
+  C:022AH         LINE#         45
+  -------         ENDPROC       DISPLAYPRO
+  -------         PROC          MAIN
+  C:0186H         LINE#         47
+  C:0186H         LINE#         48
+  C:0186H         LINE#         51
+  C:0189H         LINE#         52
+  C:018CH         LINE#         53
+  C:018FH         LINE#         54
+  C:0191H         LINE#         55
+  C:0193H         LINE#         57
+  C:0196H         LINE#         58
+  C:0199H         LINE#         59
+  C:019CH         LINE#         60
+  C:019EH         LINE#         61
+  C:01A0H         LINE#         62
+  C:01A2H         LINE#         65
+  C:01A5H         LINE#         67
+  C:01A5H         LINE#         68
+  C:01A5H         LINE#         71
+  C:01A8H         LINE#         72
+  C:01A8H         LINE#         73
+  C:01ABH         LINE#         74
+  C:01AEH         LINE#         75
+  C:01AEH         LINE#         76
+  C:01B8H         LINE#         77
+  C:01BBH         LINE#         78
+  C:01BBH         LINE#         79
+  C:01BBH         LINE#         82
+  C:01BEH         LINE#         83
+  C:01BEH         LINE#         84
+  C:01C1H         LINE#         85
+  C:01C4H         LINE#         86
+  C:01C4H         LINE#         87
+  C:01CEH         LINE#         88
+  C:01D1H         LINE#         89
+  C:01D1H         LINE#         90
+  C:01D1H         LINE#         92
+  C:01D4H         LINE#         93
+  C:01D4H         LINE#         94
+  C:01D7H         LINE#         95
+  C:01DAH         LINE#         96
+  C:01DAH         LINE#         97
+  C:01E0H         LINE#         98
+BL51 BANKED LINKER/LOCATER V5.12                                                      04/14/2010  01:27:32  PAGE 4
+
+
+  C:01E3H         LINE#         99
+  C:01E3H         LINE#         100
+  C:01E3H         LINE#         101
+  -------         ENDPROC       MAIN
+  -------         PROC          TIME1_ISR
+  -------         DO            
+  D:0008H         SYMBOL        num
+  -------         ENDDO         
+  C:00AAH         LINE#         107
+  C:00B5H         LINE#         110
+  C:00B8H         LINE#         111
+  C:00BBH         LINE#         113
+  C:00E1H         LINE#         114
+  C:00E6H         LINE#         115
+  C:00EBH         LINE#         116
+  C:00F0H         LINE#         117
+  C:00F5H         LINE#         118
+  C:00FAH         LINE#         119
+  C:00FFH         LINE#         120
+  C:0104H         LINE#         121
+  C:010FH         LINE#         122
+  C:010FH         LINE#         123
+  C:010FH         LINE#         124
+  C:0111H         LINE#         125
+  C:0116H         LINE#         126
+  C:0119H         LINE#         127
+  -------         ENDPROC       TIME1_ISR
+  -------         PROC          TIM
+  -------         DO            
+  D:0009H         SYMBOL        count
+  -------         ENDDO         
+  C:0122H         LINE#         132
+  C:012CH         LINE#         136
+  C:012FH         LINE#         137
+  C:0132H         LINE#         138
+  C:0134H         LINE#         139
+  C:014EH         LINE#         140
+  C:014EH         LINE#         141
+  C:014EH         LINE#         142
+  C:014EH         LINE#         143
+  C:014EH         LINE#         144
+  C:014EH         LINE#         145
+  C:0151H         LINE#         146
+  C:0153H         LINE#         147
+  C:0155H         LINE#         148
+  C:0155H         LINE#         149
+  C:0155H         LINE#         150
+  C:0155H         LINE#         152
+  C:015AH         LINE#         153
+  C:015AH         LINE#         154
+  C:015DH         LINE#         155
+  C:015FH         LINE#         156
+  C:0164H         LINE#         157
+  C:0164H         LINE#         158
+  C:0167H         LINE#         159
+  C:0169H         LINE#         160
+  C:016EH         LINE#         161
+BL51 BANKED LINKER/LOCATER V5.12                                                      04/14/2010  01:27:32  PAGE 5
+
+
+  C:016EH         LINE#         162
+  C:0171H         LINE#         163
+  C:0173H         LINE#         164
+  C:0178H         LINE#         165
+  C:017BH         LINE#         166
+  C:017BH         LINE#         168
+  C:017BH         LINE#         170
+  C:017BH         LINE#         172
+  -------         ENDPROC       TIM
+  -------         ENDMOD        时钟
+
+Program Size: data=22.0 xdata=0 code=565
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

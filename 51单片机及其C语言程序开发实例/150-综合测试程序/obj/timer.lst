@@ -1,0 +1,44 @@
+C51 COMPILER V7.06   TIMER                                                                 07/19/2010 11:10:52 PAGE 1   
+
+
+C51 COMPILER V7.06, COMPILATION OF MODULE TIMER
+OBJECT MODULE PLACED IN .\obj\timer.obj
+COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE timer.c BROWSE DEBUG OBJECTEXTEND PRINT(.\obj\timer.lst) OBJECT(.\obj\timer
+                    -.obj)
+
+stmt level    source
+
+   1          #include"timer.h"
+   2          #include"delay.h"
+   3          
+   4          
+   5          
+   6          
+   7          /*------------------------------------------------
+   8                              定时器初始化子程序
+   9          ------------------------------------------------*/
+  10          void Init_Timer0(void)
+  11          {
+  12   1       TMOD |= 0x01;    //使用模式1，16位定时器，使用"|"符号可以在使用多个定时器时不受影响                 
+  13   1       //TH0=0x00;          //给定初值
+  14   1       //TL0=0x00;
+  15   1       EA=1;            //总中断打开
+  16   1       ET0=1;           //定时器中断打开
+  17   1       TR0=1;           //定时器开关打开
+  18   1      }
+  19          
+  20          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     10    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

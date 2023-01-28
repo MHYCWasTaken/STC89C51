@@ -1,0 +1,43 @@
+<html>
+<body>
+<pre>
+<h1>礦ision2 Build Log</h1>
+<h2>Project:</h2>
+E:\开发板\OK400C\程序\实例程序\C语言\20.遥控键值解码-12864LCD显示\C51\12864a-3.uv2
+Project File Date:  11/23/2006
+
+<h2>Output:</h2>
+Build target 'Target 1'
+compiling 12864A-3.c...
+12864A-3.C(122): error C202: 'LCD_RST': undefined identifier
+12864A-3.C(124): error C202: 'LCD_RST': undefined identifier
+12864A-3.C(126): error C202: 'LCD_PSB': undefined identifier
+12864A-3.C(149): error C202: 'RELAY': undefined identifier
+12864A-3.C(185): error C202: 'RELAY': undefined identifier
+12864A-3.C(187): error C202: 'RELAY': undefined identifier
+Target not created
+Build target 'Target 1'
+compiling 12864A-3.c...
+12864A-3.C(180): error C202: 'RELAY': undefined identifier
+12864A-3.C(182): error C202: 'RELAY': undefined identifier
+Target not created
+Build target 'Target 1'
+compiling 12864A-3.c...
+linking...
+*** WARNING L15: MULTIPLE CALL TO SEGMENT
+    SEGMENT: ?PR?LCD_BUSY?12864A_3
+    CALLER1: ?PR?IR_IN?12864A_3
+    CALLER2: ?C_C51STARTUP
+Program Size: data=20.2 xdata=0 code=673
+creating hex file from "12864a-3"...
+"12864a-3" - 0 Error(s), 1 Warning(s).
+Build target 'Target 1'
+compiling 12864A-3.c...
+linking...
+*** WARNING L15: MULTIPLE CALL TO SEGMENT
+    SEGMENT: ?PR?LCD_BUSY?12864A_3
+    CALLER1: ?PR?IR_IN?12864A_3
+    CALLER2: ?C_C51STARTUP
+Program Size: data=20.2 xdata=0 code=678
+creating hex file from "12864a-3"...
+"12864a-3" - 0 Error(s), 1 Warning(s).

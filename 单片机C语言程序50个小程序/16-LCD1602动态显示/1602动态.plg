@@ -1,0 +1,15 @@
+<html>
+<body>
+<pre>
+<h1>礦ision2 Build Log</h1>
+<h2>Project:</h2>
+F:\51开发板\DY_mini80光盘资料\5、配套程序\复件 c语言配套程序\16-LCD1602动态显示\1602动态.uv2
+Project File Date:  12/02/2008
+
+<h2>Output:</h2>
+Build target 'Target 1'
+compiling 1602动态.c...
+linking...
+Program Size: data=13.0 xdata=0 code=317
+creating hex file from "1602动态"...
+"1602动态" - 0 Error(s), 0 Warning(s).

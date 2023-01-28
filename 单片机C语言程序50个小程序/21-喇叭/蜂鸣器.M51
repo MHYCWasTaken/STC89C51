@@ -1,0 +1,96 @@
+BL51 BANKED LINKER/LOCATER V5.03                                                        05/13/2009  11:35:47  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V5.03, INVOKED BY:
+D:\KEIL\C51\BIN\BL51.EXE ·äÃùÆ÷.obj TO ·äÃùÆ÷ RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  ·äÃùÆ÷.obj (__ÃùÆ÷)
+  D:\KEIL\C51\LIB\C51S.LIB (?C_STARTUP)
+
+
+LINK MAP OF MODULE:  ·äÃùÆ÷ (__ÃùÆ÷)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            IDATA   0008H     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     0022H     UNIT         ?PR?MAIN?__ÃùÆ÷
+            CODE    0025H     000CH     UNIT         ?C_C51STARTUP
+            CODE    0031H     000AH     UNIT         ?PR?_DELAY?__ÃùÆ÷
+
+
+
+OVERLAY MAP OF MODULE:   ·äÃùÆ÷ (__ÃùÆ÷)
+
+
+SEGMENT
+  +--> CALLED SEGMENT
+---------------------
+?C_C51STARTUP
+  +--> ?PR?MAIN?__ÃùÆ÷
+
+?PR?MAIN?__ÃùÆ÷
+  +--> ?PR?_DELAY?__ÃùÆ÷
+
+
+
+SYMBOL TABLE OF MODULE:  ·äÃùÆ÷ (__ÃùÆ÷)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        __ÃùÆ÷
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0090H         PUBLIC        P1
+  D:00B0H         PUBLIC        P3
+  D:00A8H         PUBLIC        IE
+  D:00B8H         PUBLIC        IP
+  C:0003H         PUBLIC        main
+  D:0098H         PUBLIC        SCON
+  D:0088H         PUBLIC        TCON
+BL51 BANKED LINKER/LOCATER V5.03                                                      05/13/2009  11:35:47  PAGE 2
+
+
+  D:00C8H         PUBLIC        T2CON
+  B:0090H.2       PUBLIC        SPK
+  C:0031H         PUBLIC        _delay
+  D:00D0H         PUBLIC        PSW
+  -------         PROC          _DELAY
+  D:0006H         SYMBOL        cnt
+  C:0031H         LINE#         16
+  C:0031H         LINE#         17
+  C:0031H         LINE#         18
+  C:003AH         LINE#         19
+  -------         ENDPROC       _DELAY
+  -------         PROC          MAIN
+  -------         DO            
+  D:0004H         SYMBOL        i
+  -------         ENDDO         
+  C:0003H         LINE#         23
+  C:0003H         LINE#         24
+  C:0003H         LINE#         26
+  C:0003H         LINE#         27
+  C:0003H         LINE#         28
+  C:0006H         LINE#         29
+  C:0006H         LINE#         30
+  C:000DH         LINE#         31
+  C:000FH         LINE#         32
+  C:001AH         LINE#         33
+  C:001CH         LINE#         34
+  C:0023H         LINE#         36
+  -------         ENDPROC       MAIN
+  -------         ENDMOD        __ÃùÆ÷
+
+Program Size: data=9.0 xdata=0 code=59
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

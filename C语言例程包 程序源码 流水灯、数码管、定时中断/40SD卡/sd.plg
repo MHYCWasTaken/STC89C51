@@ -1,0 +1,99 @@
+<html>
+<body>
+<pre>
+<h1>礦ision2 Build Log</h1>
+<h2>Project:</h2>
+E:\新板程序\新版\1G 51单片机SD\sd.uv2
+Project File Date:  07/03/2010
+
+<h2>Output:</h2>
+Build target 'Target 1'
+compiling sd.c...
+SD.C(250): warning C206: '_nop_': missing function-prototype
+SD.C(250): error C264: intrinsic '_nop_': declaration/activation error
+SD.C(252): error C187: not an lvalue
+Target not created
+Build target 'Target 1'
+compiling sd.c...
+SD.C(253): error C187: not an lvalue
+Target not created
+Build target 'Target 1'
+compiling sd.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_CLEARSCREEN?SD
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?ILI9325_INITIAL?SD
+Program Size: data=48.0 xdata=200 code=1728
+creating hex file from "sd"...
+"sd" - 0 Error(s), 2 Warning(s).
+Build target 'Target 1'
+compiling sd.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_CLEARSCREEN?SD
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?ILI9325_INITIAL?SD
+Program Size: data=48.0 xdata=200 code=1730
+creating hex file from "sd"...
+"sd" - 0 Error(s), 2 Warning(s).
+Build target 'Target 1'
+compiling sd.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_CLEARSCREEN?SD
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?ILI9325_INITIAL?SD
+Program Size: data=48.0 xdata=200 code=1728
+creating hex file from "sd"...
+"sd" - 0 Error(s), 2 Warning(s).
+Build target 'Target 1'
+compiling sd.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_CLEARSCREEN?SD
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?ILI9325_INITIAL?SD
+Program Size: data=48.0 xdata=148 code=1676
+creating hex file from "sd"...
+"sd" - 0 Error(s), 2 Warning(s).
+Build target 'Target 1'
+compiling sd.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_CLEARSCREEN?SD
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?ILI9325_INITIAL?SD
+Program Size: data=48.0 xdata=148 code=1678
+creating hex file from "sd"...
+"sd" - 0 Error(s), 2 Warning(s).
+Build target 'Target 1'
+compiling sd.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_CLEARSCREEN?SD
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?ILI9325_INITIAL?SD
+Program Size: data=48.0 xdata=150 code=1680
+creating hex file from "sd"...
+"sd" - 0 Error(s), 2 Warning(s).
+Build target 'Target 1'
+compiling sd.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_CLEARSCREEN?SD
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?ILI9325_INITIAL?SD
+Program Size: data=48.0 xdata=150 code=1680
+creating hex file from "sd"...
+"sd" - 0 Error(s), 2 Warning(s).
+Build target 'Target 1'
+compiling sd.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_CLEARSCREEN?SD
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?ILI9325_INITIAL?SD
+Program Size: data=48.0 xdata=150 code=1680
+creating hex file from "sd"...
+"sd" - 0 Error(s), 2 Warning(s).

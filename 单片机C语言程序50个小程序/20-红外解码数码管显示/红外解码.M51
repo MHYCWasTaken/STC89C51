@@ -1,0 +1,232 @@
+BL51 BANKED LINKER/LOCATER V5.03                                                        05/13/2009  11:27:41  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V5.03, INVOKED BY:
+D:\KEIL\C51\BIN\BL51.EXE 解码.obj TO 红外解码 RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  解码.obj (解码)
+  D:\KEIL\C51\LIB\C51S.LIB (?C_STARTUP)
+  D:\KEIL\C51\LIB\C51S.LIB (?C_INIT)
+
+
+LINK MAP OF MODULE:  红外解码 (解码)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+                    0008H     0018H                  *** GAP ***
+            BIT     0020H.0   0000H.3   UNIT         ?BI?解码
+                    0020H.3   0000H.5                *** GAP ***
+            DATA    0021H     0031H     UNIT         ?DT?解码
+            IDATA   0052H     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     0003H     ABSOLUTE     
+            CODE    0006H     0003H     UNIT         ?PR?TIM0_ISR?解码
+                    0009H     0002H                  *** GAP ***
+            CODE    000BH     0003H     ABSOLUTE     
+            CODE    000EH     008CH     UNIT         ?C_C51STARTUP
+            CODE    009AH     0057H     UNIT         ?PR?IR_WORK?解码
+            CODE    00F1H     003DH     UNIT         ?PR?EX0_ISR?解码
+            CODE    012EH     0033H     UNIT         ?PR?IRCORDPRO?解码
+            CODE    0161H     0019H     UNIT         ?PR?MAIN?解码
+            CODE    017AH     000DH     UNIT         ?PR?TIM0INIT?解码
+            CODE    0187H     000DH     UNIT         ?C_INITSEG
+            CODE    0194H     0007H     UNIT         ?PR?EX0INIT?解码
+
+
+
+OVERLAY MAP OF MODULE:   红外解码 (解码)
+
+
+SEGMENT
+  +--> CALLED SEGMENT
+---------------------
+?C_C51STARTUP
+  +--> ?PR?MAIN?解码
+  +--> ?C_INITSEG
+
+?PR?MAIN?解码
+  +--> ?PR?EX0INIT?解码
+  +--> ?PR?TIM0INIT?解码
+  +--> ?PR?IRCORDPRO?解码
+BL51 BANKED LINKER/LOCATER V5.03                                                      05/13/2009  11:27:41  PAGE 2
+
+
+  +--> ?PR?IR_WORK?解码
+
+
+
+SYMBOL TABLE OF MODULE:  红外解码 (解码)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        解码
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  D:00B0H         PUBLIC        P3
+  C:0194H         PUBLIC        EX0init
+  B:00A8H.7       PUBLIC        EA
+  D:0022H         PUBLIC        irtime
+  D:00A8H         PUBLIC        IE
+  D:00B8H         PUBLIC        IP
+  D:0023H         PUBLIC        dofly
+  C:0161H         PUBLIC        main
+  C:0006H         PUBLIC        tim0_isr
+  D:0098H         PUBLIC        SCON
+  D:0089H         PUBLIC        TMOD
+  D:0088H         PUBLIC        TCON
+  B:0020H.1       PUBLIC        irok
+  C:012EH         PUBLIC        Ircordpro
+  C:00F1H         PUBLIC        ex0_isr
+  D:002DH         PUBLIC        IRcord
+  B:00A8H.1       PUBLIC        ET0
+  D:008CH         PUBLIC        TH0
+  B:00A8H.0       PUBLIC        EX0
+  B:0088H.0       PUBLIC        IT0
+  D:008AH         PUBLIC        TL0
+  C:017AH         PUBLIC        TIM0init
+  B:0088H.4       PUBLIC        TR0
+  C:009AH         PUBLIC        Ir_work
+  D:00C8H         PUBLIC        T2CON
+  B:0020H.2       PUBLIC        irpro_ok
+  D:0031H         PUBLIC        irdata
+  D:00D0H         PUBLIC        PSW
+  -------         PROC          TIM0_ISR
+  C:0006H         LINE#         44
+  C:0006H         LINE#         46
+  C:0008H         LINE#         47
+  -------         ENDPROC       TIM0_ISR
+  -------         PROC          EX0_ISR
+  -------         DO            
+  D:0021H         SYMBOL        i
+  B:0020H.0       SYMBOL        startflag
+  -------         ENDDO         
+  C:00F1H         LINE#         52
+  C:00F8H         LINE#         57
+  C:00FBH         LINE#         58
+  C:00FBH         LINE#         60
+  C:0109H         LINE#         61
+BL51 BANKED LINKER/LOCATER V5.03                                                      05/13/2009  11:27:41  PAGE 3
+
+
+  C:010CH         LINE#         63
+  C:0113H         LINE#         64
+  C:0116H         LINE#         65
+  C:0118H         LINE#         66
+  C:011DH         LINE#         67
+  C:011DH         LINE#         68
+  C:011FH         LINE#         69
+  C:0122H         LINE#         70
+  C:0122H         LINE#         71
+  C:0124H         LINE#         74
+  C:0129H         LINE#         76
+  -------         ENDPROC       EX0_ISR
+  -------         PROC          TIM0INIT
+  C:017AH         LINE#         81
+  C:017AH         LINE#         82
+  C:017AH         LINE#         84
+  C:017DH         LINE#         85
+  C:0180H         LINE#         86
+  C:0182H         LINE#         87
+  C:0184H         LINE#         88
+  C:0186H         LINE#         89
+  -------         ENDPROC       TIM0INIT
+  -------         PROC          EX0INIT
+  C:0194H         LINE#         93
+  C:0194H         LINE#         94
+  C:0194H         LINE#         95
+  C:0196H         LINE#         96
+  C:0198H         LINE#         97
+  C:019AH         LINE#         98
+  -------         ENDPROC       EX0INIT
+  -------         PROC          IR_WORK
+  C:009AH         LINE#         103
+  C:009AH         LINE#         104
+  C:009AH         LINE#         105
+  C:00C3H         LINE#         106
+  C:00C3H         LINE#         107
+  C:00C8H         LINE#         108
+  C:00CDH         LINE#         109
+  C:00D2H         LINE#         110
+  C:00D7H         LINE#         111
+  C:00DCH         LINE#         112
+  C:00E1H         LINE#         113
+  C:00E6H         LINE#         114
+  C:00EBH         LINE#         115
+  C:00EEH         LINE#         117
+  C:00EEH         LINE#         119
+  C:00F0H         LINE#         121
+  -------         ENDPROC       IR_WORK
+  -------         PROC          IRCORDPRO
+  -------         DO            
+  D:0005H         SYMBOL        i
+  D:0004H         SYMBOL        j
+  D:0006H         SYMBOL        k
+  D:0003H         SYMBOL        cord
+  D:0007H         SYMBOL        value
+  -------         ENDDO         
+  C:012EH         LINE#         125
+BL51 BANKED LINKER/LOCATER V5.03                                                      05/13/2009  11:27:41  PAGE 4
+
+
+  C:012EH         LINE#         126
+  C:012EH         LINE#         130
+  C:0130H         LINE#         131
+  C:0132H         LINE#         132
+  C:0132H         LINE#         133
+  C:0134H         LINE#         134
+  C:0134H         LINE#         135
+  C:0139H         LINE#         136
+  C:013EH         LINE#         137
+  C:013EH         LINE#         138
+  C:0141H         LINE#         139
+  C:0143H         LINE#         141
+  C:0143H         LINE#         142
+  C:0143H         LINE#         143
+  C:0143H         LINE#         144
+  C:0149H         LINE#         145
+  C:0149H         LINE#         146
+  C:014DH         LINE#         147
+  C:014DH         LINE#         148
+  C:014EH         LINE#         149
+  C:0152H         LINE#         150
+  C:0158H         LINE#         151
+  C:015AH         LINE#         152
+  C:0160H         LINE#         154
+  -------         ENDPROC       IRCORDPRO
+  -------         PROC          MAIN
+  C:0161H         LINE#         161
+  C:0161H         LINE#         162
+  C:0161H         LINE#         163
+  C:0164H         LINE#         164
+  C:0167H         LINE#         166
+  C:016AH         LINE#         168
+  C:016AH         LINE#         169
+  C:016AH         LINE#         170
+  C:016DH         LINE#         171
+  C:016DH         LINE#         172
+  C:0170H         LINE#         173
+  C:0172H         LINE#         174
+  C:0172H         LINE#         176
+  C:0175H         LINE#         177
+  C:0175H         LINE#         178
+  C:0178H         LINE#         179
+  C:0178H         LINE#         180
+  -------         ENDPROC       MAIN
+  -------         ENDMOD        解码
+
+Program Size: data=58.3 xdata=0 code=409
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

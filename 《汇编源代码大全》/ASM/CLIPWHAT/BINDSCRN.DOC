@@ -1,0 +1,124 @@
+ A. Purpose
+
+    SAYWHAT! is really a handy utility to have!  The only
+    problem that I have is that I quite often forget to include
+    one or more 'SQZ" files with the distribution diskette.  Of
+    course, having a bunch of extra files in one's directory is
+    not 'neat' either.  This program will allow all of the
+    screens to be hidden within the '.EXE' file so that only
+    VIDPOP and the executable file need to be distributed.
+
+ B. What is included
+    A number of files are included on the disk.  Both source and
+    executable versions of BindScrn are included so that you may
+    improve it.  An example Clipper program is also included in
+    source and executable forms as a demo.
+
+    Please remember that since BindScrn uses SAYWHAT! screens,
+    VIDPOP must be resident to run this program.
+
+ C. Equipment Required
+    In addition to Clipper and SAYWHAT!, the Microsoft assembler
+    is required to process the output of BindScrn.  I used MASM
+    Ver. 4.0 in developing this utility; I don't know much about
+    assembly language or assemblers so I don't know just how
+    version dependent the .ASM file may be (or which other
+    assemblers may be used).
+
+    You must also have an appropriate version of SAYWHAT!  If
+    your version does not support including screens within Turbo
+    Pascal programs (as an external procedure) you will not be
+    able to use this utility.
+
+ D. Usage
+
+    1. Invoking the program
+
+       Since the program will query for both input and output
+       paths, BindScrn can be located in any convenient directory
+       that is accessible with your path statement.  The path
+       assignments will be verified before they are accepted.  An
+       invalid path will be rejected and must be reentered.  If you
+       want to use the default directory for either or both input
+       or output simply press Return in the appropriate field(s).
+       The input path may be changed at any time that a new screen
+       name is prompted for by pressing ESC; the output path is
+       fixed since all the output files must be accessible to the
+       assembler.
+
+       Similarly, the program only prompts for an output filename
+       once.  This is the name used for the assembly language file.
+       Each screen file processed will have a separate name
+       assigned automatically and the main file will call each of
+       these at assembly time.  The extension for the main file is
+       '.ASM' and the extension for the screen files is '.DAT'
+
+       Finally, you are prompted for the name of a screen file.
+       This name is verified and if the file is not found reentry
+       is required until a valid filename is entered.  When you
+       want to quit processing just press Return with an empty
+       field and the program will complete processing and exit to
+       DOS.
+
+       There are only two more fields displayed on the main screen.
+       One is a screen counter.  This is just a reminder of how
+       many screens have been processed.  The program is
+       arbitrarily limited to 25 screens.  The second item
+       displayed is a cumulative estimate of the size of the object
+       file that assembly will produce.  I have not taken too much
+       care to make it absolutely accurate since it is only
+       intended to show the effect on the resulting .EXE file's
+       size after linking.  One other possible problem could result
+       if the total size exceeded the amount of space available in
+       a segment; with the limit of 25 screens this should not
+       occur.
+
+    2. Using the output
+
+       a) Assembling the output files
+          There are two types of files output by BindScrn.  The main
+          file is 'filename.ASM'. In addition, each screen processed
+          results in a file 'Xscreenname.DAT'.  Naturally, if the
+          original screen name was eight characters long the last
+          character is lost in the new file.  For example,
+          MYSCREEN.SQX would become XMYSCREE.DAT.  These files may be
+          quite large (up to 12K).  Don't be alarmed by this, the size
+          will go back down to the original size after assembly.
+
+          Just enter 'masm filename;' at the dos prompt to create the
+          linkable screen file.  This is named 'filename.OBJ'.  After
+          compiling your Clipper application the only step remaining
+          is to link.  The link command must include both the Clipper
+          file and the assembly file.  For the Microsoft linker the
+          command 'link clipname + assemblyname;' will suffice.  For
+          PLINK86 use 'plink86 FI clipname FI assemblyname'.  The
+          semicolon at the end of the commands using the MicroSoft
+          products suppresses further questions about listings etc.
+
+    3. Clipper syntax
+
+       Within your Clipper source disregard the usual way of
+       calling SAYWHAT! screens.  This is either 'run pop
+       screenname' or call popvid with 'screenname' depending on
+       what tools were previously available to you.  Just use 'call
+       screenname' to bring up a screen.  Note that using any of
+       the many other calls to vidpop still use the usual syntax;
+       ONLY THE SCREEN CALLS ARE DIFFERENT.
+
+
+ E. Notes
+    The author of these routines is:
+         Robert F. Hicks               Please let me know of any
+         7716 Harwood Place            problems that occur in
+         Springfield, VA 22152         using them.
+         Phone (703) 569-3496
+
+    The routines are copyright (C) 1987 by Robert F. Hicks.  No
+    payment is requested or expected for individual use of this
+    package.
+
+    If you use this tool in commercial or corporate applications
+    a contribution of $20 is requested.  Please remit to the
+    address above.
+
+

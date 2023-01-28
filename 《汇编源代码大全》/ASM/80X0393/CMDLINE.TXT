@@ -1,0 +1,119 @@
+By: Dave M. Walker
+Subj: Command Line Parms
+____________________________________________________________________________
+
+Let's see... we'll start with a listing of the parameters for @PARAM
+from TRSDOS 6.x:
+
+  Parses an optional parameter string.  Its primary function is to parse
+  command parameters contained in a command line starting with a
+  parentheses.  The acceptable parameter format is:
+    PARM=X'nnnn' ... hexadecimal entry
+    PARM=nnnnn   ... decimal entry
+    PARM="string"... alphanumeric entry
+    PARM=flag    ... ON, OFF, Y, N, YES, or NO
+      Note: Entering a parameter with no equal sign or value is the same
+      as using PARM=ON.  Entering PARM= with no value is the same as
+      using PARM=OFF.
+
+  Entry Conditions:
+    A  = 17 [SVC number, akin to function in AH]
+    DE = Pointer to beginning of your parameter table
+    HL = Pointer to command line to parse [unnecessary for the PC]
+
+  Exit Conditions:
+    Success always.
+      If Z is set, either valid parameters or no parameters were found.
+      If NZ is set, a bad parameter was found.
+
+  General:
+    NZ is not returned if parameter types other than those specified are
+    entered.  The application must check the validity of the response
+    byte.
+
+  The valid parameters are contained in a user table which must be in
+  one of the following formats.  (Parameter names must consist of
+  alphanumeric characters, the first of which is a letter.)
+
+  For use with TRSDOS Version 6 [Model IV], use this format:
+
+    The parameter table starts with a single byte X'80'.  Each parameter
+    is stored in a variable length field as described below.
+
+    1) Type Byte (Type and length byte)
+       Bit 7 - If set, accept numeric value
+       Bit 6 - If set, accept flag parameter
+       Bit 5 - If set, accept "string" value
+       Bit 4 - If set, accept first character of name as abbreviation
+       Bits 3-0 - Length of parameter name
+
+    2) Actual parameter name
+
+    3) Response byte (Type and length found)
+       Bit 7 - Numeric value found
+       Bit 6 - Flag parameter found
+       Bit 5 - String parameter found
+       Bits 4-0 - Length of parameter entered.  If length is 0 and the
+           2-byte vector points to a quotation mark (X'22'), then the
+           parameter was a null string.  Otherwise, a length of 0
+           indicates that the parameter was longer than 31 characters.
+
+    4) 2-byte address vector to receive the parsed parameter values.
+
+    The 2-byte memory area pointed to by the address field of your table
+    receives the value of PARM if PARM is non-string.  If a string is
+    entered, the 2-byte memory area receives the address of the first
+    byte of "string".  The entries ON, YES, and Y return a value of
+    X'FFFF'; OFF NO, and N return X'0000'.  If a paraemter name is
+    specified on the command line and is followed by an equal sign and
+    no value, then X'0000' or NO is returned.  If a parameter name is
+    used on the command line without the equal sign, then a value of
+    X'FFFF' or ON is assumed.  For any allowed parameter that is
+    unchanged and the response byte is 0.
+
+    The parameter table is terminated with a single byte X'00'.
+
+The other parameter format that was alluded to was used in LDOS for the
+TRS-80 I/III.  Briefly, this format was:
+
+  - A 6-character parameter name, left-justified, padded with blanks.
+  - An address to store the parsed values
+    [repeat for all parms]
+  - A null to terminate the table
+
+So the table would look like this using PC-eze:
+
+VidType dw    -1                  ;Parameters & default values
+PortNum dw    1
+        db    'VIDEO '            ;Parameter name
+        dw    OFFSET VidType      ;Address to store response
+        db    'PORT  '            ;Another...
+        dw    OFFSET PortNumber
+        db    0                   ;Terminating null
+
+No distinction was made between paramater types.  The programmer was
+left to figure that one out.
+
+The first method described is a little more complicated, but easier on
+the applications programmer.  (That's the point to all this, right?)
+
+This idea probably won't catch on... (I can see the error message now:
+"This program requires TOADPARM because Microsoft can't design a decent
+Operating System.") ... but it would be an EXCELLENT idea for Rex Conn
+to implement in the next version of 4DOS.
+
+I suppose the two things that really bug me the most about MS-DOS are:
+
+1.  Lack of a task scheduler for the NMI (IRQ 8).  LDOS had system
+    routines that kept track of the system timer and issued vectors upon
+    request.  No need to save registers or fool with resetting the
+    hardware timer... just call the system with the address of your
+    routine and it's done.  It even had 2 priority levels, fast and
+    slow.
+
+2.  Lack of chained device support.  LDOS would allow you to chain your
+    driver, filter, hotkey, or whatever via system calls.  No need to
+    mess around with grabbing interrupts and such.
+
+Ah well, maybe IBM has developed a better interface with OS/2.  Somehow
+I don't really think so, though.  *sigh*

@@ -1,0 +1,60 @@
+C51 COMPILER V7.06   _ãÕó_Ä_Î                                                              09/09/2009 23:23:03 PAGE 1   
+
+
+C51 COMPILER V7.06, COMPILATION OF MODULE _ãÕó_Ä_Î
+OBJECT MODULE PLACED IN µãÕóÐÄÐÎ.OBJ
+COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE µãÕóÐÄÐÎ.c BROWSE DEBUG OBJECTEXTEND
+
+stmt level    source
+
+   1          /*-----------------------------------------------
+   2            Ãû³Æ£º8*8µãÕóÏÔÊ¾
+   3            ¹«Ë¾£ºÉÏº£ºÆëàµç×Ó¿Æ¼¼ÓÐÏÞ¹«Ë¾
+   4            ±àÐ´£ºÊ¦·Ã
+   5            ÈÕÆÚ£º2009.5
+   6            ÐÞ¸Ä£ºÎÞ
+   7            ÄÚÈÝ£ººÍÊýÂë¹ÜÏÔÊ¾·½Ê½ÏàÍ¬£¬ÕâÀïÊ¹ÓÃP0¿ÚºÍP2¿Ú
+   8          ------------------------------------------------*/
+   9          #include<reg52.h> //°üº¬Í·ÎÄ¼þ£¬Ò»°ãÇé¿ö²»ÐèÒª¸Ä¶¯£¬Í·ÎÄ¼þ°üº¬ÌØÊâ¹¦ÄÜ¼Ä´æÆ÷µÄ¶¨Òå
+  10          
+  11          unsigned char const dofly[]={0x00,0x6C,0x92,0x82,0x44,0x28,0x10,0x00};// ÐÄµÄÐÎ×´
+  12          unsigned char code seg[]={0x7f,0xbf,0xdf,0xef,0xf7,0xfb,0xfd,0xfe};   //·Ö±ð¶ÔÓ¦ÏàÓ¦µÄ¶ÎÁÁ
+  13          /*------------------------------------------------
+  14                              ÑÓÊ±³ÌÐò
+  15          ------------------------------------------------*/
+  16          void delay(unsigned int cnt)
+  17          {
+  18   1       while(--cnt);
+  19   1      }
+  20          /*------------------------------------------------
+  21                           Ö÷³ÌÐò
+  22          ------------------------------------------------*/
+  23          main()
+  24          {
+  25   1       unsigned char i;
+  26   1      
+  27   1       while(1)
+  28   1            {
+  29   2       
+  30   2             P0=dofly[i];//È¡ÏÔÊ¾Êý¾Ý
+  31   2                 P2=seg[i];  //È¡Î»Âë
+  32   2                 delay(300); //É¨Ãè¼äÏ¶ÑÓÊ±£¬Ê±¼äÌ«³¤»áÔì³ÉÉÁË¸£¬Ì«¶Ì»áÖØÓ°
+  33   2                 i++;
+  34   2                 if(8==i)    
+  35   2                   i=0;
+  36   2            }
+  37   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     45    ----
+   CONSTANT SIZE    =      8    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      8       1
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

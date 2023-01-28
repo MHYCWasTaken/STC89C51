@@ -1,0 +1,15 @@
+<html>
+<body>
+<pre>
+<h1>礦ision3 Build Log</h1>
+<h2>Project:</h2>
+G:\单片机配套盘\新 实验板配套程序\实验板配套实例程序\12864中文显示测试\12864.uv2
+Project File Date:  07/23/2009
+
+<h2>Output:</h2>
+Build target 'Target 1'
+compiling 12864.c...
+linking...
+Program Size: data=13.0 xdata=0 code=392
+creating hex file from "12864"...
+"12864" - 0 Error(s), 0 Warning(s).

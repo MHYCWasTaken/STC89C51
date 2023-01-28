@@ -1,0 +1,185 @@
+BL51 BANKED LINKER/LOCATER V5.12                                                        08/24/2011  11:40:32  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V5.12, INVOKED BY:
+C:\KEIL\C51\BIN\BL51.EXE STARTUP.obj, æÿ’Ûº¸≈Ã.obj TO æÿ’Ûº¸≈Ã RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  STARTUP.obj (?C_STARTUP)
+  æÿ’Ûº¸≈Ã.obj (__’Ûº¸≈Ã)
+  C:\KEIL\C51\LIB\C51S.LIB (?C?COPY)
+
+
+LINK MAP OF MODULE:  æÿ’Ûº¸≈Ã (?C_STARTUP)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     0005H     UNIT         _DATA_GROUP_
+            IDATA   000DH     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     00F6H     UNIT         ?C?LIB_CODE
+            CODE    00F9H     003AH     UNIT         ?PR?KEYSCAN?__’Ûº¸≈Ã
+            CODE    0133H     0031H     UNIT         ?PR?MAIN?__’Ûº¸≈Ã
+            CODE    0164H     0016H     UNIT         ?PR?_DELAY_1MS?__’Ûº¸≈Ã
+            CODE    017AH     0014H     UNIT         ?CO?__’Ûº¸≈Ã
+            CODE    018EH     000CH     UNIT         ?C_C51STARTUP
+
+
+
+OVERLAY MAP OF MODULE:   æÿ’Ûº¸≈Ã (?C_STARTUP)
+
+
+SEGMENT                           DATA_GROUP 
+  +--> CALLED SEGMENT           START    LENGTH
+-----------------------------------------------
+?C_C51STARTUP                   -----    -----
+  +--> ?PR?MAIN?__’Ûº¸≈Ã
+
+?PR?MAIN?__’Ûº¸≈Ã               0008H    0001H
+  +--> ?PR?_DELAY_1MS?__’Ûº¸≈Ã
+  +--> ?PR?KEYSCAN?__’Ûº¸≈Ã
+  +--> ?CO?__’Ûº¸≈Ã
+
+?PR?KEYSCAN?__’Ûº¸≈Ã            0009H    0004H
+  +--> ?CO?__’Ûº¸≈Ã
+
+
+
+SYMBOL TABLE OF MODULE:  æÿ’Ûº¸≈Ã (?C_STARTUP)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+BL51 BANKED LINKER/LOCATER V5.12                                                      08/24/2011  11:40:32  PAGE 2
+
+
+
+  -------         MODULE        ?C_STARTUP
+  C:018EH         SEGMENT       ?C_C51STARTUP
+  I:000DH         SEGMENT       ?STACK
+  C:0000H         PUBLIC        ?C_STARTUP
+  D:00E0H         SYMBOL        ACC
+  D:00F0H         SYMBOL        B
+  D:0083H         SYMBOL        DPH
+  D:0082H         SYMBOL        DPL
+  N:0000H         SYMBOL        IBPSTACK
+  N:0100H         SYMBOL        IBPSTACKTOP
+  N:0080H         SYMBOL        IDATALEN
+  C:0191H         SYMBOL        IDATALOOP
+  N:0000H         SYMBOL        PBPSTACK
+  N:0000H         SYMBOL        PBPSTACKTOP
+  N:0000H         SYMBOL        PDATALEN
+  N:0000H         SYMBOL        PDATASTART
+  N:0000H         SYMBOL        PPAGE
+  N:0000H         SYMBOL        PPAGEENABLE
+  D:00A0H         SYMBOL        PPAGE_SFR
+  D:0081H         SYMBOL        SP
+  C:018EH         SYMBOL        STARTUP1
+  N:0000H         SYMBOL        XBPSTACK
+  N:0000H         SYMBOL        XBPSTACKTOP
+  N:0000H         SYMBOL        XDATALEN
+  N:0000H         SYMBOL        XDATASTART
+  C:0000H         LINE#         92
+  C:018EH         LINE#         99
+  C:0190H         LINE#         100
+  C:0191H         LINE#         101
+  C:0192H         LINE#         102
+  C:0194H         LINE#         151
+  C:0197H         LINE#         155
+  -------         ENDMOD        ?C_STARTUP
+
+  -------         MODULE        __’Ûº¸≈Ã
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  C:0133H         PUBLIC        Main
+  C:017AH         PUBLIC        table
+  C:018AH         SYMBOL        _?ix1000
+  C:0164H         PUBLIC        _Delay_1ms
+  C:00F9H         PUBLIC        Keyscan
+  -------         PROC          _DELAY_1MS
+  D:0006H         SYMBOL        i
+  -------         DO            
+  D:0004H         SYMBOL        x
+  D:0005H         SYMBOL        j
+  -------         ENDDO         
+  C:0164H         LINE#         22
+  C:0164H         LINE#         23
+  C:0164H         LINE#         25
+  C:016DH         LINE#         26
+  C:0179H         LINE#         27
+  -------         ENDPROC       _DELAY_1MS
+BL51 BANKED LINKER/LOCATER V5.12                                                      08/24/2011  11:40:32  PAGE 3
+
+
+  -------         PROC          KEYSCAN
+  -------         DO            
+  D:0005H         SYMBOL        i
+  D:0007H         SYMBOL        j
+  D:0006H         SYMBOL        temp
+  D:0009H         SYMBOL        Buffer
+  -------         ENDDO         
+  C:00F9H         LINE#         36
+  C:00F9H         LINE#         37
+  C:00F9H         LINE#         38
+  C:010CH         LINE#         39
+  C:010EH         LINE#         40
+  C:010EH         LINE#         41
+  C:0115H         LINE#         42
+  C:0117H         LINE#         43
+  C:0119H         LINE#         44
+  C:0119H         LINE#         45
+  C:011EH         LINE#         46
+  C:011EH         LINE#         47
+  C:0126H         LINE#         48
+  C:0126H         LINE#         49
+  C:012AH         LINE#         50
+  C:012EH         LINE#         51
+  C:0132H         LINE#         52
+  -------         ENDPROC       KEYSCAN
+  -------         PROC          MAIN
+  -------         DO            
+  D:0008H         SYMBOL        Key_Value
+  -------         ENDDO         
+  C:0133H         LINE#         60
+  C:0133H         LINE#         61
+  C:0133H         LINE#         63
+  C:0133H         LINE#         64
+  C:0133H         LINE#         65
+  C:0136H         LINE#         66
+  C:013CH         LINE#         67
+  C:013CH         LINE#         68
+  C:0143H         LINE#         69
+  C:0149H         LINE#         70
+  C:0149H         LINE#         71
+  C:014CH         LINE#         72
+  C:0152H         LINE#         73
+  C:0152H         LINE#         74
+  C:0157H         LINE#         75
+  C:0157H         LINE#         76
+  C:0157H         LINE#         77
+  C:0157H         LINE#         78
+  C:015FH         LINE#         79
+  C:0162H         LINE#         80
+  -------         ENDPROC       MAIN
+  -------         ENDMOD        __’Ûº¸≈Ã
+
+  -------         MODULE        ?C?COPY
+  C:00D3H         PUBLIC        ?C?COPY
+  -------         ENDMOD        ?C?COPY
+
+Program Size: data=14.0 xdata=0 code=410
+BL51 BANKED LINKER/LOCATER V5.12                                                      08/24/2011  11:40:32  PAGE 4
+
+
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

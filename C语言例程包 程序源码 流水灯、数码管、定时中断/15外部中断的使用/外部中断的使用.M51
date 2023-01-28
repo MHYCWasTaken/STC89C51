@@ -1,0 +1,204 @@
+BL51 BANKED LINKER/LOCATER V5.12                                                        08/23/2011  12:23:14  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V5.12, INVOKED BY:
+C:\KEIL\C51\BIN\BL51.EXE STARTUP.obj, 外部中断的使用.obj TO 外部中断的使用 RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  STARTUP.obj (?C_STARTUP)
+  外部中断的使用.obj (外部中断的使用)
+  C:\KEIL\C51\LIB\C51S.LIB (?C_INIT)
+
+
+LINK MAP OF MODULE:  外部中断的使用 (?C_STARTUP)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            REG     0008H     0008H     ABSOLUTE     "REG BANK 1"
+            DATA    0010H     0001H     UNIT         ?DT?外部中断的使用
+            IDATA   0011H     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     0003H     ABSOLUTE     
+            CODE    0006H     000BH     UNIT         ?PR?OUTSIDE_INIT?外部中断的使用
+                    0011H     0002H                  *** GAP ***
+            CODE    0013H     0003H     ABSOLUTE     
+            CODE    0016H     008CH     UNIT         ?C_C51STARTUP
+            CODE    00A2H     0027H     UNIT         ?PR?_DELAY?外部中断的使用
+            CODE    00C9H     0018H     UNIT         ?PR?OUTSIDE_INT1?外部中断的使用
+            CODE    00E1H     0018H     UNIT         ?PR?OUTSIDE_INT2?外部中断的使用
+            CODE    00F9H     0016H     UNIT         ?PR?MAIN?外部中断的使用
+            CODE    010FH     000AH     UNIT         ?CO?外部中断的使用
+            CODE    0119H     0004H     UNIT         ?C_INITSEG
+
+
+
+OVERLAY MAP OF MODULE:   外部中断的使用 (?C_STARTUP)
+
+
+SEGMENT
+  +--> CALLED SEGMENT
+---------------------
+?C_C51STARTUP
+  +--> ?PR?MAIN?外部中断的使用
+  +--> ?C_INITSEG
+
+?PR?MAIN?外部中断的使用
+  +--> ?PR?OUTSIDE_INIT?外部中断的使用
+  +--> ?CO?外部中断的使用
+  +--> ?PR?_DELAY?外部中断的使用
+
+*** NEW ROOT ***************************************************
+
+BL51 BANKED LINKER/LOCATER V5.12                                                      08/23/2011  12:23:14  PAGE 2
+
+
+?PR?OUTSIDE_INT1?外部中断的使用
+  +--> ?PR?_DELAY?外部中断的使用
+
+*** NEW ROOT ***************************************************
+
+?PR?OUTSIDE_INT2?外部中断的使用
+  +--> ?PR?_DELAY?外部中断的使用
+
+
+
+SYMBOL TABLE OF MODULE:  外部中断的使用 (?C_STARTUP)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        ?C_STARTUP
+  C:0016H         SEGMENT       ?C_C51STARTUP
+  I:0011H         SEGMENT       ?STACK
+  C:0000H         PUBLIC        ?C_STARTUP
+  D:00E0H         SYMBOL        ACC
+  D:00F0H         SYMBOL        B
+  D:0083H         SYMBOL        DPH
+  D:0082H         SYMBOL        DPL
+  N:0000H         SYMBOL        IBPSTACK
+  N:0100H         SYMBOL        IBPSTACKTOP
+  N:0080H         SYMBOL        IDATALEN
+  C:0019H         SYMBOL        IDATALOOP
+  N:0000H         SYMBOL        PBPSTACK
+  N:0000H         SYMBOL        PBPSTACKTOP
+  N:0000H         SYMBOL        PDATALEN
+  N:0000H         SYMBOL        PDATASTART
+  N:0000H         SYMBOL        PPAGE
+  N:0000H         SYMBOL        PPAGEENABLE
+  D:00A0H         SYMBOL        PPAGE_SFR
+  D:0081H         SYMBOL        SP
+  C:0016H         SYMBOL        STARTUP1
+  N:0000H         SYMBOL        XBPSTACK
+  N:0000H         SYMBOL        XBPSTACKTOP
+  N:0000H         SYMBOL        XDATALEN
+  N:0000H         SYMBOL        XDATASTART
+  C:0000H         LINE#         92
+  C:0016H         LINE#         99
+  C:0018H         LINE#         100
+  C:0019H         LINE#         101
+  C:001AH         LINE#         102
+  C:001CH         LINE#         151
+  C:001FH         LINE#         155
+  -------         ENDMOD        ?C_STARTUP
+
+  -------         MODULE        外部中断的使用
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+  D:0090H         PUBLIC        P1
+  D:00B0H         PUBLIC        P3
+  B:00A8H.7       PUBLIC        EA
+  C:00F9H         PUBLIC        Main
+  C:010FH         PUBLIC        table
+BL51 BANKED LINKER/LOCATER V5.12                                                      08/23/2011  12:23:14  PAGE 3
+
+
+  D:0010H         PUBLIC        Count
+  D:00A8H         PUBLIC        IE
+  D:00B8H         PUBLIC        IP
+  B:00B0H.2       PUBLIC        KEY1
+  B:00B0H.3       PUBLIC        KEY2
+  C:00C9H         PUBLIC        Outside_Int1
+  C:00E1H         PUBLIC        Outside_Int2
+  D:0098H         PUBLIC        SCON
+  D:0088H         PUBLIC        TCON
+  B:00A8H.0       PUBLIC        EX0
+  B:0088H.0       PUBLIC        IT0
+  B:00A8H.2       PUBLIC        EX1
+  B:0088H.2       PUBLIC        IT1
+  C:00A9H         PUBLIC        _Delay
+  C:0006H         PUBLIC        Outside_Init
+  D:00C8H         PUBLIC        T2CON
+  D:00D0H         PUBLIC        PSW
+  C:00A5H         SYMBOL        L?0019
+  -------         PROC          L?0018
+  -------         ENDPROC       L?0018
+  C:00A5H         SYMBOL        L?0019
+  -------         PROC          _DELAY
+  D:0006H         SYMBOL        del
+  -------         DO            
+  D:0004H         SYMBOL        i
+  D:0002H         SYMBOL        j
+  -------         ENDDO         
+  C:00A9H         LINE#         24
+  C:00A9H         LINE#         25
+  C:00A9H         LINE#         27
+  C:00B3H         LINE#         28
+  C:00C8H         LINE#         30
+  -------         ENDPROC       _DELAY
+  -------         PROC          OUTSIDE_INIT
+  C:0006H         LINE#         38
+  C:0006H         LINE#         39
+  C:0006H         LINE#         40
+  C:0008H         LINE#         41
+  C:000AH         LINE#         43
+  C:000CH         LINE#         44
+  C:000EH         LINE#         46
+  C:0010H         LINE#         47
+  -------         ENDPROC       OUTSIDE_INIT
+  -------         PROC          OUTSIDE_INT1
+  C:00C9H         LINE#         55
+  C:00CDH         LINE#         57
+  C:00D0H         LINE#         58
+  C:00D3H         LINE#         59
+  C:00D3H         LINE#         60
+  C:00D5H         LINE#         61
+  C:00D5H         LINE#         62
+  C:00DCH         LINE#         63
+  -------         ENDPROC       OUTSIDE_INT1
+  -------         PROC          OUTSIDE_INT2
+  C:00E1H         LINE#         65
+  C:00E5H         LINE#         67
+  C:00E8H         LINE#         68
+BL51 BANKED LINKER/LOCATER V5.12                                                      08/23/2011  12:23:14  PAGE 4
+
+
+  C:00EBH         LINE#         69
+  C:00EBH         LINE#         70
+  C:00EDH         LINE#         71
+  C:00EDH         LINE#         72
+  C:00F4H         LINE#         73
+  -------         ENDPROC       OUTSIDE_INT2
+  -------         PROC          MAIN
+  C:00F9H         LINE#         80
+  C:00F9H         LINE#         81
+  C:00F9H         LINE#         82
+  C:00FCH         LINE#         83
+  C:00FCH         LINE#         84
+  C:00FCH         LINE#         85
+  C:010AH         LINE#         86
+  C:010DH         LINE#         87
+  -------         ENDPROC       MAIN
+  -------         ENDMOD        外部中断的使用
+
+Program Size: data=18.0 xdata=0 code=283
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

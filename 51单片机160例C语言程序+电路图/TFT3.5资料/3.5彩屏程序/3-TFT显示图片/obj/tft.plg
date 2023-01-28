@@ -1,0 +1,25 @@
+<html>
+<body>
+<pre>
+<h1>礦ision2 Build Log</h1>
+<h2>Project:</h2>
+C:\Users\shifang\Desktop\TFT3.5 ili9327 资料\3.5测试程序\3-TFT显示图片\tft.uv2
+Project File Date:  05/14/2013
+
+<h2>Output:</h2>
+Build target 'Target 1'
+compiling tft.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_SHOW_RGB?TFT
+Program Size: data=66.0 xdata=0 code=43855
+creating hex file from ".\obj\tft"...
+".\obj\tft" - 0 Error(s), 1 Warning(s).
+Build target 'Target 1'
+compiling tft.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_SHOW_RGB?TFT
+Program Size: data=66.0 xdata=0 code=43855
+creating hex file from ".\obj\tft"...
+".\obj\tft" - 0 Error(s), 1 Warning(s).

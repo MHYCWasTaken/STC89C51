@@ -1,0 +1,991 @@
+C51 COMPILER V8.15   DS1302                                                                07/08/2008 10:36:00 PAGE 1   
+
+
+C51 COMPILER V8.15, COMPILATION OF MODULE DS1302
+OBJECT MODULE PLACED IN DS1302.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE DS1302.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include <REG51.H>
+   2          #include <intrins.h>
+   3          #define uint unsigned int
+   4          #define uchar unsigned char
+   5          sbit  DS1302_CLK = P2^4;              //实时时钟时钟线引脚 
+   6          sbit  DS1302_IO  = P2^5;              //实时时钟数据线引脚 
+   7          sbit  DS1302_RST = P2^6;              //实时时钟复位线引脚
+   8          sbit  DQ = P2^7;                      //温度传送数据IO口
+   9          sbit  ACC0 = ACC^0;
+  10          sbit  ACC7 = ACC^7;
+  11          uchar hide_sec,hide_min,hide_hour,hide_day,hide_week,hide_month,hide_year;  //秒,分,时到日,月,年位闪的计数
+  12          sbit Set = P1^0;       //模式切换键 对应实验板SW19
+  13          sbit Up  = P1^1;        //加法按钮 对应实验板SW20
+  14          sbit Down= P1^2;      //减法按钮  对应实验板SW21
+  15          sbit out = P1^3;       //立刻跳出调整模式按钮 对应实验板SW22
+  16          uchar done,count,temp,up_flag,down_flag;
+  17          uchar temp_value,temp1_value;      //temp_value温度值正数部分 temp1_value温度值小数部分 
+  18          uchar TempBuffer[8],week_value[3];
+  19          void show_time();   //液晶显示程序
+  20          //****************************************
+  21          //12864液晶显示部分子程序模块
+  22          //****************************************
+  23          sbit rs         = P3^0;
+  24          sbit rw         = P3^1;
+  25          sbit e          = P3^2;
+  26          #define lcddata P0
+  27          sbit busy=P0^7;   //lcd busy bit
+  28          void wr_d_lcd(uchar content);
+  29          void wr_i_lcd(uchar content);
+  30          void clrram_lcd (void);
+  31          void init_lcd(void);
+  32          void busy_lcd(void);
+  33          void rev_row_lcd(uchar row);
+  34          void rev_co_lcd(uchar row,uchar col,uchar mode);
+  35          void clr_lcd(void);
+  36          void wr_co_lcd(uchar row,uchar col,uchar lcddata1,uchar lcddtta2);
+  37          void wr_row_lcd(uchar row,char *p);
+  38          //**********************************
+  39          //液晶初始化
+  40          //**********************************
+  41          void init_lcd(void)
+  42          {
+  43   1              wr_i_lcd(0x06);  /*光标的移动方向*/
+  44   1              wr_i_lcd(0x0c);  /*开显示，关游标*/
+  45   1      }
+  46          //***********************************
+  47          //填充液晶DDRAM全为空格
+  48          //**********************************
+  49          void clrram_lcd (void)
+  50          {
+  51   1              wr_i_lcd(0x30);
+  52   1              wr_i_lcd(0x01);
+  53   1      }
+  54          //***********************************
+  55          //对液晶写数据
+C51 COMPILER V8.15   DS1302                                                                07/08/2008 10:36:00 PAGE 2   
+
+  56          //content为要写入的数据
+  57          //***********************************
+  58          void wr_d_lcd(uchar content)
+  59          {
+  60   1              busy_lcd();
+  61   1              rs=1;
+  62   1          rw=0;
+  63   1              lcddata=content;
+  64   1              e=1;
+  65   1              ;
+  66   1              e=0;
+  67   1      }
+  68          //********************************
+  69          //对液晶写指令
+  70          //content为要写入的指令代码
+  71          //*****************************
+  72          void wr_i_lcd(uchar content)
+  73          {
+  74   1              busy_lcd();
+  75   1              rs=0;
+  76   1          rw=0;
+  77   1              lcddata=content;
+  78   1              e=1;
+  79   1              ;
+  80   1              e=0;
+  81   1      }
+  82          //********************************
+  83          //液晶检测忙状态
+  84          //在写入之前必须执行
+  85          //********************************
+  86          void busy_lcd(void)
+  87          {
+  88   1        lcddata=0xff;
+  89   1        rs=0;
+  90   1        rw=1;
+  91   1        e =1;
+  92   1        while(busy==1);
+  93   1        e =0;
+  94   1      }
+  95          //********************************
+  96          //指定要显示字符的坐标
+  97          //*******************************
+  98          void gotoxy(unsigned char y, unsigned char x)
+  99          {
+ 100   1              if(y==1)
+ 101   1                      wr_i_lcd(0x80|x);
+ 102   1              if(y==2)
+ 103   1              wr_i_lcd(0x90|x);
+ 104   1              if(y==3)
+ 105   1                      wr_i_lcd((0x80|x)+8);
+ 106   1              if(y==4)
+ 107   1              wr_i_lcd((0x90|x)+8);
+ 108   1      }
+ 109          //**********************************
+ 110          //液晶显示字符串程序
+ 111          //**********************************
+ 112          void print(uchar *str)
+ 113          {
+ 114   1              while(*str!='\0')
+ 115   1              {
+ 116   2                      wr_d_lcd(*str);
+ 117   2                      str++;
+C51 COMPILER V8.15   DS1302                                                                07/08/2008 10:36:00 PAGE 3   
+
+ 118   2              }
+ 119   1      }
+ 120          
+ 121          
+ 122          
+ 123          
+ 124          
+ 125          
+ 126          //***********************************
+ 127          //DS1302时钟部分子程序模块
+ 128          //***********************************
+ 129          typedef struct __SYSTEMTIME__
+ 130          {
+ 131                  uchar Second;
+ 132                  uchar Minute;
+ 133                  uchar Hour;
+ 134                  uchar Week;
+ 135                  uchar Day;
+ 136                  uchar Month;
+ 137                  uchar  Year;
+ 138                  uchar DateString[11];
+ 139                  uchar TimeString[9];
+ 140          }SYSTEMTIME;    //定义的时间类型
+ 141          SYSTEMTIME CurrentTime;
+ 142          
+ 143          
+ 144          #define AM(X)   X
+ 145          #define PM(X)   (X+12)                    // 转成24小时制
+ 146          #define DS1302_SECOND   0x80          //时钟芯片的寄存器位置,存放时间
+ 147          #define DS1302_MINUTE   0x82
+ 148          #define DS1302_HOUR             0x84 
+ 149          #define DS1302_WEEK             0x8A
+ 150          #define DS1302_DAY              0x86
+ 151          #define DS1302_MONTH    0x88
+ 152          #define DS1302_YEAR             0x8C 
+ 153          //**********************************
+ 154          //实时时钟写入一字节(内部函数)
+ 155          //**********************************
+ 156          void DS1302InputByte(uchar d)   
+ 157          { 
+ 158   1          uchar i;
+ 159   1          ACC = d;
+ 160   1          for(i=8; i>0; i--)
+ 161   1          {
+ 162   2              DS1302_IO = ACC0;               //相当于汇编中的 RRC
+ 163   2              DS1302_CLK = 1;
+ 164   2              DS1302_CLK = 0;
+ 165   2              ACC = ACC >> 1; 
+ 166   2          } 
+ 167   1      }
+ 168          //*************************************
+ 169          //实时时钟读取一字节(内部函数)
+ 170          //*************************************
+ 171          uchar DS1302OutputByte(void)    
+ 172          { 
+ 173   1          uchar i;
+ 174   1          for(i=8; i>0; i--)
+ 175   1          {
+ 176   2              ACC = ACC >>1;                          //相当于汇编中的 RRC 
+ 177   2              ACC7 = DS1302_IO;
+ 178   2              DS1302_CLK = 1;
+ 179   2              DS1302_CLK = 0;
+C51 COMPILER V8.15   DS1302                                                                07/08/2008 10:36:00 PAGE 4   
+
+ 180   2          } 
+ 181   1          return(ACC); 
+ 182   1      }
+ 183          //**************************************
+ 184          //ucAddr: DS1302地址, ucData: 要写的数据
+ 185          //**************************************
+ 186          void Write1302(uchar ucAddr, uchar ucDa)        
+ 187          {
+ 188   1          DS1302_RST = 0;
+ 189   1          DS1302_CLK = 0;
+ 190   1          DS1302_RST = 1;
+ 191   1          DS1302InputByte(ucAddr);            // 地址，命令 
+ 192   1          DS1302InputByte(ucDa);              // 写1Byte数据
+ 193   1          DS1302_CLK = 1;
+ 194   1          DS1302_RST = 0;
+ 195   1      } 
+ 196          //**************************************
+ 197          //读取DS1302某地址的数据
+ 198          //**************************************
+ 199          uchar Read1302(uchar ucAddr)    
+ 200          {
+ 201   1          uchar ucData;
+ 202   1          DS1302_RST = 0;
+ 203   1          DS1302_CLK = 0;
+ 204   1          DS1302_RST = 1;
+ 205   1          DS1302InputByte(ucAddr|0x01);        // 地址，命令 
+ 206   1          ucData = DS1302OutputByte();         // 读1Byte数据
+ 207   1          DS1302_CLK = 1;
+ 208   1          DS1302_RST = 0;
+ 209   1          return(ucData);
+ 210   1      }
+ 211          
+ 212          //******************************************
+ 213          //获取时钟芯片的时钟数据到自定义的结构型数组
+ 214          //******************************************
+ 215          void DS1302_GetTime(SYSTEMTIME *Time)  
+ 216          {
+ 217   1              uchar ReadValue;
+ 218   1              ReadValue = Read1302(DS1302_SECOND);
+ 219   1              Time->Second = ((ReadValue&0x70)>>4)*10 + (ReadValue&0x0F);//转换为相应的10进制数
+ 220   1              ReadValue = Read1302(DS1302_MINUTE);
+ 221   1              Time->Minute = ((ReadValue&0x70)>>4)*10 + (ReadValue&0x0F);
+ 222   1              ReadValue = Read1302(DS1302_HOUR);
+ 223   1              Time->Hour = ((ReadValue&0x70)>>4)*10 + (ReadValue&0x0F);
+ 224   1              ReadValue = Read1302(DS1302_DAY);
+ 225   1              Time->Day = ((ReadValue&0x70)>>4)*10 + (ReadValue&0x0F);        
+ 226   1              ReadValue = Read1302(DS1302_WEEK);
+ 227   1              Time->Week = ((ReadValue&0x10)>>4)*10 + (ReadValue&0x0F);
+ 228   1              ReadValue = Read1302(DS1302_MONTH);
+ 229   1              Time->Month = ((ReadValue&0x70)>>4)*10 + (ReadValue&0x0F);
+ 230   1              ReadValue = Read1302(DS1302_YEAR);
+ 231   1              Time->Year = ((ReadValue&0xf0)>>4)*10 + (ReadValue&0x0F);       
+ 232   1      }
+ 233          //******************************************
+ 234          //将时间年,月,日,星期数据转换成液
+ 235          //晶显示字符串,放到数组里DateString[]
+ 236          //******************************************
+ 237          void DateToStr(SYSTEMTIME *Time)    
+ 238          {   
+ 239   1         uchar tab[ ]={0XD2,0XBB,0XB6,0XFE,0XC8,0XFD,0XCB,0XC4,0XCE,0XE5,0XC1,0XF9,0XC8,0XD5};
+ 240   1         if(hide_year<2)          //这里的if,else语句都是判断位闪烁,<2显示数据,>2就不显示,输出字符串为 2007/07/2
+             -2
+C51 COMPILER V8.15   DS1302                                                                07/08/2008 10:36:00 PAGE 5   
+
+ 241   1          {                               
+ 242   2                Time->DateString[0] = '2';
+ 243   2                Time->DateString[1] = '0';     
+ 244   2                Time->DateString[2] = Time->Year/10 + '0';
+ 245   2                Time->DateString[3] = Time->Year%10 + '0';
+ 246   2              }
+ 247   1                else
+ 248   1                  { 
+ 249   2                    Time->DateString[0] = ' ';
+ 250   2                    Time->DateString[1] = ' ';                 
+ 251   2                    Time->DateString[2] = ' ';
+ 252   2                    Time->DateString[3] = ' ';
+ 253   2                      }
+ 254   1          Time->DateString[4]='-';
+ 255   1              if(hide_month<2)
+ 256   1              {
+ 257   2                Time->DateString[5] = Time->Month/10 + '0';
+ 258   2                Time->DateString[6] = Time->Month%10 + '0';
+ 259   2              }
+ 260   1                else
+ 261   1                {
+ 262   2                  Time->DateString[5] = ' ';
+ 263   2                  Time->DateString[6] = ' ';
+ 264   2                }
+ 265   1          Time->DateString[7]='-';
+ 266   1              if(hide_day<2)
+ 267   1              {
+ 268   2                Time->DateString[8] = Time->Day/10 + '0';
+ 269   2                Time->DateString[9] = Time->Day%10 + '0';
+ 270   2              }
+ 271   1                else
+ 272   1                {
+ 273   2                  Time->DateString[8] = ' ';
+ 274   2                  Time->DateString[9] = ' ';      
+ 275   2                }
+ 276   1              if(hide_week<2)
+ 277   1              {
+ 278   2                week_value[0] =tab[2*(Time->Week%10)-2];  //星期的数据另外放到 week_value[]数组里,跟年,月,日的分开存放,
+             -因为等一下要在最后显示
+ 279   2                week_value[1] =tab[2*(Time->Week%10)-1];
+ 280   2              }
+ 281   1                else
+ 282   1                {
+ 283   2                  week_value[0] = ' ';
+ 284   2                      week_value[1]=' ';
+ 285   2                }
+ 286   1                week_value[2] = '\0';
+ 287   1      
+ 288   1              Time->DateString[10] = '\0'; //字符串末尾加 '\0' ,判断结束字符
+ 289   1      }
+ 290          //******************************************
+ 291          //将时,分,秒数据转换成液晶
+ 292          //显示字符放到数组 TimeString[]
+ 293          //*****************************************
+ 294          void TimeToStr(SYSTEMTIME *Time) 
+ 295          {   if(hide_hour<2)
+ 296   1          {
+ 297   2                Time->TimeString[0] = Time->Hour/10 + '0';
+ 298   2                Time->TimeString[1] = Time->Hour%10 + '0';
+ 299   2              }
+ 300   1                else
+ 301   1                  {
+C51 COMPILER V8.15   DS1302                                                                07/08/2008 10:36:00 PAGE 6   
+
+ 302   2                    Time->TimeString[0] = ' ';
+ 303   2                    Time->TimeString[1] = ' ';
+ 304   2                      }
+ 305   1              Time->TimeString[2] = ':';
+ 306   1          if(hide_min<2)
+ 307   1              {
+ 308   2                Time->TimeString[3] = Time->Minute/10 + '0';
+ 309   2                Time->TimeString[4] = Time->Minute%10 + '0';
+ 310   2              }
+ 311   1                else
+ 312   1                  {
+ 313   2                    Time->TimeString[3] = ' ';
+ 314   2                    Time->TimeString[4] = ' ';
+ 315   2                  }
+ 316   1              Time->TimeString[5] = ':';
+ 317   1          if(hide_sec<2)
+ 318   1          {
+ 319   2                Time->TimeString[6] = Time->Second/10 + '0';
+ 320   2                Time->TimeString[7] = Time->Second%10 + '0';
+ 321   2          }
+ 322   1            else
+ 323   1             {
+ 324   2               Time->TimeString[6] = ' ';
+ 325   2                   Time->TimeString[7] = ' ';
+ 326   2             }
+ 327   1              Time->TimeString[8] = '\0';
+ 328   1      }
+ 329          
+ 330          //******************************
+ 331          //时钟芯片初始化
+ 332          //******************************
+ 333          void Initial_DS1302(void)   
+ 334          {   
+ 335   1              uchar Second=Read1302(DS1302_SECOND);
+ 336   1              if(Second&0x80)       //判断时钟芯片是否关闭      
+ 337   1          {
+ 338   2              Write1302(0x8e,0x00); //写入允许
+ 339   2              Write1302(0x8c,0x07); //以下写入初始化时间 日期:07/07/25.星期: 3. 时间: 23:59:55
+ 340   2              Write1302(0x88,0x07);
+ 341   2              Write1302(0x86,0x25);
+ 342   2              Write1302(0x8a,0x07);
+ 343   2              Write1302(0x84,0x23);
+ 344   2              Write1302(0x82,0x59);
+ 345   2              Write1302(0x80,0x55);
+ 346   2              Write1302(0x8e,0x80); //禁止写入
+ 347   2              }
+ 348   1      
+ 349   1      }
+ 350          
+ 351          //****************************************
+ 352          //ds18b20子程序模块
+ 353          //****************************************
+ 354          
+ 355          
+ 356          /***********ds18b20子程序*************************/
+ 357          
+ 358          /***********ds18b20延迟子函数（晶振12MHz ）*******/ 
+ 359          
+ 360          void delay_18B20(unsigned int i)
+ 361          {
+ 362   1              while(i--);
+ 363   1      }
+C51 COMPILER V8.15   DS1302                                                                07/08/2008 10:36:00 PAGE 7   
+
+ 364          
+ 365          /**********ds18b20初始化函数**********************/
+ 366          
+ 367          void Init_DS18B20(void) 
+ 368          {
+ 369   1               unsigned char x=0;
+ 370   1               DQ = 1;          //DQ复位
+ 371   1               delay_18B20(8);  //稍做延时
+ 372   1               DQ = 0;          //单片机将DQ拉低
+ 373   1               delay_18B20(40); //精确延时 大于 480us
+ 374   1               DQ = 1;          //拉高总线
+ 375   1               delay_18B20(7);
+ 376   1               x=DQ;            //稍做延时后 如果x=0则初始化成功 x=1则初始化失败
+ 377   1               delay_18B20(10);
+ 378   1      }
+ 379          
+ 380          /***********ds18b20读一个字节**************/  
+ 381          
+ 382          uchar ReadOneChar(void)
+ 383          {
+ 384   1              uchar i=0;
+ 385   1              uchar dat = 0;
+ 386   1              for (i=8;i>0;i--)
+ 387   1               {
+ 388   2                        DQ = 0; // 给脉冲信号
+ 389   2                        dat>>=1;
+ 390   2                        DQ = 1; // 给脉冲信号
+ 391   2                        if(DQ)
+ 392   2                        dat|=0x80;
+ 393   2                        delay_18B20(4);
+ 394   2               }
+ 395   1              return(dat);
+ 396   1      }
+ 397          
+ 398          /*************ds18b20写一个字节****************/  
+ 399          
+ 400          void WriteOneChar(uchar dat)
+ 401          {
+ 402   1              uchar i=0;
+ 403   1              for (i=8; i>0; i--)
+ 404   1              {
+ 405   2                      DQ = 0;
+ 406   2                      DQ = dat&0x01;
+ 407   2              delay_18B20(5);
+ 408   2                      DQ = 1;
+ 409   2              dat>>=1;
+ 410   2       }
+ 411   1      }
+ 412          
+ 413          /**************读取ds18b20当前温度************/
+ 414          
+ 415          void ReadTemp(void)
+ 416          {
+ 417   1              uchar a=0;
+ 418   1              uchar b=0;
+ 419   1              uchar t;
+ 420   1      
+ 421   1              Init_DS18B20();
+ 422   1              WriteOneChar(0xCC);     // 跳过读序号列号的操作
+ 423   1              WriteOneChar(0x44);     // 启动温度转换
+ 424   1      
+ 425   1              delay_18B20(100);       // this message is wery important
+C51 COMPILER V8.15   DS1302                                                                07/08/2008 10:36:00 PAGE 8   
+
+ 426   1      
+ 427   1              Init_DS18B20();
+ 428   1              WriteOneChar(0xCC);     //跳过读序号列号的操作
+ 429   1              WriteOneChar(0xBE);     //读取温度寄存器等（共可读9个寄存器） 前两个就是温度
+ 430   1      
+ 431   1              delay_18B20(50);
+ 432   1      
+ 433   1              a=ReadOneChar();        //读取温度值低位
+ 434   1              b=ReadOneChar();                //读取温度值高位
+ 435   1              t=b&0xf8;
+ 436   1              if(t)
+ 437   1              {
+ 438   2                TempBuffer[0]=':';
+ 439   2                TempBuffer[1]='-';
+ 440   2                temp_value=b<<4;
+ 441   2                temp_value+=(a&0xf0)>>4;  
+ 442   2                temp_value=~temp_value+1;
+ 443   2                temp1_value=~a&0x0f;
+ 444   2              }
+ 445   1              else
+ 446   1              {  
+ 447   2              temp_value=b<<4;
+ 448   2              temp_value+=(a&0xf0)>>4; 
+ 449   2                       temp1_value=a&0x0f;
+ 450   2                  TempBuffer[0]=':';
+ 451   2                  TempBuffer[1]=temp_value/100+'0';  //百位
+ 452   2             if(TempBuffer[1]=='1')
+ 453   2             {
+ 454   3                  TempBuffer[1]='1';
+ 455   3             }
+ 456   2             else
+ 457   2             {
+ 458   3                 TempBuffer[1]=' ';
+ 459   3             } 
+ 460   2          }
+ 461   1      }
+ 462          void temp_to_str()   //温度数据转换成液晶字符显示
+ 463          {               
+ 464   1      
+ 465   1        TempBuffer[2]=temp_value%100/10+'0';  //十位
+ 466   1        TempBuffer[3]=temp_value%10+'0';  //个位
+ 467   1        TempBuffer[4]='.';
+ 468   1        TempBuffer[5]=temp1_value*625/1000%10+'0';
+ 469   1        TempBuffer[6]=temp1_value*625/100%10+'0';
+ 470   1        TempBuffer[7]=temp1_value*625/10%10+'0';
+ 471   1        //TempBuffer[8]=temp1_value*625%10+'0';
+ 472   1        TempBuffer[8]='\0';
+ 473   1      }
+ 474          //**********************************************
+ 475          //延时子程序模块
+ 476          //**********************************************
+ 477          void mdelay(uint delay)
+ 478          {       uint i;
+ 479   1              for(;delay>0;delay--)
+ 480   1                      {for(i=0;i<80;i++) //1ms延时.
+ 481   2                      {;}
+ 482   2                      }
+ 483   1      }
+ 484          
+ 485          //************************************************
+ 486          //按键设置程序模块
+ 487          //************************************************
+C51 COMPILER V8.15   DS1302                                                                07/08/2008 10:36:00 PAGE 9   
+
+ 488          
+ 489          //************************************
+ 490          //跳出调整模式,返回默认显示
+ 491          //************************************
+ 492          void outkey()                    
+ 493          { uchar Second;
+ 494   1        if(out==0)         
+ 495   1        { mdelay(5); 
+ 496   2              count=0;
+ 497   2              hide_sec=0,hide_min=0,hide_hour=0,hide_day=0,hide_week=0,hide_month=0,hide_year=0;
+ 498   2              Second=Read1302(DS1302_SECOND);
+ 499   2          Write1302(0x8e,0x00); //写入允许
+ 500   2              Write1302(0x80,Second&0x7f);
+ 501   2              Write1302(0x8E,0x80);          //禁止写入
+ 502   2              done=0;           
+ 503   2        }
+ 504   1      }
+ 505          //////////////////////////////////////////////////////////////////////////////////////////////////////////
+             -//
+ 506          //*************************
+ 507          //升序按键
+ 508          //*************************
+ 509          void Upkey()
+ 510          {          
+ 511   1                      Up=1;
+ 512   1                          if(Up==0)
+ 513   1                                {
+ 514   2                                         mdelay(5);
+ 515   2                                             switch(count)
+ 516   2                                                {case 1:
+ 517   3                                        temp=Read1302(DS1302_SECOND);  //读取秒数
+ 518   3                                                                        temp=((temp&0x70)>>4)*10 + (temp&0x0F);
+ 519   3                                                                        temp=temp+1;  //秒数加1
+ 520   3                                        up_flag=1;    //数据调整后更新标志
+ 521   3                                                                        if((temp)>59)   //超过59秒,清零
+ 522   3                                        temp=0;       
+ 523   3                                                                        temp=temp/10*16+temp%10;
+ 524   3                                                                        break;
+ 525   3                                                 case 2:
+ 526   3                                        temp=Read1302(DS1302_MINUTE);  //读取分数
+ 527   3                                                                        temp=((temp&0x70)>>4)*10 + (temp&0x0F);
+ 528   3                                                                        temp=temp+1;  //分数加1
+ 529   3                                        up_flag=1;
+ 530   3                                                                        if(temp>59)          //超过59分,清零
+ 531   3                                                                        temp=0;
+ 532   3                                                                        temp=temp/10*16+temp%10;
+ 533   3                                                                        break;
+ 534   3                                                 case 3:
+ 535   3                                        temp=Read1302(DS1302_HOUR);  //读取小时数
+ 536   3                                                                        temp=((temp&0x70)>>4)*10 + (temp&0x0F);
+ 537   3                                                                        temp=temp+1;  //小时数加1
+ 538   3                                        up_flag=1;
+ 539   3                                                                        if(temp>23)   //超过23小时,清零
+ 540   3                                                                        temp=0;
+ 541   3                                                                        temp=temp/10*16+temp%10;
+ 542   3                                                                        break;
+ 543   3                                                 case 4:
+ 544   3                                        temp=Read1302(DS1302_WEEK);  //读取星期数
+ 545   3                                                                        temp=((temp&0x70)>>4)*10 + (temp&0x0F);
+ 546   3                                                                        temp=temp+1;  //星期数加1
+ 547   3                                        up_flag=1;
+ 548   3                                                                        if(temp>7)  
+C51 COMPILER V8.15   DS1302                                                                07/08/2008 10:36:00 PAGE 10  
+
+ 549   3                                                                        temp=1;
+ 550   3                                                                        temp=temp/10*16+temp%10;
+ 551   3                                                                        break;
+ 552   3                                                 case 5:
+ 553   3                                        temp=Read1302(DS1302_DAY);  //读取日数
+ 554   3                                                                        temp=((temp&0x70)>>4)*10 + (temp&0x0F);
+ 555   3                                                                        temp=temp+1;  //日数加1
+ 556   3                                        up_flag=1;
+ 557   3                                                                        if(temp>31)
+ 558   3                                                                        temp=1;
+ 559   3                                                                        temp=temp/10*16+temp%10;
+ 560   3                                                                        break;
+ 561   3                                                 case 6:
+ 562   3                                        temp=Read1302(DS1302_MONTH);  //读取月数
+ 563   3                                                                        temp=((temp&0x70)>>4)*10 + (temp&0x0F);
+ 564   3                                                                        temp=temp+1;  //月数加1
+ 565   3                                        up_flag=1;
+ 566   3                                                                        if(temp>12)
+ 567   3                                                                        temp=1;
+ 568   3                                                                        temp=temp/10*16+temp%10;
+ 569   3                                                                        break;
+ 570   3                                                 case 7:
+ 571   3                                        temp=Read1302(DS1302_YEAR);  //读取年数
+ 572   3                                                                        temp=((temp&0xf0)>>4)*10 + (temp&0x0F);
+ 573   3                                                                        temp=temp+1;  //年数加1
+ 574   3                                        up_flag=1;
+ 575   3                                                                        if(temp>99)
+ 576   3                                                                        temp=0;
+ 577   3                                                                        temp=temp/10*16+temp%10;
+ 578   3                                                                        break;
+ 579   3                                                     default:break;
+ 580   3                                                }
+ 581   2                                                
+ 582   2                                       //  while(Up==0);
+ 583   2                                        }
+ 584   1      }
+ 585          
+ 586          //////////////////////////////////////////////////////////////////////////////////////////////////////////
+             -//
+ 587          //************************
+ 588          //降序按键
+ 589          //************************
+ 590          void Downkey()
+ 591          {           
+ 592   1                      Down=1;
+ 593   1                  if(Down==0)
+ 594   1                                {
+ 595   2                                         mdelay(5);
+ 596   2                                           switch(count)
+ 597   2                                                {case 1:
+ 598   3                                        temp=Read1302(DS1302_SECOND);  //读取秒数
+ 599   3                                                                        temp=((temp&0x70)>>4)*10 + (temp&0x0F);
+ 600   3                                                                        temp=temp-1;                                              //秒数减1
+ 601   3                                        down_flag=1;       //数据调整后更新标志
+ 602   3                                                                        if(temp==-1)     //小于0秒,返回59秒
+ 603   3                                                                        temp=59;
+ 604   3                                                                        temp=temp/10*16+temp%10;
+ 605   3                                                                        break;
+ 606   3                                                 case 2:
+ 607   3                                        temp=Read1302(DS1302_MINUTE);  //读取分数
+ 608   3                                                                        temp=((temp&0x70)>>4)*10 + (temp&0x0F);
+ 609   3                                                                        temp=temp-1;  //分数减1
+C51 COMPILER V8.15   DS1302                                                                07/08/2008 10:36:00 PAGE 11  
+
+ 610   3                                        down_flag=1;
+ 611   3                                                                        if(temp==-1)
+ 612   3                                                                        temp=59;      //小于0秒,返回59秒
+ 613   3                                                                        temp=temp/10*16+temp%10;
+ 614   3                                                                        break;
+ 615   3                                                 case 3:
+ 616   3                                        temp=Read1302(DS1302_HOUR);  //读取小时数
+ 617   3                                                                        temp=((temp&0x70)>>4)*10 + (temp&0x0F);
+ 618   3                                                                        temp=temp-1;  //小时数减1
+ 619   3                                        down_flag=1;
+ 620   3                                                                        if(temp==-1)
+ 621   3                                                                        temp=23;
+ 622   3                                                                        temp=temp/10*16+temp%10;
+ 623   3                                                                        break;
+ 624   3                                                 case 4:
+ 625   3                                        temp=Read1302(DS1302_WEEK);  //读取星期数;
+ 626   3                                                                        temp=((temp&0x70)>>4)*10 + (temp&0x0F);
+ 627   3                                                                        temp=temp-1;  //星期数减1
+ 628   3                                        down_flag=1;
+ 629   3                                                                        if(temp==0)
+ 630   3                                                                        temp=7;
+ 631   3                                                                        temp=temp/10*16+temp%10;
+ 632   3                                                                        break;
+ 633   3                                                 case 5:
+ 634   3                                        temp=Read1302(DS1302_DAY);  //读取日数
+ 635   3                                                                        temp=((temp&0x70)>>4)*10 + (temp&0x0F);
+ 636   3                                                                        temp=temp-1;  //日数减1
+ 637   3                                        down_flag=1;
+ 638   3                                                                        if(temp==0)
+ 639   3                                                                        temp=31;
+ 640   3                                                                        temp=temp/10*16+temp%10;
+ 641   3                                                                        break;
+ 642   3                                                 case 6:
+ 643   3                                        temp=Read1302(DS1302_MONTH);  //读取月数
+ 644   3                                                                        temp=((temp&0x70)>>4)*10 + (temp&0x0F);
+ 645   3                                                                        temp=temp-1;  //月数减1
+ 646   3                                        down_flag=1;
+ 647   3                                                                        if(temp==0)
+ 648   3                                                                        temp=12;
+ 649   3                                                                        temp=temp/10*16+temp%10;
+ 650   3                                                                        break;
+ 651   3                                                 case 7:
+ 652   3                                        temp=Read1302(DS1302_YEAR);  //读取年数
+ 653   3                                                                        temp=((temp&0xf0)>>4)*10 + (temp&0x0F);
+ 654   3                                                                        temp=temp-1;  //年数减1
+ 655   3                                        down_flag=1;
+ 656   3                                                                        if(temp==-1)
+ 657   3                                                                        temp=99;
+ 658   3                                                                        temp=temp/10*16+temp%10;
+ 659   3                                                                        break;
+ 660   3                                                    default:break;
+ 661   3                                               }
+ 662   2                                               
+ 663   2                                       //  while(Down==0);
+ 664   2                                        }
+ 665   1      }
+ 666          
+ 667          //**************************
+ 668          //模式选择按键
+ 669          //**************************
+ 670          void Setkey()
+ 671          {
+C51 COMPILER V8.15   DS1302                                                                07/08/2008 10:36:00 PAGE 12  
+
+ 672   1                      Set=1;
+ 673   1                      if(Set==0)
+ 674   1                  {
+ 675   2                 mdelay(5);
+ 676   2                 count=count+1;        //Setkey按一次,count就加1
+ 677   2                         done=1;                       //进入调整模式
+ 678   2                 while(Set==0);
+ 679   2                       }
+ 680   1      
+ 681   1      }
+ 682          
+ 683          //*************************
+ 684          //按键功能执行
+ 685          //*************************
+ 686          void keydone()
+ 687          {        uchar Second;
+ 688   1                      /* if(flag==0)    //关闭时钟,停止计时
+ 689   1               { Write1302(0x8e,0x00); //写入允许
+ 690   1                 temp=Read1302(0x80);
+ 691   1                 Write1302(0x80,temp|0x80);
+ 692   1                     Write1302(0x8e,0x80); //禁止写入
+ 693   1                 flag=1;
+ 694   1               }*/
+ 695   1               Setkey();                                          //扫描模式切换按键
+ 696   1                       switch(count)
+ 697   1                       {case 1:do                                             //count=1,调整秒
+ 698   2                                {
+ 699   3                         
+ 700   3                         outkey();                       //扫描跳出按钮
+ 701   3                                         Upkey();                //扫描加按钮
+ 702   3                                         Downkey();              //扫描减按钮
+ 703   3                                         if(up_flag==1||down_flag==1)  //数据更新，重新写入新的数据
+ 704   3                                         {
+ 705   4                                           Write1302(0x8e,0x00); //写入允许
+ 706   4                                           Write1302(0x80,temp); //写入新的秒数
+ 707   4                                           Write1302(0x8e,0x80); //禁止写入
+ 708   4                                           up_flag=0;
+ 709   4                                       down_flag=0;
+ 710   4                                        }
+ 711   3                           if(Down!=0&&Up!=0)
+ 712   3                           {
+ 713   4                                                      hide_sec++;
+ 714   4                                              if(hide_sec>3)
+ 715   4                                              hide_sec=0;
+ 716   4                           }
+ 717   3                                               else hide_sec=0;
+ 718   3                                               show_time();         //液晶显示数据
+ 719   3                                        }while(count==2);break;  
+ 720   2                        case 2:do                                             //count=2,调整分
+ 721   2                                {
+ 722   3                                         hide_sec=0;
+ 723   3                                         outkey();
+ 724   3                                         Upkey();
+ 725   3                                         Downkey();
+ 726   3                                         if(temp>0x60)
+ 727   3                                           temp=0;
+ 728   3                                         if(up_flag==1||down_flag==1)
+ 729   3                                         {
+ 730   4                                           Write1302(0x8e,0x00); //写入允许
+ 731   4                                           Write1302(0x82,temp); //写入新的分数
+ 732   4                                           Write1302(0x8e,0x80); //禁止写入
+ 733   4                                           up_flag=0;
+C51 COMPILER V8.15   DS1302                                                                07/08/2008 10:36:00 PAGE 13  
+
+ 734   4                                           down_flag=0;
+ 735   4                                        }
+ 736   3                           if(Down!=0&&Up!=0)
+ 737   3                           {
+ 738   4                                                      hide_min++;
+ 739   4                                              if(hide_min>3)
+ 740   4                                              hide_min=0;
+ 741   4                           }
+ 742   3                                               else hide_min=0;
+ 743   3                                               show_time();
+ 744   3                                        }while(count==3);break;
+ 745   2                        case 3:do                                             //count=3,调整小时
+ 746   2                                {
+ 747   3                         hide_min=0; 
+ 748   3                                         outkey();
+ 749   3                                         Upkey();
+ 750   3                                         Downkey();
+ 751   3                                         if(up_flag==1||down_flag==1)
+ 752   3                                         {
+ 753   4                                            Write1302(0x8e,0x00); //写入允许
+ 754   4                                            Write1302(0x84,temp); //写入新的小时数
+ 755   4                                            Write1302(0x8e,0x80); //禁止写入
+ 756   4                                            up_flag=0;
+ 757   4                                            down_flag=0;
+ 758   4                                         }
+ 759   3                            if(Down!=0&&Up!=0)
+ 760   3                           {
+ 761   4                                                      hide_hour++;
+ 762   4                                              if(hide_hour>3)
+ 763   4                                              hide_hour=0;
+ 764   4                           }
+ 765   3                                               else  hide_hour=0;
+ 766   3                                                show_time();
+ 767   3                                        }while(count==4);break;
+ 768   2                        case 4:do                                             //count=4,调整星期
+ 769   2                                {
+ 770   3                         hide_hour=0; 
+ 771   3                                         outkey();
+ 772   3                                         Upkey();
+ 773   3                                         Downkey();
+ 774   3                                         if(up_flag==1||down_flag==1)
+ 775   3                                         {
+ 776   4                                           Write1302(0x8e,0x00); //写入允许
+ 777   4                                           Write1302(0x8a,temp); //写入新的星期数
+ 778   4                                           Write1302(0x8e,0x80); //禁止写入
+ 779   4                                           up_flag=0;
+ 780   4                                           down_flag=0;
+ 781   4                                         }
+ 782   3                           if(Down!=0&&Up!=0)
+ 783   3                           {
+ 784   4                                                 hide_week++;
+ 785   4                                             if(hide_week>3)
+ 786   4                                             hide_week=0;
+ 787   4                           }
+ 788   3                                               else hide_week=0;
+ 789   3                                               show_time();
+ 790   3                                        }while(count==5);break;
+ 791   2                        case 5:do                                             //count=5,调整日
+ 792   2                                {
+ 793   3                                         hide_week=0; 
+ 794   3                                         outkey();
+ 795   3                                         Upkey();
+C51 COMPILER V8.15   DS1302                                                                07/08/2008 10:36:00 PAGE 14  
+
+ 796   3                                         Downkey();
+ 797   3                                         if(up_flag==1||down_flag==1)
+ 798   3                                         {
+ 799   4                                           Write1302(0x8e,0x00); //写入允许
+ 800   4                                           Write1302(0x86,temp); //写入新的日数
+ 801   4                                           Write1302(0x8e,0x80); //禁止写入
+ 802   4                                           up_flag=0;
+ 803   4                                           down_flag=0;
+ 804   4                                         }
+ 805   3                           if(Down!=0&&Up!=0)
+ 806   3                                           {
+ 807   4                                                      hide_day++;
+ 808   4                                              if(hide_day>3)
+ 809   4                                              hide_day=0;
+ 810   4                                               }
+ 811   3                                          else hide_day=0;
+ 812   3                           show_time();
+ 813   3                                        }while(count==6);break;
+ 814   2                        case 6:do                                             //count=6,调整月
+ 815   2                                {
+ 816   3                         hide_day=0; 
+ 817   3                                         outkey();
+ 818   3                                         Upkey();
+ 819   3                                         Downkey();
+ 820   3                                         if(up_flag==1||down_flag==1)
+ 821   3                                         {
+ 822   4                                            Write1302(0x8e,0x00); //写入允许
+ 823   4                                            Write1302(0x88,temp); //写入新的月数
+ 824   4                                            Write1302(0x8e,0x80); //禁止写入
+ 825   4                                            up_flag=0;
+ 826   4                                            down_flag=0;
+ 827   4                                         }
+ 828   3                           if(Down!=0&&Up!=0)
+ 829   3                                           {
+ 830   4                                                       hide_month++;
+ 831   4                                               if(hide_month>3)
+ 832   4                                               hide_month=0;
+ 833   4                                               }
+ 834   3                                              else hide_month=0;
+ 835   3                           show_time();
+ 836   3                                        }while(count==7);break;
+ 837   2                        case 7:do                                             //count=7,调整年
+ 838   2                                {
+ 839   3                         hide_month=0; 
+ 840   3                                         outkey();
+ 841   3                                         Upkey();
+ 842   3                                         Downkey();
+ 843   3                                         if(up_flag==1||down_flag==1)
+ 844   3                                         {
+ 845   4                                            Write1302(0x8e,0x00); //写入允许
+ 846   4                                            Write1302(0x8c,temp); //写入新的年数
+ 847   4                                            Write1302(0x8e,0x80); //禁止写入
+ 848   4                                            up_flag=0;
+ 849   4                                            down_flag=0;
+ 850   4                                        }
+ 851   3                            if(Down!=0&&Up!=0)
+ 852   3                                            {
+ 853   4                                                       hide_year++;
+ 854   4                                               if(hide_year>3)
+ 855   4                                               hide_year=0;
+ 856   4                            }
+ 857   3                                                else hide_year=0;
+C51 COMPILER V8.15   DS1302                                                                07/08/2008 10:36:00 PAGE 15  
+
+ 858   3                            show_time();
+ 859   3                                        }while(count==8);break;
+ 860   2                        case 8: count=0;hide_year=0;  //count8, 跳出调整模式,返回默认显示状态
+ 861   2                            Second=Read1302(DS1302_SECOND);
+ 862   2                        Write1302(0x8e,0x00); //写入允许
+ 863   2                            Write1302(0x80,Second&0x7f);
+ 864   2                            Write1302(0x8E,0x80);          //禁止写入
+ 865   2                                        done=0;
+ 866   2                        break; //count=7,开启中断,标志位置0并退出
+ 867   2                        default:break;
+ 868   2      
+ 869   2                       }
+ 870   1      
+ 871   1      }
+ 872          
+ 873          
+ 874          //***************************************
+ 875          //液晶显示主程序模块
+ 876          //***************************************
+ 877          void show_time()   
+ 878          {
+ 879   1        DS1302_GetTime(&CurrentTime);  //获取时钟芯片的时间数据
+ 880   1        TimeToStr(&CurrentTime);       //时间数据转换液晶字符
+ 881   1        DateToStr(&CurrentTime);       //日期数据转换液晶字符
+ 882   1        ReadTemp();                    //开启温度采集程序
+ 883   1        temp_to_str();                 //温度数据转换成液晶字符
+ 884   1        gotoxy(4,0);
+ 885   1        print("温度");
+ 886   1        gotoxy(4,2);                  //液晶字符显示位置
+ 887   1        print(TempBuffer);             //显示温度
+ 888   1        gotoxy(4,6);
+ 889   1        print("℃");
+ 890   1        gotoxy(3,0);
+ 891   1        print("时间:");
+ 892   1        gotoxy(3,3);
+ 893   1        print(CurrentTime.TimeString); //显示时间
+ 894   1        gotoxy(2,3);
+ 895   1        print(CurrentTime.DateString); //显示日期
+ 896   1        gotoxy(2,0);
+ 897   1        print("星期");
+ 898   1        gotoxy(2,2);
+ 899   1        print(week_value);             //显示星期
+ 900   1        gotoxy(1,1);
+ 901   1        print("【锐志电子】");
+ 902   1        mdelay(500);                 //扫描延时
+ 903   1      }
+ 904          
+ 905          
+ 906          //************************************
+ 907          //主程序
+ 908          //*************************************
+ 909          main()
+ 910          {
+ 911   1        //  flag=1;           //时钟停止标志
+ 912   1              init_lcd();
+ 913   1              clrram_lcd();
+ 914   1              Init_DS18B20( ) ;      //DS18B20初始化
+ 915   1              Initial_DS1302(); //时钟芯片初始化
+ 916   1              up_flag=0;
+ 917   1              down_flag=0;
+ 918   1              done=0;           //进入默认液晶显示
+ 919   1              while(1)
+C51 COMPILER V8.15   DS1302                                                                07/08/2008 10:36:00 PAGE 16  
+
+ 920   1              {   
+ 921   2              while(done==1)
+ 922   2                keydone();    //进入调整模式
+ 923   2                      while(done==0)
+ 924   2                  {  
+ 925   3                  show_time();                //液晶显示数据
+ 926   3                 // flag=0;                  
+ 927   3                          Setkey();                            //扫描各功能键
+ 928   3                      }               
+ 929   2              }
+ 930   1      }
+ 931          
+ 932          
+ 933          
+ 934          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   2975    ----
+   CONSTANT SIZE    =     46    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     52      24
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

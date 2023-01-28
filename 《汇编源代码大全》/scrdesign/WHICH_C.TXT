@@ -1,0 +1,221 @@
+Q:  Which PC C/C++ compiler is best and what should I buy?
+
+A:  This is perhaps the commonest of Frequently Asked Questions (FAQ's),
+especially by beginning C'er. The honest answer is that there is no "best"
+compiler and what may be best for you depends to a large degree on what
+you'll be using it for. The PC C/C++ compiler market is quite brutal and the
+companies that have survived have done so because some number of people
+think each of them makes the "best" compiler.
+
+    With the preceding caveat in mind, following are some summaries of the
+current crop of C/C++ compilers with some of their strengths and weaknesses.
+
+
+MIX POWER C
+-----------
+
+Power C is the least expensive PC C compiler on the market. The compiler
+itself is $20, and an additional $30 will buy their source-level debugger
+along with the complete library source code with an assembler.
+
+So, what's the catch?
+
+None, actually. Power C is a quite decent and ANSI-conforming compiler which
+compiles relatively tight, fast code relatively quickly. It's biggest
+drawback is its use of a non-standard object file format which obviates
+object-level compatibility with any other compiler using Microsoft/Intel
+standard object file formats. Another problem is lack of support from 3rd
+party library vendors. Although Mix sells a wide range of libraries
+themselves, it's difficult to convince a vendor to produce a $100 add-on
+library for a $20 compiler.
+
+On the plus side, Power C comes with the best user's manual for students in
+the business. The beginner's tutorial section has enabled many beginning C
+programmers to get up to speed without spending another dime on any other
+textbooks. Should you want more instruction, Mix sells a package including
+Power C with the library source and debugger along with the book "Master C"
+for only $60.
+
+Power C's primary technical claim to fame is its floating point which
+challenges the industry leader, Watcom, in many cases.
+
+
+QUICK C (QC)
+------------
+
+Microsoft's baby compiler comes in versions for DOS and Windows. Fully
+compatible with the "big" Microsoft compiler, QC is an excellent tool for
+the C programmer on a budget. The Windows version is a cheap and relatively
+painless way to get into the world of Windows programming. The DOS version
+is one of those rare compilers these days that still runs on minimal systems
+without requiring fast processors and gobs of memory.
+
+QC's big selling point is its compatibility with full-blown Microsoft C.
+It's biggest drawback at this point is Microsoft's apparent loss of interest
+in supporting its "Quick" languages.
+
+
+TURBO C++ (TC++)
+----------------
+
+TC++ is to Borland's "big" C++ compiler as QC is to Microsoft's "big" C
+compiler. Targeted at the hobbyist market, the latest version (TC++ 3.0)
+raised quite a stir when Borland released it requiring at least a 286
+processor and 1 Mb of *available* extended memory above the normal 640K DOS
+limit.  Many hobbyists running on older XT's, or machines without the excess
+memory capacity have therefore failed to upgrade to the new release.
+
+If you have the machine to support it, TC++ has the usual Borland attributes
+of extreme ease-of-use, attractive Integrated Development Environment (IDE),
+and good supporting tools.
+
+
+MICROSOFT C/C++ (MSC)
+---------------------
+
+Microsoft's professional compiler is now at version 7.0, requiring at least
+a 386 processor, 4 Mb of *available* extended memory, and a DPMI server.
+Microsoft's original intent was that everyone would be working in a Windows
+environment (Windows 3+ is a DPMI server), but includes Qualitas' 386Max
+memory manager (another DPMI server) in the package just in case. If you
+don't have the machine resources or you want to run another memory manager
+such as QEMM, you can't use MSC.
+
+On the plus side, MSC 7 is an excellent C++ compiler and generates
+executables which may not always be smaller than Borland, but usually
+execute faster. MSC is still the standard for PC C compilers and it shows in
+the ready availability of 3rd party libraries supporting it. Compile times
+with full optimization are still quite sluggish, but using the quick compile
+option can be provide acceptable results.
+
+
+BORLAND C++ (BC++)
+------------------
+
+BC++ carries on Borland's tradition of providing excellent bang for the
+buck. The latest release (3.1) of their professional compiler is an
+attractive alternative to shops also considering MSC 7. BC++ isn't as
+demanding as MSC and only requires a 286 and 2 Mb of *available* extended
+memory to run.
+
+Borland's tools are uniformly excellent, but the compiler still suffers a
+bit in comparison to the industry's technological leaders, Microsoft,
+Watcom, and Zortech - although the gap is closing. As with MSC, it's an
+excellent C++ compiler and enjoys widespread support among 3rd party library
+vendors. Like all Borland compilers, ease of use was a design priority, all
+oriented to the excellent IDE.
+
+
+ZORTECH C++ (ZTC++)
+-------------------
+
+ZTC++ was the industry's first C++ compiler, but has fallen behind in
+tracking the C++ language spec recently. Bought out by Symantec last year,
+the current compiler is an excellent C compiler and a good C++ compiler.
+
+Zortech's biggest strength is it's cross-platform support with available
+versions for DOS, OS/2 (1.x currently with 2.0 in beta), Mac, and Unix.
+While Borland bundles some of the best tools, ZTC++ bundles excellent
+libraries and add-ons for the compiled code. Examples include a TSR library,
+swapping spawn functions, 2 royalty-free DOS extenders, and an excellent set
+of ancillary C and C++ tools libraries. ZTC++ is currently also the only PC
+compiler which generates true 32-bit code and has a switch for generating
+486 code.
+
+ZTC++ has always been in the forefront of optimizer technology along with
+Microsoft and Watcom. An undocumented feature of the version 3 compiler is
+full IEEE-754 and NCEG (Numerical C Extensions Group (an ANSI working
+committee trying to make C a suitable replacement for FORTRAN) compatibilty.
+
+Negatives include poor support (but getting slowly better) since the
+Symantec buyout and somewhat primitive supporting tools, especially for
+Windows development.
+
+
+WATCOM C (WC)
+-------------
+
+Watcom is the technological leader of the industry, performing feats of
+optimization and floating point speed other vendors only dream of. The cost
+is compile speed, which can best be described as glacial. For all its
+technical excellence, WC is still a niche market compiler like ZTC++. As
+such, it's 3rd party support is poor, but many have found that MSC libraries
+will work just fine with WC.
+
+Also, like ZTC++, WC supports 32-bit code generation which, unlike ZTC++, is
+even available for OS/2 2.0 today. WC is the compiler of choice for many
+OEMs, such as Novell, who want only the best supporting code for their
+products.
+
+
+TOPSPEED C (TSC)
+----------------
+
+TSC has had a rocky life, getting off to a late start in the market and
+never having really quite caught on. Originally, TSC was a Turbo C clone
+which shared tools and environments with its sister Modula-2 compiler. More
+recent versions have extended this by using a modular approach with an
+environment supporting "plug-in" compilers for various languages which can
+all be used together. The company was recently acquired by Clarion.
+
+TSC's undisputed biggest strength is its smart linker and various features
+added to facilitate mixed-language programming (Modula-2, for example,
+supports multi-threaded code). Using this technology, you can count on TSC
+to almost always produce the smallest executables for a given piece of
+source code. The library, written almost exclusively in assembly, is also
+excellent and contributes to the frugal use of run-time memory.
+Unfortunately, compiler-generated code is typically not of the same quality.
+
+Drawbacks include almost non-existant 3rd party support and the pervasive
+IDE which feels more at home to Modula-2 programmers than C programmers.
+
+
+PCC
+---
+
+The Personal C Compiler is available as shareware. It used to be marketed as
+the deSmet C compiler and had a generally good reputation for quick compile
+times and tight code. Unfortunately, the product hasn't been upgraded in
+quite a while and can't stand too much comparison. Mix Power C costs less to
+buy than PCC and offers better performance and the ANSI compliance that PCC
+lacks.
+
+
+GNU C/C++ (GCC, G++)
+--------------------
+
+Available from the Free Software Foundation, GCC and G++ are the only
+compilers listed here available for free without a guilty conscience.
+Originally written for Unix systems, there are several DOS ports available,
+all of which require some sort of DOS extender technology built-in in order
+to work in DOS's limited memory.
+
+Performance is decent, but not earth-shattering and if you plan to use one
+of these to write commercial code, be sure and read the license agreement
+*very* closely.
+
+
+DUNFIELD MICRO-C
+----------------
+
+There have been many "small" or "tiny" C's over the years, some useful for
+teaching the rudiments of compiler construction, others not much use for
+anything. Small C's typically lack structs, unions, bit fields, and even
+long integers.
+
+Why bother listing this one then?
+
+For one thing, the source code (available when you register the shareware
+version) is quite decent and really can teach you something about compiler
+internals. But Micro-C is genuinely useful for a lot more reasons.
+
+The author also produces cross-assemblers for a variety of microprocessors
+and provides plug-in code generators for his C compiler to use with those
+chips as well. The 80x86 version comes ready to compile either PC or
+embedded code. Included in the PC library are support for writing TSR's,
+interrupt-driven serial I/O, and screen windowing. Amazingly, it also sports
+an optimizer, but requires MASM or equivalent for compiling PC applications.
+
+Supporting small and tiny model only, Micro-C executables are phenomenally
+small. "Hello world" programs that run 5-6K on other ocmpilers run under 600
+bytes when compiled with Micro-C.

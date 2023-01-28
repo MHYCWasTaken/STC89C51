@@ -1,0 +1,183 @@
+WHAT IS D.M.A.?
+
+Consider the problem of moving a large amount of data to or from an I/O
+device.  This requirment is commonly encountered in the operation of many
+peripheral devices (disk drives, for example) that are constantly moving
+large amounts of data into and out of memory.  An ovious way of making
+the transfer would be a short program which for an input operation might
+read a byte from the I/O port into the accumulator (AX register) of the
+8088 processor, and then move the data from the AX register to a memory
+location to store it.  In addition, we have to keep track of the memory
+locations where the data is going.  By far the simplest way of handling
+this is to lay the data down in continuous blocks locations within a block
+of memory, using one of the processor's index registers to control the
+address.  Each time a byte is transfered, the index register(usually the
+DI or Destination Index register) is incremented or decremented to point
+to the next location.  A typical example assembly language program to do
+this might be as follows:
+
+-----------------------------------------------------------------------
+
+SETUP:  MOV     AX,SEGMENT              ; setup segment of memory transfer
+
+        MOV     DS,AX
+        MOV     DI,OFFSET               ; setup start address within segment
+
+        MOV     CX,COUNT                ; setup # of bytes
+
+        MOV     DX,IOPORT               ; DX = I/O port address
+
+READ:   IN      AL,DX                   ; read byte from I/O port        (8)
+
+        MOV     [DI],al                 ; store data                     (10)
+        INC     DI                      ; increment index                (2)
+        LOOP    READ                    ; continue till CX = 0           (17)
+
+CONT:   ......                          ; yes, continue with program
+
+------------------------------------------------------------------------
+
+The opposite oeration of transfering data from memory to an I/O port is
+essentually similar.  The numbers in parentheses following the READ: label
+are the number if processor clock cycles required to execute each instruction,
+with a total of 37 processor clock cycles required to execute the entire
+read segment.  On a standard IBM PC, the clock runs at 4.77 MHz, corresponding
+to a clock cycle period of 210 nanoseconds, and the loop takes 37 cycles or
+7.8 microseconds to execute.  This would be the fastest we could transfer each
+byte.  Note also the following:
+
+1.  The processor is tied up 100% of the time in transferring data; it cannot
+    execute any other part of the program while the transfer is underway.
+
+2.  The rate at which the data is transferred is controlled by the processor
+    clock and may not correspond to the rate at which the I/O device wants
+    to handle the data.  This can be circumvented by polling the I/O device
+    to see if it is ready, or having the I/O device generate a hardware
+    interrupt; but either of these adds further code to the routine which
+    will slows down the transfer rate even further.  In practice because of
+    all the stacking of registers that occurs when a hardware intrrupt is
+    processed, it is impossible to handle data transfers rates much above
+    5 to 10 Khz using interrupts.
+
+3.  If the processor has to handle an interrupt from one device while it is
+    involved in handling a data transfer to another device then the delays
+    involved may cause it to miss data, or at least will cause the
+    discontinuitly in the data flow.
+
+
+It would be nice to have a way of transferring data without involving the
+processor so it can be freed up as much as possible to attend to execution
+of the program.  It wouldalso be a plus if we could speed the transfer rate
+up and be able to control the rate easily.  Since all we want to do is move
+a byte directly to/from an I/O port from/to memory without any sort of
+processing on the way,  we are better off not using the processor at all, but
+instead proving special hardware that will accomplish this commonly required
+task.  The process of connecting an I/O device directly to memory is known
+as Direct Memory Access (D.M.A.), and the hardware that controls this process
+is known as the D.M.A. controller, which the case of the IBM PC is the function
+of the 8237 chip on the system board.
+
+
+
+THE MECHANICS OF A D.M.A. TRANSFER
+
+What happens when a device wants to transfer data to/from memory?  The first
+step is for the device to send a signal known as a D.M.A. REQUEST (DREQ for
+short) to the D.M.A. controller.  The processor normally has control of the
+computer's address and data busses as well as control signals such as memory
+read/write (MEMR & MEMW) and I/O read/write (IOR & IOW) lines.  To accomplish
+a D.M.A. transfer, control of these lines must be passed to the D.M.A.
+controllers.  On receipt of the DREQ, the D.M.A. controller in turn issues
+a HOLD REQUEST to the processor.  As soon as it is able to, when it has
+partially completed the instruction it is currently executing, the processor
+issues a HOLD ACKNOWLEDGE signal to the D.M.A. controller, and simultaneously
+disconnects itself from the address, data and control busses.  This process
+is technically known as "TRI-STATING" as the connections to the processor
+assume a third, open circut state, compared to thier usual binary states of
+1's and 0's or highs and lows.  On receipt of the HOLD ACKNOWLEDGE, the D.M.A.
+controller goes to work.  It realeases its own connections to the address and
+control busses from thier tristate condition, asserting a valid memory address
+from an internal counter and then issues a D.M.A. ACKNOWLEDGE (DACK) signal
+to the I/O device followed by a simultaneous IOW and MEMR for data outpu, or
+IOR and MEMW for input.  The perepheral in turn responds to the DACK and IOR
+or IOW signals by placing or recieving data on the data buss effecting a
+transfer directly to/from meory.  On completion of the MEMR/IOW or MEMW/IOW
+from the D.M.A. controller, the controller removes DACK, releases HOLD
+REQUEST, tristates its own address and control lines, and increments or
+decrements its internal address counter ready for the next transfer.  The
+processor in turn regains control of the busses, continuing execution execution
+of the next instruction.  From the assertion of the DREQ to completion of the
+cycle takes about 2 to 5 microseconds, depending on the length of the
+instruction that the processor happens to be engaged in on receipt of the
+DREQ.  The accual amount of time between instructions that the processor
+loses the buss to the D.M.A. controler is even less, about 1 microsecond.
+The effect on program execution is minimal even when transferring data at
+very high rates which can approach 350,000 bytes/sec on the IBM PC.  To
+prevent the D.M.A.  controller from 'hogging' the busses if the DREQ is
+held constantly high, the controller always allows the processor to perform
+at least part of an instruction between each D.M.A. transfer, so that even
+operating "flat-out", D.M.A. cannot grab much more than 30% of the buss
+bandwidth.
+
+In order to perform D.M.A. operations, the perpheral must include hardware
+that generates the DREQ and responds to the DACK.  The D.M.A. controller, on
+the other hand, is a system component that is a standard feature of the IBM PC
+architecture.  Most compatibles also include the D.M.A. controller, with the
+execption of the TI Professional.
+
+It is important to appreciate  that the D.M.A. controller sets the dunamics
+of the D.M.A. transfer,  that there is nothing in the peripheral I/O device
+that can alter the maximum speed at which the controller will handle data.
+There are some surpising side effects of this, in particular the IBM PC/AT,
+which is genrally 3 times faster than a standard PC or PC/XT, is actually
+slower at D.M.A. transfers because its controller operates at 3 MHz instead
+of 4.77 MHz on the PC.  On the other hand, it can also perform 16-bit
+transfers on its extended data buss, as well as 8-bit transfers on PC
+compatible section of its data buss which with the right hardware can make
+up for the slower transfer rate.  Although they can operate in D.M.A. mode
+in the PC/AT, many boards perform word (16-bit) transfers by making two
+sequential byte (8-bit) and so are unable to take advantage of the AT's
+extended buss; this being the price paid for PC compatibility.
+
+
+D.M.A. LEVELS
+
+Although we have discussed the operation of a single device using the D.M.A.,
+it is custom to cater to the needs of several devices by providing several
+D.M.A. channels, each one dedicated to a peticualar device.  The 8237 provides
+four seperate D.M.A. channels, known as levels 0 through 3.  Correspondingly,
+there are 4 D.M.A. request lines, DACK 0-3.  These lines are prioritized
+according to two possible protocols set by a bit in the controller command
+register, either fixed priority, either fixed priority where lower D.M.A.
+levels have higher priority than higher levels, or rotating priority, where
+each level takes turn at having the highest priority.  The PC BIOS sets the
+8237 to operate in fixed priority mode on power up, and it is inadvisable
+to change this.  The PC/AT adds to the number of D.M.A. channels by using
+two 8237 D.M.A. controllers.  Since one channel is used to cascade one
+controller into the other, this is acually adds an additional 3 channels,
+all of which appears on the 16-bit additional expanision connectors of the
+PC/AT and dedicated to 16-bit transfers.
+
+Apart from its uses for high speed data transfer, the D.M.A. controller
+includes counter hardware that cycles through the memory addresses, so as a
+byproduct of its design, it can also be used to refresh dynamic memory, saving
+the cost of a separate memory refresh controller.  This is what IBM chose to
+do in the PC, and on all models Level 0 performs this function with the
+DREQ being driven from counter 1 of the 8253 timer at a 15 microsecond
+intervals.  The complete assignmentes for the levels are as follows.
+
+For all machines, these levels are capable of 8-bit transfers:
+
+        Level 0 -       Memory Refresh
+        Level 1 -       Not assigned and usally avalible, Certain local
+                        area network interfaces may use this level
+        Level 2 -       Used by the floppy disk controller and not free
+                        for any other purpose
+        Level 3 -       May be used by the hard disk controller on some
+                        PC/XT models. On floppy disk only, PC/AT and some
+                        PC/XT machines, this level is free for other uses.
+
+For the PC/AT only, these levels are capable of 16-bit transfers:
+
+        Level 4 -       used for cascading
+        Level 5-7 -     Avalaible on AT special connections

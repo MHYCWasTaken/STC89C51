@@ -1,0 +1,103 @@
+C51 COMPILER V7.06   KEYBOARD                                                              05/13/2009 10:01:30 PAGE 1   
+
+
+C51 COMPILER V7.06, COMPILATION OF MODULE KEYBOARD
+OBJECT MODULE PLACED IN keyboard.OBJ
+COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE keyboard.c BROWSE DEBUG OBJECTEXTEND
+
+stmt level    source
+
+   1          /*-----------------------------------------------
+   2            名称：矩阵键盘
+   3            公司：上海浩豚电子科技有限公司
+   4            编写：师访
+   5            日期：2009.5
+   6            修改：无
+   7            内容：通过反转法循环扫描矩阵键盘，并通过数码管显示数据
+   8          ------------------------------------------------*/
+   9          #include<reg52.h> //包含头文件，一般情况不需要改动，头文件包含特殊功能寄存器的定义
+  10          
+  11          #define uchar unsigned char
+  12          #define uint  unsigned int
+  13          
+  14          unsigned char const dofly[]={0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f,
+  15                                                   0x77,0x7c,0x39,0x5e,0x79,0x71};//0-F
+  16          /*------------------------------------------------
+  17                             函数声明
+  18          ------------------------------------------------*/ 
+  19          uchar keyscan(void);//键盘扫描
+  20          void delay(uint i); //演示程序
+  21          /*------------------------------------------------
+  22                             主函数
+  23          ------------------------------------------------*/
+  24          void main()
+  25          {
+  26   1       uchar key;
+  27   1       P2=0x00;        //1数码管亮 按相应的按键，会显示按键上的字符
+  28   1       while(1)
+  29   1      {
+  30   2       key=keyscan();  //调用键盘扫描，
+  31   2       switch(key)
+  32   2       {
+  33   3        case 0x7e:P0=dofly[0];break;//0 按下相应的键显示相对应的码值
+  34   3        case 0x7d:P0=dofly[1];break;//1
+  35   3        case 0x7b:P0=dofly[2];break;//2
+  36   3        case 0x77:P0=dofly[3];break;//3
+  37   3        case 0xbe:P0=dofly[4];break;//4
+  38   3        case 0xbd:P0=dofly[5];break;//5
+  39   3        case 0xbb:P0=dofly[6];break;//6
+  40   3        case 0xb7:P0=dofly[7];break;//7
+  41   3        case 0xde:P0=dofly[8];break;//8
+  42   3        case 0xdd:P0=dofly[9];break;//9
+  43   3        case 0xdb:P0=dofly[10];break;//a
+  44   3        case 0xd7:P0=dofly[11];break;//b
+  45   3        case 0xee:P0=dofly[12];break;//c
+  46   3        case 0xed:P0=dofly[13];break;//d
+  47   3        case 0xeb:P0=dofly[14];break;//e
+  48   3        case 0xe7:P0=dofly[15];break;//f
+  49   3       }
+  50   2       }
+  51   1      }
+  52          /*------------------------------------------------
+  53                        键盘扫描程序
+  54          ------------------------------------------------*/
+  55          uchar keyscan(void)  //键盘扫描函数，使用行列反转扫描法
+C51 COMPILER V7.06   KEYBOARD                                                              05/13/2009 10:01:30 PAGE 2   
+
+  56          {
+  57   1       uchar cord_h,cord_l;//行列值中间变量
+  58   1       P3=0x0f;            //行线输出全为0
+  59   1       cord_h=P3&0x0f;     //读入列线值
+  60   1       if(cord_h!=0x0f)    //先检测有无按键按下
+  61   1       {
+  62   2        delay(100);        //去抖
+  63   2        if(cord_h!=0x0f)
+  64   2        {
+  65   3          cord_h=P3&0x0f;  //读入列线值
+  66   3          P3=cord_h|0xf0;  //输出当前列线值
+  67   3          cord_l=P3&0xf0;  //读入行线值
+  68   3          return(cord_h+cord_l);//键盘最后组合码值
+  69   3         }
+  70   2        }return(0xff);     //返回该值
+  71   1      }
+  72          /*------------------------------------------------
+  73                           延时程序
+  74          ------------------------------------------------*/
+  75          void delay(uint i)  //延时函数
+  76          {
+  77   1      while(i--);
+  78   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    203    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     16       1
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

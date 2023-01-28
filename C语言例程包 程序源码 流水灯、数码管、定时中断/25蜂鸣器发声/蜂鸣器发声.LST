@@ -1,0 +1,62 @@
+C51 COMPILER V7.50   蜂胈芲发蒧                                                            08/29/2011 22:40:17 PAGE 1   
+
+
+C51 COMPILER V7.50, COMPILATION OF MODULE 蜂胈芲发蒧
+OBJECT MODULE PLACED IN 蜂鸣器发声.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE 蜂鸣器发声.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          /********************************************************************
+   2          * 名称 : 蜂鸣器发声.c
+   3          * 功能 : 通过P1.2口电平的交替变化，来控制蜂鸣器唱歌
+   4          /***********************************************************************/
+   5          #include<reg52.h>
+   6          #define uchar unsigned char
+   7          #define uint  unsigned int        
+   8          sbit BELL = P1^2;                       //设置P1.2口，为控制蜂鸣器发声的引脚                                                                      
+   9          
+  10          /********************************************************************
+  11          * 名称 : Delay()
+  12          * 功能 : 延时,延时时间为 10ms * del。这是通过软件延时，有一定误差。
+  13          * 输入 : del
+  14          * 输出 : 无
+  15          ***********************************************************************/
+  16          void Delay(uint del)
+  17          {
+  18   1              uint i,j;
+  19   1              for(i=0; i<del; i++)
+  20   1              for(j=0; j<1827; j++)       
+  21   1              ;
+  22   1      }
+  23          
+  24          /********************************************************************
+  25          * 名称 : Main()
+  26          * 功能 : 实现灯的闪烁
+  27          * 输入 : 无
+  28          * 输出 : 无
+  29          ***********************************************************************/
+  30          void Main(void)
+  31          {
+  32   1              while(1)
+  33   1              {
+  34   2                      BELL = 0;
+  35   2                      Delay(1);          //延时10毫秒
+  36   2                      BELL = 1;
+  37   2                      Delay(1);          //延时10毫秒
+  38   2              }
+  39   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     48    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

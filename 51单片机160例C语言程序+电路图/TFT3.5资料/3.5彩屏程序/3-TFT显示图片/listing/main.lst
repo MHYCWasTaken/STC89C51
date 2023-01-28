@@ -1,0 +1,66 @@
+C51 COMPILER V7.06   MAIN                                                                  11/07/2013 09:25:29 PAGE 1   
+
+
+C51 COMPILER V7.06, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\obj\main.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE src\main.c BROWSE DEBUG OBJECTEXTEND PRINT(.\listing\main.lst) OBJECT(.\obj
+                    -\main.obj)
+
+stmt level    source
+
+   1          
+   2          /*------------------------------------------------
+   3                          包含头文件
+   4          ------------------------------------------------*/
+   5          #include"reg52.h"
+   6          #include"tft.h"
+   7          /*------------------------------------------------
+   8                                  主函数
+   9          ------------------------------------------------*/
+  10          void  main(void)
+  11          {   
+  12   1      
+  13   1      TFT_Initial();//初始化
+  14   1      while(1)
+  15   1      {
+  16   2      ClearScreen(0x0000);
+  17   2      ClearScreen(0x00ff);
+  18   2      ClearScreen(0xff00);
+  19   2      
+  20   2      
+  21   2      show_colour_bar();      //显示彩条
+  22   2      ClearScreen(0x00ff);
+  23   2      
+  24   2      LCD_PutString(40,40,"www.doflye.net",0x0000,0xffff);
+  25   2      LCD_PutString(40,60,"I LOVE MY JOB ",0x0000,0xf800);
+  26   2      LCD_PutString(10,80,"上海朗译电子科技有限公司",0x0000,0xf800);
+  27   2      LCD_PutString(40,100,"专业技术支持论坛",0x07e0,0xf800);
+  28   2      LCD_PutString(40,120,"专业开发板工控板",0x001f,0xf800);
+  29   2      LCD_PutString(40,140,"1234567890",0x001f,0xf800);
+  30   2      LCD_PutString(0,160,"abcdefghijklmnopqistuvwxyz",0x001f,0xf800);
+  31   2      LCD_PutString(0,180,"`,./<>';:[]{}\|?)(-=+*&^%$",0x001f,0xf800);
+  32   2      
+  33   2      show_photo(0,160,0,120);
+  34   2      
+  35   2      show_photo(0,160,120,240);
+  36   2      
+  37   2      show_photo(0,160,240,360);
+  38   2      
+  39   2              
+  40   2      while(1);               //刷完停止
+  41   2              }
+  42   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    313    ----
+   CONSTANT SIZE    =    153    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

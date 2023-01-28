@@ -1,0 +1,4 @@
+"STARTUP.obj",
+"外部中断的使用.obj" 
+TO "外部中断的使用" 
+RAMSIZE(256) 

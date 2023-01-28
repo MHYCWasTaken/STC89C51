@@ -1,0 +1,255 @@
+C51 COMPILER V9.01   MAIN                                                                  07/17/2015 16:47:59 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN main.OBJ
+COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE main.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          /*******************************************************************************
+   2          * 实验名                          : EEPROM实验
+   3          * 使用的IO          : 
+   4          * 实验效果      : 按K1保存显示的数据，按K2读取上次保存的数据，按K3显示数据加一，
+   5          *按K4显示数据清零。
+   6          *       注意                                    ：由于P3.2口跟红外线共用，所以做按键实验时为了不让红外线影响实验效果，最好把红外线先
+   7          *取下来。
+   8          *
+   9          *********************************************************************************/
+  10          #include<reg51.h>
+  11          #include"i2c.h"
+  12          
+  13          //--定义使用的IO口--//
+  14          //数码管IO
+  15          #define GPIO_DIG        P0
+  16          sbit LSA=P2^2;
+  17          sbit LSB=P2^3;
+  18          sbit LSC=P2^4;
+  19          //按键IO
+  20          sbit K1=P3^0;
+  21          sbit K2=P3^1;
+  22          sbit K3=P3^2;
+  23          sbit K4=P3^3;
+  24          
+  25          //--定义全局变量--//
+  26          unsigned char code GPIO_DIG_CODE[10] = {0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f};
+  27          unsigned char Num=0;
+  28          unsigned int DisplayData[8] = {0x3f,0x3f,0x3f,0x3f,0x3f,0x3f,0x3f,0x3f};
+  29          
+  30          //--声明全局函数--//
+  31          void At24c02Write(unsigned char ,unsigned char );
+  32          unsigned char At24c02Read(unsigned char );
+  33          void Delay10ms(unsigned int c);   //误差 0us
+  34          void Timer0Configuration();
+  35          
+  36          /*******************************************************************************
+  37          * 函 数 名         : main
+  38          * 函数功能                 : 主函数
+  39          * 输    入         : 无
+  40          * 输    出         : 无
+  41          *******************************************************************************/
+  42          
+  43          void main()
+  44          {
+  45   1              unsigned int num0 = 0,num1 = 0,n;
+  46   1      
+  47   1              Timer0Configuration();
+  48   1      
+  49   1              while(1)
+  50   1              {
+  51   2                      if(K1 == 0)              //按键1按下
+  52   2                      {
+  53   3                              Delay10ms(1);
+  54   3                              if(K1 == 0)
+  55   3                                      At24c02Write(2,num0);
+C51 COMPILER V9.01   MAIN                                                                  07/17/2015 16:47:59 PAGE 2   
+
+  56   3                              while((n < 50)&&(K3==0))
+  57   3                              {
+  58   4                                      n++;
+  59   4                                      Delay10ms(1);   
+  60   4                              }                       
+  61   3                              n=0;
+  62   3                              n=0;
+  63   3                      }
+  64   2                      
+  65   2                      if(K2 == 0)              //按键2按下
+  66   2                      {
+  67   3                              Delay10ms(1);
+  68   3                              if(K2 == 0)
+  69   3                                      num1 = At24c02Read(2);
+  70   3                              while((n < 50)&&(K2 == 0))
+  71   3                              {
+  72   4                                      n++;
+  73   4                                      Delay10ms(1);   
+  74   4                              }                       
+  75   3                              n=0;
+  76   3                      }                       
+  77   2                      if(K3 == 0)              //按键3按下
+  78   2                      {
+  79   3                              Delay10ms(1);
+  80   3                              if(K3 == 0)
+  81   3                                      num0++;
+  82   3                              while((n < 50)&&(K3 == 0))
+  83   3                              {
+  84   4                                      n++;
+  85   4                                      Delay10ms(1);   
+  86   4                              }                       
+  87   3                              n=0;
+  88   3                              if(num0==256)
+  89   3                                      num0=0;
+  90   3                      }
+  91   2                              
+  92   2                      if(K4 == 0)              //按键4按下
+  93   2                      {
+  94   3                              Delay10ms(1);
+  95   3                              if(K4 == 0)
+  96   3                                      num0 = 0;
+  97   3                              while((n < 50) && (K4 == 0))
+  98   3                              {
+  99   4                                      n++;
+ 100   4                                      Delay10ms(1);   
+ 101   4                              }                       
+ 102   3                              n=0;
+ 103   3                      }
+ 104   2                                              
+ 105   2                      DisplayData[0] = GPIO_DIG_CODE[num1/1000];//千位
+ 106   2                      DisplayData[1] = GPIO_DIG_CODE[num1%1000/100];//百位
+ 107   2                      DisplayData[2] = GPIO_DIG_CODE[num1%1000%100/10];//十位
+ 108   2                      DisplayData[3] = GPIO_DIG_CODE[num1%1000%100%10];//个位
+ 109   2                      DisplayData[4] = GPIO_DIG_CODE[num0/1000];//千位
+ 110   2                      DisplayData[5] = GPIO_DIG_CODE[num0%1000/100];//百位
+ 111   2                      DisplayData[6] = GPIO_DIG_CODE[num0%1000%100/10];//十位
+ 112   2                      DisplayData[7] = GPIO_DIG_CODE[num0%1000%100%10];       
+ 113   2              }
+ 114   1      }                                                                        
+ 115          /*******************************************************************************
+ 116          * 函 数 名         : Timer0Configuration()
+ 117          * 函数功能                 : 设置计时器
+C51 COMPILER V9.01   MAIN                                                                  07/17/2015 16:47:59 PAGE 3   
+
+ 118          * 输    入         : 无
+ 119          * 输    出         : 无
+ 120          *******************************************************************************/
+ 121          
+ 122          void Timer0Configuration()
+ 123          {
+ 124   1              TMOD=0X02;  //选择为定时器模式，工作方式2，仅用TRX打开启动。
+ 125   1      
+ 126   1              TH0=0X9C;       //给定时器赋初值，定时100us
+ 127   1              TL0=0X9C;       
+ 128   1              ET0=1;      //打开定时器0中断允许
+ 129   1              EA=1;       //打开总中断
+ 130   1              TR0=1;      //打开定时器                
+ 131   1      }
+ 132          /*******************************************************************************
+ 133          * 函 数 名         : Delay10ms
+ 134          * 函数功能                 : 延时函数，延时10ms
+ 135          * 输    入         : 无
+ 136          * 输    出         : 无
+ 137          *******************************************************************************/
+ 138          
+ 139          void Delay10ms(unsigned int c)   //误差 0us
+ 140          {
+ 141   1          unsigned char a, b;
+ 142   1      
+ 143   1              //--c已经在传递过来的时候已经赋值了，所以在for语句第一句就不用赋值了--//
+ 144   1          for (;c>0;c--)
+ 145   1              {
+ 146   2                      for (b=38;b>0;b--)
+ 147   2                      {
+ 148   3                              for (a=130;a>0;a--);
+ 149   3                      }          
+ 150   2              }       
+ 151   1      }
+ 152          
+ 153          /*******************************************************************************
+ 154          * 函 数 名         : void At24c02Write(unsigned char addr,unsigned char dat)
+ 155          * 函数功能                 : 往24c02的一个地址写入一个数据
+ 156          * 输    入         : 无
+ 157          * 输    出         : 无
+ 158          *******************************************************************************/
+ 159          
+ 160          void At24c02Write(unsigned char addr,unsigned char dat)
+ 161          {
+ 162   1              I2C_Start();
+ 163   1              I2C_SendByte(0xa0, 1);//发送写器件地址
+ 164   1              I2C_SendByte(addr, 1);//发送要写入内存地址
+ 165   1              I2C_SendByte(dat, 0);   //发送数据
+ 166   1              I2C_Stop();
+ 167   1      }
+ 168          /*******************************************************************************
+ 169          * 函 数 名         : unsigned char At24c02Read(unsigned char addr)
+ 170          * 函数功能                 : 读取24c02的一个地址的一个数据
+ 171          * 输    入         : 无
+ 172          * 输    出         : 无
+ 173          *******************************************************************************/
+ 174          
+ 175          unsigned char At24c02Read(unsigned char addr)
+ 176          {
+ 177   1              unsigned char num;
+ 178   1              I2C_Start();
+ 179   1              I2C_SendByte(0xa0, 1); //发送写器件地址
+C51 COMPILER V9.01   MAIN                                                                  07/17/2015 16:47:59 PAGE 4   
+
+ 180   1              I2C_SendByte(addr, 1); //发送要读取的地址
+ 181   1              I2C_Start();
+ 182   1              I2C_SendByte(0xa1, 1); //发送读器件地址
+ 183   1              num=I2C_ReadByte(); //读取数据
+ 184   1              I2C_Stop();
+ 185   1              return num;     
+ 186   1      }
+ 187          /*******************************************************************************
+ 188          * 函 数 名         : GPIO_DIGDisplayDatalay() interrupt 1
+ 189          * 函数功能                 : 中断数码管显示
+ 190          * 输    入         : 无
+ 191          * 输    出         : 无
+ 192          *******************************************************************************/
+ 193          
+ 194          void GPIO_DIGDisplayDatalay() interrupt 1
+ 195          {
+ 196   1      //定时器在工作方式二会自动重装初，所以不用在赋值。
+ 197   1      //      TH0=0X9c;//给定时器赋初值，定时1ms
+ 198   1      //      TL0=0X00;               
+ 199   1              GPIO_DIG=0; //消隐
+ 200   1              switch(Num)      //位选，选择点亮的数码管，
+ 201   1              {
+ 202   2                      case(0):
+ 203   2                              LSA=0;LSB=0;LSC=0; break;//显示第0位
+ 204   2                      case(1):
+ 205   2                              LSA=1;LSB=0;LSC=0; break;//显示第1位
+ 206   2                      case(2):
+ 207   2                              LSA=0;LSB=1;LSC=0; break;//显示第2位
+ 208   2                      case(3):
+ 209   2                              LSA=1;LSB=1;LSC=0; break;//显示第3位
+ 210   2                      case(4):
+ 211   2                              LSA=0;LSB=0;LSC=1; break;//显示第4位
+ 212   2                      case(5):
+ 213   2                              LSA=1;LSB=0;LSC=1; break;//显示第5位
+ 214   2                      case(6):
+ 215   2                              LSA=0;LSB=1;LSC=1; break;//显示第6位
+ 216   2                      case(7):
+ 217   2                              LSA=1;LSB=1;LSC=1; break;//显示第7位            
+ 218   2              }
+ 219   1              GPIO_DIG = DisplayData[Num]; //段选，选择显示的数字。
+ 220   1              Num++;
+ 221   1              if(Num>7)
+ 222   1              {
+ 223   2                      Num=0;
+ 224   2              }
+ 225   1              
+ 226   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    760    ----
+   CONSTANT SIZE    =     10    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     17      10
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

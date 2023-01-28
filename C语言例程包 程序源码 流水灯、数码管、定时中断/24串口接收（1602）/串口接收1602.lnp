@@ -1,0 +1,4 @@
+"STARTUP.obj",
+"串口接收1602.obj" 
+TO "串口接收1602" 
+RAMSIZE(256) 

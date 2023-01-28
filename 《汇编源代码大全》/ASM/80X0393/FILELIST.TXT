@@ -1,0 +1,82 @@
+List of all files included in 80X00393.ZIP:
+An asterik (*) behind the filename marks the file as new or updated.
+
+
+;--[ FAQ's (Frequently Ask Questions) ]---------------------------------------
+ASMBOOKS.FAQ *Books on Assembler
+CPUDIFF.FAQ   Difference between 386, 486, SX, DX
+MOUSETUT.FAQ *The Microsoft Mouse Interface Tutorial
+REBOOT.FAQ    Warmboot the computer
+UART_TUT.FAQ *The Serial Hardware Tutorial
+UUXXCODE.FAQ  Uuencoding and Uudecoding
+
+;--[ Textfiles ]--------------------------------------------------------------
+ADLIB.TXT    *Some specifics on how to play digitized sound out of AdLib
+ANTIANTI.TXT *Anti 'Anti-Debugging-Tricks'
+ANTIDBG.TXT  *Anti-Debugging-Tricks
+CMOS.TXT     *CMOS addresses
+CMDLINE.TXT  *Command Line Parms
+CRYPTO.TXT   *Cryptographic bibliography
+CUR_KEY.TXT  *Accessing the cursor keys
+DMA.TXT      *Description of DMA
+DMAPORTS.TXT  Description of DMA Ports
+FAT.TXT       Descriptions of the FAT
+FILELIST.TXT *This file
+ISR.TXT      *Releasing memory of an ISR that hooks vectors
+LOADALL.TXT  *Loadall instructions
+LOCKKEY.TXT  *Lockout keyboard
+README.TXT   *Some words to the 80XXX Snippets
+SB-PROG.TXT  *Programming the AdLib/Sound Blaster
+
+;--[ Sources ]----------------------------------------------------------------
+ARGS.ASM      *Parses the command line into a unix-style parameter array
+CHGLN_2.ASM   *A TSR which will detect if a diskette has been changed
+CHILD.ASM      Model for invoking a child process
+CHILD.DOC     *Doc for CHILD.ASM
+CHIRPER.ASM   *A TSR that gives each key a musical tone for audio feedback
+COLPRINT.ASM  *Prints a colored string at current cursor location
+COPPER.ASM     \  VGA palette changing
+COPRTEST.C      > Testfile for COPPER.ASM
+COPPER.DOC     /  DOC for COPPER.ASM
+COPRO.ASM      Detects whether coprocessor is installed or not
+CPRINT.ASM    * \  Direct video color printing routine
+CPUID.ASM      Determines (co-) processor
+SCROLL.ASM    *  > One line scroll routine           
+ERROR.ASM     * /  How to return an error code       
+CRC16.ASM     *Non table-based CRC16 routine
+CRC32.ASM     *CRC32 routines and tables
+CTRLC.ASM      Trap Ctrl-C, Ctrl-Break, PrintScreen
+CTRLC.DOC      Doc for CTRLC.ASM
+DBVGAL15.ASM  *VGA library, v1.5
+DE-ICE.ASM     A program to extract executables compressed under ICE
+DIALER.ASM     Resident dialer
+DIALER.DOC     Textfile to DIALER.ASM
+DRAWCHAR.ASM   Decode a 8 byte bit pattern (character) into a 8x8 pixel image
+FEEP.ASM      *Timer interrupt diagnostic checker
+GAMEPORT.ASM   Detects whether there is a gameport             
+IRQVECT.ASM    \  Demonstration of use of the VCPI function 0DE0Ah
+VCP_DET.ASM     > Detects if VCPI is available                    
+EXTFILE.ASM    /  External file for IRQVECT.ASM and VCP-DET.ASM   
+H2NAME.ASM     Handle to Name
+MAKEUUE.EXE    Utility to UuEncode a file and put it into a batch file
+MAKEUUE.DOC    Textfile for MAKEUUE                   
+MODEX.ASM     *A complete Mode X library
+MODEX_QB.INC  *Include file for QuickBasic using ModeX.OBJ
+MODEX.DOC     *Doc for MODEX.ASM                 
+MOUSE.ASM     *Routines for interfacing to a MS-compatible mouse driver
+MYPATH.ASM    *Prints full path of current program using the environment tail
+NET_Q.ASM     *Get List of Queue Servers under Netware 3.11
+NET_SN.ASM     Displays Serial Numbers of Networks    
+NOCAD.ASM      Controll - Alt - Delete Handler        
+POSXY.ASM      Position pixel at x,y
+RAND.ASM      *Linear congruential pseudo-random number generator routine
+SERTYPE.ASM    Displays serial port types      
+SET_HGC.ASM   *Switch Hercules in graphics mode
+STRING.ASM     Finding strings in memory
+TIMER.ASM     *Sample code to change the timer value
+TOADICE.ASM   *Unscrambles a .COM file scrambled by ICE v1.0
+UUD20.COM     *Official UuDecoder of the 80XXX Echo          
+UUE20.COM     *Official UuEncoder of the 80XXX Echo                                    
+VGADRAW.PAS    Mini VGA paint program
+VIDTYPE.ASM   *Detects what type of video adapter is installed
+WHATCPU.ASM   *Detects what type of CPU is installed

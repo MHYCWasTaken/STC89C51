@@ -1,0 +1,261 @@
+C51 COMPILER V7.06   24C02                                                                 05/13/2009 09:02:25 PAGE 1   
+
+
+C51 COMPILER V7.06, COMPILATION OF MODULE 24C02
+OBJECT MODULE PLACED IN 24c02.OBJ
+COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE 24c02.c BROWSE DEBUG OBJECTEXTEND
+
+stmt level    source
+
+   1          /*-----------------------------------------------
+   2            名称：IIC协议 EEPROM24c02
+   3            公司：上海浩豚电子科技有限公司
+   4            编写：师访
+   5            日期：2009.5
+   6            修改：无
+   7            内容：此程序用于检测EEPROM性能，测试方法如下：写入24c02一些数据，然后在内存中清除这些数据，
+   8                  掉电后主内存将失去这些信息，然后从24c02中调入这些数据。看是否与写入的相同。
+   9          ------------------------------------------------*/
+  10           #include<reg52.h>    //包含头文件，一般情况不需要改动，头文件包含特殊功能寄存器的定义
+  11           #include <intrins.h> //包含NOP空指令函数_nop_();
+  12          
+  13           #define AddWr 0xae   //写数据地址，需要参考24c02芯片文档
+  14           #define AddRd 0xaf   //读数据地址
+  15          
+  16           
+  17           sbit Sda=P1^2;       //定义总线连接端口
+  18           sbit Scl=P1^1;
+  19           sbit WP=P1^0;        //写保护，这里不使用
+  20          
+  21          /*------------------------------------------------
+  22                              延时程序
+  23          ------------------------------------------------*/
+  24           void mDelay(unsigned char j)
+  25           {
+  26   1        unsigned int i;
+  27   1        for(;j>0;j--)
+  28   1           {
+  29   2                for(i=0;i<125;i++)
+  30   2                   {;}
+  31   2                }
+  32   1        }
+  33          
+  34          /*------------------------------------------------
+  35                              启动IIC总线
+  36          ------------------------------------------------*/
+  37            void Start(void)
+  38            {
+  39   1         Sda=1;
+  40   1         _nop_();_nop_();
+  41   1         Scl=1;
+  42   1         _nop_();_nop_();_nop_();_nop_();_nop_();
+  43   1         Sda=0;
+  44   1         _nop_();_nop_();_nop_();_nop_();_nop_();
+  45   1         Scl=0;
+  46   1        }
+  47          
+  48          
+  49          /*------------------------------------------------
+  50                              停止IIC总线
+  51          ------------------------------------------------*/
+  52            void Stop(void)
+  53            {
+  54   1         Sda=0;
+  55   1         _nop_();
+C51 COMPILER V7.06   24C02                                                                 05/13/2009 09:02:25 PAGE 2   
+
+  56   1         Scl=1;
+  57   1         _nop_();_nop_();_nop_();_nop_();_nop_();
+  58   1         Sda=1;
+  59   1         _nop_();_nop_();_nop_();_nop_();_nop_();
+  60   1         Scl=0;
+  61   1         }
+  62          
+  63          
+  64          /*------------------------------------------------
+  65                             应答IIC总线
+  66          ------------------------------------------------*/
+  67             void Ack(void)
+  68             {
+  69   1          Sda=0;
+  70   1              _nop_();_nop_();_nop_();
+  71   1              Scl=1;
+  72   1              _nop_();_nop_();_nop_();_nop_();_nop_();
+  73   1              Scl=0;
+  74   1              _nop_();_nop_();
+  75   1              }
+  76          
+  77          
+  78          /*------------------------------------------------
+  79                           非应答IIC总线
+  80          ------------------------------------------------*/
+  81                  void NoAck(void)
+  82                  {
+  83   1               Sda=1;
+  84   1               _nop_();_nop_();_nop_();
+  85   1               Scl=1;
+  86   1               _nop_();_nop_();_nop_();_nop_();_nop_();
+  87   1               Scl=0;
+  88   1               _nop_();_nop_();
+  89   1               }
+  90          
+  91          
+  92          /*------------------------------------------------
+  93                        发送一个字节
+  94          ------------------------------------------------*/
+  95                   void Send(unsigned char Data)
+  96                   { 
+  97   1                unsigned char BitCounter=8;
+  98   1                unsigned char temp;
+  99   1      
+ 100   1                do
+ 101   1                  {
+ 102   2                       temp=Data;
+ 103   2                       Scl=0;
+ 104   2                       _nop_();_nop_();_nop_();_nop_();_nop_();
+ 105   2                       if((temp&0x80)==0x80)
+ 106   2                          Sda=1;
+ 107   2                       else
+ 108   2                          Sda=0;
+ 109   2      
+ 110   2      
+ 111   2                              Scl=1;
+ 112   2                              temp=Data<<1;
+ 113   2                              Data=temp;
+ 114   2                              BitCounter--;
+ 115   2                        }
+ 116   1                while(BitCounter);
+ 117   1                    Scl=0;
+C51 COMPILER V7.06   24C02                                                                 05/13/2009 09:02:25 PAGE 3   
+
+ 118   1                }
+ 119          
+ 120          
+ 121          /*------------------------------------------------
+ 122                         读入一个字节并返回
+ 123          ------------------------------------------------*/
+ 124                    unsigned char Read(void)
+ 125                    {
+ 126   1                 unsigned char temp=0;
+ 127   1                 unsigned char temp1=0;
+ 128   1                 unsigned char BitCounter=8;
+ 129   1      
+ 130   1                 Sda=1;
+ 131   1                 do
+ 132   1                   {
+ 133   2                        Scl=0;
+ 134   2                _nop_();_nop_();_nop_();_nop_();_nop_();
+ 135   2                        Scl=1;
+ 136   2                        _nop_();_nop_();_nop_();_nop_();_nop_();
+ 137   2                        if(Sda)
+ 138   2                           temp=temp|0x01;
+ 139   2                        else
+ 140   2                           temp=temp&0xfe;
+ 141   2      
+ 142   2                        if(BitCounter-1)
+ 143   2                           {
+ 144   3                                temp1=temp<<1;
+ 145   3                                temp=temp1;
+ 146   3                                }
+ 147   2                                BitCounter--;
+ 148   2                               }
+ 149   1                      while(BitCounter);
+ 150   1                      return(temp);
+ 151   1                }
+ 152           
+ 153          /*------------------------------------------------
+ 154                              写入数据
+ 155          ------------------------------------------------*/
+ 156                    void WrToROM(unsigned char Data[],unsigned char Address,unsigned char Num)
+ 157                    {
+ 158   1                 unsigned char i;
+ 159   1                 unsigned char *PData;
+ 160   1                 PData=Data;
+ 161   1                 for(i=0;i<Num;i++)
+ 162   1                    {
+ 163   2                         Start();
+ 164   2                         Send(AddWr);    //写入芯片地址
+ 165   2                         Ack();
+ 166   2                         Send(Address+i);//写入存储地址
+ 167   2                         Ack();
+ 168   2                         Send(*(PData+i));//写数据
+ 169   2                         Ack();
+ 170   2                         Stop();
+ 171   2                         mDelay(20);
+ 172   2                         }
+ 173   1                 }
+ 174          
+ 175          /*------------------------------------------------
+ 176                           读出数据
+ 177          ------------------------------------------------*/
+ 178                    void RdFromROM(unsigned char Data[],unsigned char Address,unsigned char Num)
+ 179                    {
+C51 COMPILER V7.06   24C02                                                                 05/13/2009 09:02:25 PAGE 4   
+
+ 180   1                 unsigned char i;
+ 181   1                 unsigned char *PData;
+ 182   1                 PData=Data;
+ 183   1             for(i=0;i<Num;i++)
+ 184   1                    {
+ 185   2                         Start();        //写入芯片地址
+ 186   2                         Send(AddWr);
+ 187   2                         Ack();
+ 188   2                         Send(Address+i);//写入存储地址
+ 189   2                         Ack();
+ 190   2                         Start();
+ 191   2                         Send(AddRd);    //读入地址
+ 192   2                         Ack();
+ 193   2                         *(PData+i)=Read();//读数据
+ 194   2                         Scl=0;
+ 195   2                         NoAck();
+ 196   2                         Stop();
+ 197   2                         }
+ 198   1                }
+ 199          
+ 200          /*------------------------------------------------
+ 201                             主程序
+ 202          ------------------------------------------------*/
+ 203                  void main()
+ 204                  {
+ 205   1               unsigned char Number[4]={0x06,0x5b,0x4f,0x66};// 显示码值 1234
+ 206   1               unsigned char i;
+ 207   1               WP=0;                                         //写保护关掉
+ 208   1               P2=0x00;
+ 209   1               
+ 210   1               WrToROM(Number,4,4);                          //写入24c02
+ 211   1               mDelay(200);
+ 212   1               Number[0]=0;                                  //清除当前数据
+ 213   1               Number[1]=0;
+ 214   1               Number[2]=0;
+ 215   1               Number[3]=0;
+ 216   1               RdFromROM(Number,4,4);                        //调用存储数据
+ 217   1               
+ 218   1               while(1)
+ 219   1                    { 
+ 220   2                 
+ 221   2                     P0=Number[i];                            //显示存储数据
+ 222   2                         mDelay(200);                             //延时用于演示显示数据
+ 223   2                         mDelay(200);
+ 224   2                         i++;
+ 225   2                         if(i==4)
+ 226   2                            i=0;
+ 227   2                        }
+ 228   1              }
+ 229          
+ 230          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    415    ----
+   CONSTANT SIZE    =      4    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      22
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+C51 COMPILER V7.06   24C02                                                                 05/13/2009 09:02:25 PAGE 5   
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

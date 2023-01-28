@@ -1,0 +1,416 @@
+C51 COMPILER V7.50   LCD                                                                   09/13/2011 19:37:14 PAGE 1   
+
+
+C51 COMPILER V7.50, COMPILATION OF MODULE LCD
+OBJECT MODULE PLACED IN LCD.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Source\LCD.c LARGE BROWSE DEBUG OBJECTEXTEND PRINT(.\LCD.lst) OBJECT(LCD.ob
+                    -j)
+
+line level    source
+
+   1          /*
+   2          ================================================================================
+   3          Copytight      : Yihetech Co,.Ltd, All rightd reserved. 版权归属亿和电子工作室
+   4          Store          : http://shop57165217.taobao.com/
+   5          
+   6          File Name      : lcd.c
+   7          Description    : LCD module operations
+   8          Date           : 2009-7-19 21:17:45
+   9          Version        : V1.0
+  10          Author         : LiYong(李勇), yihe_liyong@126.com
+  11          Target device  : C8051F340
+  12          Compiler       : KeilC51 V8.16
+  13          Note           : 转载时务必保留此信息，否则无权以任何形式传播本文件
+  14          ================================================================================
+  15          */
+  16          #define _LCD_C_
+  17          #include "LCD.H"
+  18          
+  19          
+  20          #define LCDCOM           0
+  21          #define LCDDAT           1
+  22          
+  23          sbit LED_RD = P2^5;
+  24          sbit LED_CS = P2^7;
+  25          sbit LED_WR = P2^4;
+  26          sbit LED_A0 = P2^3;
+  27          sbit BLACKLIGHT = P2^0;
+  28          sbit RESET = P2^6;
+  29          
+  30          
+  31          void _delay_ms(unsigned char del)
+  32          {
+  33   1              unsigned int i,j;
+  34   1              for(i=0; i<del; i++)
+  35   1              for(j=0; j<182; j++)   
+  36   1              ;
+  37   1      }
+  38          /*
+  39          ================================================================================
+  40          * Name        : LCD_Init( )
+  41          * Description : Initialize the LCD module
+  42          * Input       : None
+  43          * Output      : None
+  44          * Note        : None
+  45          ================================================================================
+  46          */
+  47          void LCDWR( INT8U cmd_dt, INT8U value )
+  48          {
+  49   1              LED_RD = 1;
+  50   1              LED_CS = 1;
+  51   1              LED_WR = 1;
+  52   1              if(cmd_dt)
+  53   1              {
+  54   2                      LED_A0 = 1;
+C51 COMPILER V7.50   LCD                                                                   09/13/2011 19:37:14 PAGE 2   
+
+  55   2              }
+  56   1              else
+  57   1              {
+  58   2                      LED_A0 = 0;     
+  59   2              }
+  60   1              P0 = value;
+  61   1              LED_CS = 0;
+  62   1              LED_WR = 0;
+  63   1              LED_WR = 1;
+  64   1              LED_CS = 1;
+  65   1      }
+  66          /*
+  67          ================================================================================
+  68          * Name        : LCD_Init( )
+  69          * Description : Initialize the LCD module
+  70          * Input       : None
+  71          * Output      : None
+  72          * Note        : None
+  73          ================================================================================
+  74          */
+  75          void LCD_Init( void )
+  76          {
+  77   1                      RESET=1;
+  78   1                      _delay_ms(10);  //Delay 1ms
+  79   1                      RESET=0;
+  80   1                      _delay_ms(10);  //Delay 1ms
+  81   1                      RESET=1;
+  82   1                      _delay_ms(10);  //Delay 120ms
+  83   1      
+  84   1                      LCDWR( LCDCOM, 0x01);//software reset
+  85   1                      _delay_ms(50);       //delay 150ms
+  86   1                      LCDWR( LCDCOM, 0x11);//software reset
+  87   1      
+  88   1                      LCDWR( LCDCOM,0xB1); // Auto load set
+  89   1                      LCDWR ( LCDDAT,0x02);//auto load disable//0x9f
+  90   1                      LCDWR ( LCDDAT,0x35);
+  91   1                      LCDWR ( LCDDAT,0x36);
+  92   1                      LCDWR( LCDCOM,0xB2);  //EE read/write mode
+  93   1                      LCDWR ( LCDDAT,0x02); //set read  mode
+  94   1                      LCDWR ( LCDDAT,0x35); 
+  95   1                      LCDWR ( LCDDAT,0x36);
+  96   1                      LCDWR( LCDCOM,0xB3);  //EE read/write mode
+  97   1                      LCDWR ( LCDDAT,0x02); //set read  mode
+  98   1                      LCDWR ( LCDDAT,0x35); 
+  99   1                      LCDWR ( LCDDAT,0x36);
+ 100   1                      LCDWR( LCDCOM,0xB4);  //EE read/write mode
+ 101   1                      LCDWR ( LCDDAT,0x07); //set read  mode
+ 102   1                      
+ 103   1                        
+ 104   1                      LCDWR( LCDCOM,0xb6);   
+ 105   1                      LCDWR ( LCDDAT,0xb4);
+ 106   1                      LCDWR ( LCDDAT,0xf0);
+ 107   1                                      
+ 108   1                      LCDWR( LCDCOM,0xc0);   
+ 109   1                      LCDWR ( LCDDAT,0xa2); 
+ 110   1                      LCDWR ( LCDDAT,0x02); 
+ 111   1                  LCDWR ( LCDDAT,0x84);
+ 112   1                      LCDWR( LCDCOM,0xc1); 
+ 113   1                      LCDWR ( LCDDAT,0x05);
+ 114   1                      //LCDWR( LCDCOM,0xc2); 
+ 115   1                      //LCDWR ( LCDDAT,0x0a);
+ 116   1                      //LCDWR ( LCDDAT,0x00);
+C51 COMPILER V7.50   LCD                                                                   09/13/2011 19:37:14 PAGE 3   
+
+ 117   1                      //LCDWR( LCDCOM,0xc3); 
+ 118   1                      //LCDWR ( LCDDAT,0x8a);
+ 119   1                      //LCDWR ( LCDDAT,0x2a);
+ 120   1                      //LCDWR( LCDCOM,0xc4); 
+ 121   1                      //LCDWR ( LCDDAT,0x8a);
+ 122   1                      //LCDWR ( LCDDAT,0xee);
+ 123   1                      //LCDWR( LCDCOM,0xd9);
+ 124   1                      //LCDWR ( LCDDAT,0x40);
+ 125   1      
+ 126   1                      LCDWR( LCDCOM,0xc5);
+ 127   1                      LCDWR ( LCDDAT,0x02); 
+ 128   1                      LCDWR( LCDCOM,0xc7);
+ 129   1                      LCDWR ( LCDDAT,0x00);
+ 130   1      
+ 131   1                      LCDWR( LCDCOM,0x36); 
+ 132   1                      LCDWR ( LCDDAT,0xc8);
+ 133   1      
+ 134   1      //////////
+ 135   1      
+ 136   1      
+ 137   1              LCDWR( LCDCOM,0xe0);   //write contrast for mobile
+ 138   1                      LCDWR ( LCDDAT,0x12);
+ 139   1                      LCDWR ( LCDDAT,0x1c);
+ 140   1                      LCDWR ( LCDDAT,0x10);
+ 141   1                      LCDWR ( LCDDAT,0x18);
+ 142   1                      LCDWR ( LCDDAT,0x33);
+ 143   1      
+ 144   1                      LCDWR ( LCDDAT,0x2c);
+ 145   1                      LCDWR ( LCDDAT,0x25);
+ 146   1                      LCDWR ( LCDDAT,0x28);
+ 147   1                      LCDWR ( LCDDAT,0x27);
+ 148   1      
+ 149   1                      LCDWR ( LCDDAT,0x2f);
+ 150   1                      LCDWR ( LCDDAT,0x3c);
+ 151   1                      LCDWR ( LCDDAT,0x00);
+ 152   1                      LCDWR ( LCDDAT,0x03);
+ 153   1      
+ 154   1                      LCDWR ( LCDDAT,0x03);
+ 155   1                      LCDWR ( LCDDAT,0x10);
+ 156   1      
+ 157   1                      //-----------OTPB SET----------------------//
+ 158   1                      LCDWR( LCDCOM,0xe1);// bias set
+ 159   1                      LCDWR ( LCDDAT,0x12);
+ 160   1                      LCDWR ( LCDDAT,0x1c);
+ 161   1                      LCDWR ( LCDDAT,0x10);
+ 162   1                      LCDWR ( LCDDAT,0x18);
+ 163   1                      LCDWR ( LCDDAT,0x33);
+ 164   1      
+ 165   1                      LCDWR ( LCDDAT,0x2c);
+ 166   1                      LCDWR ( LCDDAT,0x25);
+ 167   1                      LCDWR ( LCDDAT,0x28);
+ 168   1                      LCDWR ( LCDDAT,0x27);
+ 169   1      
+ 170   1                      LCDWR ( LCDDAT,0x2f);
+ 171   1                      LCDWR ( LCDDAT,0x3c);
+ 172   1                      LCDWR ( LCDDAT,0x00);
+ 173   1                      LCDWR ( LCDDAT,0x03);
+ 174   1      
+ 175   1                      LCDWR ( LCDDAT,0x03);
+ 176   1                      LCDWR ( LCDDAT,0x10);
+ 177   1      
+ 178   1      
+C51 COMPILER V7.50   LCD                                                                   09/13/2011 19:37:14 PAGE 4   
+
+ 179   1                      LCDWR( LCDCOM,0x2a);// bias set
+ 180   1                      LCDWR ( LCDDAT,0x00);
+ 181   1                      LCDWR ( LCDDAT,0x02);
+ 182   1                      LCDWR ( LCDDAT,0x00);
+ 183   1                      LCDWR ( LCDDAT,0x81);
+ 184   1      
+ 185   1                      LCDWR( LCDCOM,0x2b);// bias set
+ 186   1                      LCDWR ( LCDDAT,0x00);
+ 187   1                      LCDWR ( LCDDAT,0x03);
+ 188   1                      LCDWR ( LCDDAT,0x00);
+ 189   1                      LCDWR ( LCDDAT,0x82);
+ 190   1      
+ 191   1                      LCDWR( LCDCOM,0xf0);// bias set
+ 192   1                      LCDWR ( LCDDAT,0x01);
+ 193   1                      LCDWR( LCDCOM,0xf6);// bias set
+ 194   1                      LCDWR ( LCDDAT,0x00);
+ 195   1                      LCDWR( LCDCOM,0x3a);// bias set
+ 196   1                      LCDWR ( LCDDAT,0x05);
+ 197   1      
+ 198   1                      _delay_ms(50);  
+ 199   1                      LCDWR( LCDCOM,0x29);   //booster set
+ 200   1                      _delay_ms(50);  
+ 201   1                      //LCDWR( LCDCOM,0x2c);   //booster efficiency set
+ 202   1      }
+ 203          /*
+ 204          ========================================================================================================
+ 205          Name: LCDDrawDollop
+ 206          Function: Draw a dollop at a special area
+ 207          Input:  1. *dollop : The pointer of a DOLLOP struct
+ 208          Output: None
+ 209          Note: The value of the input structrue must be correct, This function does not check the parameters.
+ 210          Author: LiYong
+ 211          Date  : 2008.08.09
+ 212          ========================================================================================================
+ 213          */
+ 214          void LCDSetArea( INT16U x1, INT16U y1, INT16U x2, INT16U y2 )
+ 215          {
+ 216   1              x1+=2;
+ 217   1              x2+=2;
+ 218   1              y1+=3;
+ 219   1              y2+=3;  
+ 220   1      
+ 221   1          LCDWR ( LCDCOM, 0x2A);
+ 222   1              LCDWR ( LCDDAT,  x1>>8);
+ 223   1              LCDWR ( LCDDAT, x1);
+ 224   1              LCDWR ( LCDDAT,  x2>>8);
+ 225   1              LCDWR ( LCDDAT, x2 + 0); 
+ 226   1      
+ 227   1              LCDWR ( LCDCOM, 0x2B);
+ 228   1              LCDWR ( LCDDAT,  y1>>8);
+ 229   1              LCDWR ( LCDDAT, y1); 
+ 230   1              LCDWR ( LCDDAT,  y2>>8);
+ 231   1              LCDWR ( LCDDAT, y2); 
+ 232   1              LCDWR ( LCDCOM, 0x2C);
+ 233   1      }
+ 234          
+ 235          void    LCDDrawDollop( DOLLOP* dollop )
+ 236          {
+ 237   1              INT16U x,y;
+ 238   1      
+ 239   1              LCDSetArea(dollop->xs, dollop->ys, dollop->xe, dollop->ye);     //Set a area at the screen
+ 240   1              for( x = 0; x < dollop->xe - dollop->xs + 1; x ++ )                                     //Display rows
+C51 COMPILER V7.50   LCD                                                                   09/13/2011 19:37:14 PAGE 5   
+
+ 241   1              {
+ 242   2                      for( y = 0; y < dollop->ye - dollop->ys + 1; y ++ )                             //Display columns
+ 243   2                      {
+ 244   3                              LCDWR( LCDDAT, dollop->Color>>8 );
+ 245   3                              LCDWR( LCDDAT, dollop->Color );
+ 246   3                      }
+ 247   2              }
+ 248   1      }
+ 249          /*
+ 250          ========================================================================================================
+ 251          Name: LCDDrawPoint( );
+ 252          Function: Draw a point
+ 253          Input:  -pPoint, A structure pointer
+ 254          Output: None
+ 255          ========================================================================================================
+ 256          */
+ 257          void LCDDrawPoint( POINT* pPoint )
+ 258          {
+ 259   1          LCDSetArea( pPoint->x, pPoint->y, pPoint->x, pPoint->y );
+ 260   1              LCDWR ( LCDDAT,  ( pPoint->Color >> 8 ) & 0xff );
+ 261   1              LCDWR ( LCDDAT,  pPoint->Color & 0xff );
+ 262   1      }
+ 263          /*
+ 264          ========================================================================================================
+ 265          Name: LCDDrawHRLine( );
+ 266          Function: Draw a line
+ 267          Input:  -pLine, A structure pointer to a line
+ 268          Output: None
+ 269          ========================================================================================================
+ 270          */
+ 271          void LCDDrawHRLine( LINE* pLine )
+ 272          {
+ 273   1              INT8U x0, x1, y0, y1;
+ 274   1              if( pLine->xs != pLine->xe && pLine->ys != pLine->ye )   return;
+ 275   1              if( pLine->ys > pLine->ye )
+ 276   1              {
+ 277   2                      y0 = pLine->ye;
+ 278   2                      y1 = pLine->ys;
+ 279   2              }
+ 280   1              else
+ 281   1              {
+ 282   2                      y0 = pLine->ys;
+ 283   2                      y1 = pLine->ye;
+ 284   2              }
+ 285   1              if( pLine->xs > pLine->xe )
+ 286   1              {
+ 287   2                      x0 = pLine->xe;
+ 288   2                      x1 = pLine->xs;
+ 289   2              }
+ 290   1              else
+ 291   1              {
+ 292   2                      x0 = pLine->xs;
+ 293   2                      x1 = pLine->xe;
+ 294   2              }
+ 295   1              LCDSetArea( x0, y0, x1, y1 );
+ 296   1              x0 = x1 - x0;
+ 297   1              if( x0 == 0 ) x0 = y1 - y0;
+ 298   1              for( y0 = 0; y0 < x0; y0 ++ )
+ 299   1              {
+ 300   2                      LCDWR( LCDDAT, pLine->Color >> 8 );
+ 301   2                      LCDWR( LCDDAT, pLine->Color );
+ 302   2              }
+C51 COMPILER V7.50   LCD                                                                   09/13/2011 19:37:14 PAGE 6   
+
+ 303   1      }
+ 304          /*
+ 305          ========================================================================================================
+ 306          Name: PrintBitBlock
+ 307          Function: Print a special block in the screen.
+ 308          Input:  pBitBlock: This is a pointer, It points to a block whitch contains informations of the block,
+ 309                  eg. height, width, and so on.
+ 310          Output: None
+ 311          Note:   None
+ 312          Author: LiYong
+ 313          Date  : 2008.08.09
+ 314          ========================================================================================================
+ 315          */
+ 316          void    PrintBitBlock( BitBlock *pBitBlock )
+ 317          {
+ 318   1          INT8U       Row, Column;
+ 319   1              INT32U  BytesAbs;
+ 320   1              INT8U   RowBytes;
+ 321   1      
+ 322   1              LCDSetArea( pBitBlock->xs, pBitBlock->ys,
+ 323   1                      pBitBlock->xs + pBitBlock->Width - 1, pBitBlock->ys + pBitBlock->Height - 1 );
+ 324   1      
+ 325   1              RowBytes = pBitBlock->Width >> 3;
+ 326   1              if( pBitBlock->Width & 0x07 )
+ 327   1              {
+ 328   2                      RowBytes ++;
+ 329   2              }
+ 330   1              for( Row = 0; Row <  pBitBlock->Height; Row ++ )
+ 331   1              {
+ 332   2                      for( Column = 0; Column < pBitBlock->Width; Column ++ )
+ 333   2                      {
+ 334   3                              BytesAbs = Row * RowBytes + ( Column >> 3 )     ;
+ 335   3                              if( *( pBitBlock->pData + BytesAbs )    & ( 1<<( Column & 0x07 )) )
+ 336   3                              {
+ 337   4                                      LCDWR( LCDDAT, pBitBlock->Color >> 8 );
+ 338   4                                      LCDWR( LCDDAT, pBitBlock->Color );
+ 339   4                              }
+ 340   3                              else
+ 341   3                              {
+ 342   4                                      LCDWR( LCDDAT, pBitBlock->BackColor >> 8 );
+ 343   4                                      LCDWR( LCDDAT, pBitBlock->BackColor );
+ 344   4                              }
+ 345   3                      }
+ 346   2              }
+ 347   1      }
+ 348          /*
+ 349          ========================================================================================================
+ 350          Name: GUI_Image( )
+ 351          Function: Print a image
+ 352          Input:  point to a struct which contains the informations of the image
+ 353          Output: None
+ 354          Note:   None
+ 355          Author: LiYong
+ 356          Date  : 2008.08.09
+ 357          ========================================================================================================
+ 358          */
+ 359          void GUI_Image( IMAGE *pImage )
+ 360          {
+ 361   1          INT16U x, y;
+ 362   1          INT32U datacount = 0;
+ 363   1          LCDSetArea( pImage->xs, pImage->ys, pImage->xs + pImage->length - 1, pImage->ys + pImage->height - 1 )
+             -;
+C51 COMPILER V7.50   LCD                                                                   09/13/2011 19:37:14 PAGE 7   
+
+ 364   1      
+ 365   1          for( x = 0; x < pImage->length; x ++ )
+ 366   1          {
+ 367   2              for( y = 0; y < pImage->height; y ++ )
+ 368   2              {
+ 369   3                  LCDWR( LCDDAT, *( pImage->pData + datacount++ ) );
+ 370   3                  LCDWR( LCDDAT, *( pImage->pData + datacount++ ) );
+ 371   3      
+ 372   3              }
+ 373   2          }
+ 374   1      }
+ 375          /*
+ 376          ================================================================================
+ 377          -----------------------------------End of file----------------------------------
+ 378          ================================================================================
+ 379          */
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   2074    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----      42
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

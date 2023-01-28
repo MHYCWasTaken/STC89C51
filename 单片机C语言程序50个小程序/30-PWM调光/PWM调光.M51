@@ -1,0 +1,148 @@
+BL51 BANKED LINKER/LOCATER V5.03                                                        05/13/2009  13:37:35  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V5.03, INVOKED BY:
+D:\KEIL\C51\BIN\BL51.EXE PWM.obj TO PWM调光 RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  PWM.obj (PWM)
+  D:\KEIL\C51\LIB\C51S.LIB (?C_STARTUP)
+
+
+LINK MAP OF MODULE:  PWM调光 (PWM)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     0003H     UNIT         ?DT?PWM
+                    000BH     0015H                  *** GAP ***
+            BIT     0020H.0   0000H.1   UNIT         _BIT_GROUP_
+                    0020H.1   0000H.7                *** GAP ***
+            IDATA   0021H     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+                    0003H     0008H                  *** GAP ***
+            CODE    000BH     0003H     ABSOLUTE     
+            CODE    000EH     0038H     UNIT         ?PR?MAIN?PWM
+            CODE    0046H     0026H     UNIT         ?PR?TIM?PWM
+            CODE    006CH     000CH     UNIT         ?C_C51STARTUP
+            CODE    0078H     000AH     UNIT         ?PR?_DELAY?PWM
+
+
+
+OVERLAY MAP OF MODULE:   PWM调光 (PWM)
+
+
+SEGMENT                           BIT_GROUP 
+  +--> CALLED SEGMENT          START    LENGTH
+----------------------------------------------
+?C_C51STARTUP                  -----    -----
+  +--> ?PR?MAIN?PWM
+
+?PR?MAIN?PWM                   0020H.0  0000H.1
+  +--> ?PR?_DELAY?PWM
+
+
+
+SYMBOL TABLE OF MODULE:  PWM调光 (PWM)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        PWM
+  C:0000H         SYMBOL        _ICE_DUMMY_
+BL51 BANKED LINKER/LOCATER V5.03                                                      05/13/2009  13:37:35  PAGE 2
+
+
+  D:0090H         PUBLIC        P1
+  D:00B0H         PUBLIC        P3
+  D:00A8H         PUBLIC        IE
+  D:00B8H         PUBLIC        IP
+  C:000EH         PUBLIC        main
+  D:0098H         PUBLIC        SCON
+  D:0089H         PUBLIC        TMOD
+  D:0088H         PUBLIC        TCON
+  C:0046H         PUBLIC        tim
+  D:008CH         PUBLIC        TH0
+  D:008AH         PUBLIC        TL0
+  B:0090H.2       PUBLIC        LED
+  B:0088H.4       PUBLIC        TR0
+  D:00C8H         PUBLIC        T2CON
+  C:0078H         PUBLIC        _delay
+  D:0009H         PUBLIC        CYCLE
+  D:000AH         PUBLIC        PWM_ON
+  D:00D0H         PUBLIC        PSW
+  -------         PROC          _DELAY
+  D:0006H         SYMBOL        cnt
+  C:0078H         LINE#         21
+  C:0078H         LINE#         22
+  C:0078H         LINE#         23
+  C:0081H         LINE#         24
+  -------         ENDPROC       _DELAY
+  -------         PROC          MAIN
+  -------         DO            
+  B:0020H.0       SYMBOL        Flag
+  -------         ENDDO         
+  C:000EH         LINE#         28
+  C:000EH         LINE#         29
+  C:000EH         LINE#         32
+  C:0011H         LINE#         33
+  C:0014H         LINE#         34
+  C:0017H         LINE#         35
+  C:001AH         LINE#         36
+  C:001CH         LINE#         38
+  C:001FH         LINE#         39
+  C:0022H         LINE#         40
+  C:0022H         LINE#         41
+  C:0029H         LINE#         42
+  C:002BH         LINE#         43
+  C:0030H         LINE#         44
+  C:0030H         LINE#         45
+  C:0032H         LINE#         46
+  C:0032H         LINE#         47
+  C:0034H         LINE#         49
+  C:0037H         LINE#         50
+  C:0037H         LINE#         51
+  C:003EH         LINE#         52
+  C:0041H         LINE#         53
+  C:0041H         LINE#         54
+  C:0041H         LINE#         55
+  C:0043H         LINE#         56
+  C:0043H         LINE#         57
+  C:0045H         LINE#         58
+  -------         ENDPROC       MAIN
+BL51 BANKED LINKER/LOCATER V5.03                                                      05/13/2009  13:37:35  PAGE 3
+
+
+  -------         PROC          TIM
+  -------         DO            
+  D:0008H         SYMBOL        count
+  -------         ENDDO         
+  C:0046H         LINE#         62
+  C:004AH         LINE#         65
+  C:004DH         LINE#         66
+  C:0050H         LINE#         68
+  C:0055H         LINE#         69
+  C:0055H         LINE#         70
+  C:0057H         LINE#         71
+  C:0057H         LINE#         72
+  C:0059H         LINE#         73
+  C:005EH         LINE#         74
+  C:005EH         LINE#         75
+  C:0061H         LINE#         76
+  C:0065H         LINE#         77
+  C:0067H         LINE#         79
+  C:0067H         LINE#         81
+  -------         ENDPROC       TIM
+  -------         ENDMOD        PWM
+
+Program Size: data=12.1 xdata=0 code=122
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

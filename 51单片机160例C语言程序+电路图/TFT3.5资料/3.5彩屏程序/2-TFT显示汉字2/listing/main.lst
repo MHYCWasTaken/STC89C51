@@ -1,0 +1,61 @@
+C51 COMPILER V7.06   MAIN                                                                  11/02/2013 00:22:49 PAGE 1   
+
+
+C51 COMPILER V7.06, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\obj\main.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE src\main.c BROWSE DEBUG OBJECTEXTEND PRINT(.\listing\main.lst) OBJECT(.\obj
+                    -\main.obj)
+
+stmt level    source
+
+   1          
+   2          /*------------------------------------------------
+   3                          包含头文件
+   4          ------------------------------------------------*/
+   5          #include"reg52.h"
+   6          #include"tft.h"
+   7          /*------------------------------------------------
+   8                                  主函数
+   9          ------------------------------------------------*/
+  10          void  main(void)
+  11          {   
+  12   1      
+  13   1      TFT_Initial();//初始化
+  14   1      while(1)
+  15   1      {
+  16   2      
+  17   2      show_colour_bar();      //显示彩条
+  18   2      ClearScreen(0xff00);
+  19   2      Show_RGB (0,240,0,320,0xf800);//刷出320x240的小区域
+  20   2      ClearScreen(0xff00);
+  21   2      LCD_PutString(0,0,"朗译电子科技",0x0000,0x00f8);
+  22   2      LCD_PutString(0,32,"朗译电子科技",0xffff,0xf800);
+  23   2      LCD_PutString(0,64,"朗译电子科技",0x2334,0x0045);
+  24   2      LCD_PutString(0,96,"朗译电子科技",0x0560,0x0a80);
+  25   2      LCD_PutString(0,128,"朗译电子科技",0x0000,0x0f80);
+  26   2      LCD_PutString(0,160,"朗译电子科技",0x0000,0x0f80);
+  27   2      LCD_PutString(0,192,"朗译电子科技",0x0000,0x0f80);
+  28   2      LCD_PutString(0,224,"朗译电子科技",0x0000,0x0f80);
+  29   2      LCD_PutString(0,256,"朗译电子科技",0x0000,0x0f80);
+  30   2      LCD_PutString(0,288,"朗译电子科技",0x0000,0x0f80);
+  31   2      LCD_PutString(0,320,"朗译电子科技",0x0000,0x0f80);
+  32   2      LCD_PutString(0,352,"朗译电子科技",0x0000,0x0f80);
+  33   2      
+  34   2              
+  35   2      while(1);               //刷完停止
+  36   2              }
+  37   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    355    ----
+   CONSTANT SIZE    =     13    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,48 @@
+C51 COMPILER V7.06   IO                                                                    05/12/2009 23:58:52 PAGE 1   
+
+
+C51 COMPILER V7.06, COMPILATION OF MODULE IO
+OBJECT MODULE PLACED IN io.OBJ
+COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE io.c BROWSE DEBUG OBJECTEXTEND
+
+stmt level    source
+
+   1          /*-----------------------------------------------
+   2            名称：IO口信号输入
+   3            公司：上海浩豚电子科技有限公司
+   4            编写：师访
+   5            日期：2009.5
+   6            修改：无
+   7            内容：通过读入P3端口的电平控制P1口，用LED显示
+   8                  该程序是学习如何读入IO电平信息
+   9          ------------------------------------------------*/
+  10          #include<reg52.h> //包含头文件，一般情况不需要改动，头文件包含特殊功能寄存器的定义
+  11          /*------------------------------------------------
+  12                              主函数
+  13          ------------------------------------------------*/
+  14          void main (void)
+  15          {
+  16   1      
+  17   1      P1 = 0xFF;        //P1口全部为高电平，对应的LED灯全灭掉，ff换算成二进制是 1111 1111
+  18   1      
+  19   1      while (1)         //主循环
+  20   1        {
+  21   2        P1=P3;          //读入P3的值然后赋值给P1，如果P3.0=0，其他为1，则执行过该语句后P1.0=0，其他值为1，对应P1
+             -.0口的灯亮
+  22   2                        //程序可以通过独立按键测试，在开发板上需要切换成独立按键模式
+  23   2        }
+  24   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =      8    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

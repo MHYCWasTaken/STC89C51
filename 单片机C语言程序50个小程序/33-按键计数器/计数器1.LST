@@ -1,0 +1,85 @@
+C51 COMPILER V7.06   计数器1                                                               05/13/2009 13:43:02 PAGE 1   
+
+
+C51 COMPILER V7.06, COMPILATION OF MODULE 计数器1
+OBJECT MODULE PLACED IN 计数器1.OBJ
+COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE 计数器1.c BROWSE DEBUG OBJECTEXTEND
+
+stmt level    source
+
+   1          
+   2          /*-----------------------------------------------
+   3            名称：按键计数器
+   4            公司：上海浩豚电子科技有限公司
+   5            网站：www.doflye.cn
+   6            编写：师访
+   7            日期：2009.5
+   8            修改：无
+   9            内容：1、程序目的：使用外部中断学习计数 这里使用100以内计数，2位数码管 
+  10                  2、硬件要求：数码管、晶振12M
+  11          ------------------------------------------------*/
+  12          #include<reg52.h>     //包含头文件，一般情况不需要改动，头文件包含特殊功能寄存器的定义
+  13          
+  14          code unsigned char tab[]={0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f}; 
+  15                                            //共阴数码管 0-9 
+  16          
+  17          unsigned char Dis_Shiwei;//定义十位
+  18          unsigned char Dis_Gewei; //定义个位
+  19          /******************************************************************/
+  20          /*                    延时函数                                    */
+  21          /******************************************************************/
+  22          void delay(unsigned int cnt)
+  23          {
+  24   1       while(--cnt);
+  25   1      }
+  26          /******************************************************************/
+  27          /*                    主函数                                      */
+  28          /******************************************************************/
+  29          main()
+  30          {
+  31   1      
+  32   1        EA=1;//全局中断开
+  33   1        EX0=1;//外部中断0开
+  34   1        IT0=1;//边沿触发
+  35   1      
+  36   1      while(1)
+  37   1        {
+  38   2        P0=Dis_Shiwei;//显示十位
+  39   2        P2=0;
+  40   2        delay(300);   //短暂延时
+  41   2        P0=Dis_Gewei; //显示个位
+  42   2        P2=1;
+  43   2        delay(300);
+  44   2        }
+  45   1      
+  46   1      }
+  47          /******************************************************************/
+  48          /*                    外部中断函数                                */
+  49          /******************************************************************/
+  50          void INT0_ISR(void) interrupt 0 using 1
+  51          {
+  52   1      static unsigned char second;//定义静态变量，退出该程序后内容不变
+  53   1      
+  54   1          second++;//加1
+  55   1              if(second==100)
+C51 COMPILER V7.06   计数器1                                                               05/13/2009 13:43:02 PAGE 2   
+
+  56   1                 second=0;
+  57   1              Dis_Shiwei=tab[second/10];//十位显示值处理
+  58   1          Dis_Gewei=tab[second%10]; //个位显示处理
+  59   1          
+  60   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     98    ----
+   CONSTANT SIZE    =     10    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      3    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,178 @@
+C51 COMPILER V7.06   PS2                                                                   05/13/2009 15:22:01 PAGE 1   
+
+
+C51 COMPILER V7.06, COMPILATION OF MODULE PS2
+OBJECT MODULE PLACED IN ps2.OBJ
+COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE ps2.c BROWSE DEBUG OBJECTEXTEND
+
+stmt level    source
+
+   1          /*-----------------------------------------------
+   2          说明：此程序使用标准PS2键盘输入，LCD1602液晶屏输出显示。此样例仅作测试使用
+   3          晶振使用12M或者11.0592M,本键盘使用部分字母和数字测试，其他按键不能使用，用
+   4          户可以自行扩展。由于开发板和程序的各种参数，程序中没有使用奇偶校验，不保证没有
+   5          误码,校验程序请自行添加。
+   6          -------------------------------------------------*/
+   7          /*-----------------------------------------------
+   8            名称：99秒计时器
+   9            公司：上海浩豚电子科技有限公司
+  10            网站：www.doflye.cn
+  11            编写：师访
+  12            日期：2009.5
+  13            修改：无
+  14            内容：通过定时器计时
+  15          ------------------------------------------------*/
+  16          #include<reg52.h>        //包含头文件，一般情况不需要改动，头文件包含特殊功能寄存器的定义
+  17          #include "scancodes.h"
+  18          #include "LCD1602.h"
+  19          
+  20          sbit Key_Data = P3^0 ;   //定义Keyboard引脚
+  21          sbit Key_CLK =P3^2;      //使用中断
+  22          
+  23          bit BF;          
+  24          bit Shift;               //定义上档键标志
+  25          bit Key_UP;              //定义通码断码标志
+  26          unsigned char KeyV;
+  27          unsigned char IntNum;
+  28          unsigned char DisNum;
+  29          /******************************************************************/
+  30          /*                    函数声明                                    */
+  31          /******************************************************************/
+  32          void Decode(unsigned char ScanCode);  //解码子程序
+  33          /******************************************************************/
+  34          /*                    主函数                                      */
+  35          /******************************************************************/
+  36          void main()
+  37          {
+  38   1      
+  39   1      IT1 = 0;                              //设外部中断1为低电平触发
+  40   1      EA = 1;                               //外部中断开
+  41   1      EX0 = 1;                              //开中断
+  42   1      
+  43   1      InitLcd();                            //初始化1602液晶屏
+  44   1      
+  45   1      do
+  46   1       {
+  47   2       if (BF)
+  48   2         Decode(KeyV);
+  49   2       else
+  50   2         EA = 1; //开中断
+  51   2       }
+  52   1      while(1);
+  53   1      }
+  54          /******************************************************************/
+  55          /*                    外部中断读入信息                            */
+C51 COMPILER V7.06   PS2                                                                   05/13/2009 15:22:01 PAGE 2   
+
+  56          /******************************************************************/
+  57          void Keyboard_out(void) interrupt 0
+  58          {
+  59   1      if ((IntNum > 0) && (IntNum < 9))
+  60   1         { 
+  61   2              KeyV = KeyV >> 1;                //因键盘数据是低>>高，结合上一句所以右移一位
+  62   2              if (Key_Data)
+  63   2              KeyV = KeyV | 0x80;          //当键盘数据线为1时到最高位
+  64   2              }
+  65   1              IntNum++;
+  66   1              while (!Key_CLK);                //等待PS/2CLK拉高
+  67   1      
+  68   1              if (IntNum > 10)
+  69   1                 { 
+  70   2                      IntNum = 0;                  //当中断11次后表示一帧数据收完，清变量准备下一次接收
+  71   2                      BF = 1;                      //标识有字符输入完了
+  72   2                      EA = 0;                      //关中断等显示完后再开中断 
+  73   2                      }
+  74   1      }
+  75          
+  76          /******************************************************************/
+  77          /*                    解码信息                                    */
+  78          /******************************************************************/
+  79          void Decode(unsigned char ScanCode) //注意:如SHIFT+G为12H 34H F0H 34H F0H 12H，也就是说shift的通码+G的通码
+             -+shift的断码+G的断码
+  80          {
+  81   1      unsigned char TempCyc; 
+  82   1      
+  83   1      if (!Key_UP)                        //当键盘按下时
+  84   1              {
+  85   2              switch (ScanCode)
+  86   2                              {
+  87   3                              case 0xF0 :             // 当收到0xF0，Key_UP置1表示断码开始
+  88   3                                      Key_UP = 1;
+  89   3                                      break;
+  90   3      
+  91   3                              case 0x12 :             // 左 SHIFT
+  92   3                                      Shift = 1;
+  93   3                                      break;
+  94   3      
+  95   3                              case 0x59 :             // 右 SHIFT
+  96   3                                      Shift = 1;
+  97   3                                      break;
+  98   3      
+  99   3                              default: 
+ 100   3                                      if(!Shift)          //如果SHIFT没按下
+ 101   3                                              {
+ 102   4                                              for (TempCyc = 0;(UnShifted[TempCyc][0]!=ScanCode)&&(TempCyc<59); TempCyc++); //查表显示
+ 103   4                                              if (UnShifted[TempCyc][0] == ScanCode)
+ 104   4                                                      {
+ 105   5                                                      ShowChar(DisNum,UnShifted[TempCyc][1]);
+ 106   5                                                      DisNum++;
+ 107   5                                                      if(DisNum==32)
+ 108   5                                                {
+ 109   6                                                        WriteCommand(0x01);//清屏
+ 110   6                                                        DisNum=0;//重头写数据
+ 111   6                                                    }
+ 112   5                                                   }
+ 113   4                           } 
+ 114   3                                      else //按下SHIFT
+ 115   3                          {
+ 116   4                                              for(TempCyc = 0; (Shifted[TempCyc][0]!=ScanCode)&&(TempCyc<59); TempCyc++); //查表显示
+C51 COMPILER V7.06   PS2                                                                   05/13/2009 15:22:01 PAGE 3   
+
+ 117   4                                              if (Shifted[TempCyc][0] == ScanCode)
+ 118   4                             {
+ 119   5                                                      ShowChar(DisNum,Shifted[TempCyc][1]);
+ 120   5                                                  DisNum++;
+ 121   5                              if(DisNum==32)
+ 122   5                                                {
+ 123   6                                                     WriteCommand(0x01);//清屏
+ 124   6                                     DisNum=0;//重头写数据
+ 125   6                                                        }
+ 126   5                                                      }
+ 127   4                            }
+ 128   3      
+ 129   3                                              break;
+ 130   3                              }
+ 131   2              }
+ 132   1      else
+ 133   1              { 
+ 134   2              Key_UP = 0;
+ 135   2              switch (ScanCode) //当键松开时不处理判码，如G 34H F0H 34H 那么第二个34H不会被处理
+ 136   2                              {
+ 137   3                              case 0x12 : // 左 SHIFT
+ 138   3                                      Shift = 0;
+ 139   3                                      break;
+ 140   3      
+ 141   3                              case 0x59 : // 右 SHIFT
+ 142   3                                      Shift = 0;
+ 143   3                                      break;
+ 144   3                              }
+ 145   2              }
+ 146   1      BF = 0; //标识字符处理完了
+ 147   1      } 
+ 148          
+ 149          
+ 150          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    282    ----
+   CONSTANT SIZE    =    236    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      3       2
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      3    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

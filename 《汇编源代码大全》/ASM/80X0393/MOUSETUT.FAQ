@@ -1,0 +1,733 @@
+
+                  The Microsoft Mouse Interface Tutorial
+                By Matthew Hildebrand (FidoNet 1:247/128.2)
+                        Revision:  January 14, 1993
+
+
+Applications wishing to interface to the mouse should do so via calls to
+the industry-standard Microsoft or compatible mouse driver.  All calls to
+the driver are made through interrupt 33h.
+
+A list of answers to frequently asked questions is at the end of this
+document.
+
+Following is a summary of the functions the mouse driver provides.
+
+
+
+
+                     **** MOUSE DRIVER FUNCTIONS ****
+
+==============================
+Function 00h:  Reset mouse
+
+Call with      AX = 0000h
+
+Return         If mouse available
+                 AX = FFFFh
+                 BX = number of buttons
+               If mouse unavailable
+                 AX = 0000h
+
+Notes          Calling this function will initialize the mouse hardware,
+               position the pointer at the screen center, set the pointer
+               display page to zero, hide the pointer, reset the pointer
+               shape to the default, disable any user-defined event
+               handlers, enable light pen emulation, set the horizontal
+               mickeys:pixels ratio to 8:8 and the vertical ratio to 16:8,
+               set the double speed threshold to 64 mickeys/second, and set
+               both the horizontal and vertical maximum and minimum pointer
+               bounds to include the entire screen.
+
+See also       Function 21h
+
+
+==============================
+Function 01h:  Show pointer
+
+Call with      AX = 0001h
+
+Return         Nothing
+
+Notes          Calls to Functions 01h and 02h are cumulative; ie., if
+               Function 01h is called twice, Function 02h must be called
+               twice before the pointer becomes visible again.
+See also       Function 02h
+
+
+==============================
+Function 02h:  Hide pointer
+
+Call with      AX = 0002h
+
+Return         Nothing
+
+Notes          Calls to Functions 01h and 02h are cumulative; ie., if
+               Function 01h is called twice, Function 02h must be called
+               twice before the pointer becomes visible again.
+
+See also       Function 01h
+
+
+==============================
+Function 03h:  Get pointer position and button status
+
+Call with      AX = 0002h
+
+Return         BX = button status
+                 bit 0   left button down (if set)
+                 bit 1   right button down (if set)
+                 bit 2   center button down (if set)
+               CX = x coordinate
+               DX = y coordinate
+
+Notes          Coordinates are always in pixels, where (0,0) is the upper-
+               left of the screen.
+
+See also       Functions 04h-06h
+
+
+==============================
+Function 04h:  Set pointer position
+
+Call with      AX = 0004h
+               CX = x coordinate
+               DX = y coordinate
+
+Return         Nothing
+
+Notes          The new position will be disregarded if it lies within an
+               exclusion area.
+
+               Coordinates are always in pixels, where (0,0) is the upper-
+               left of the screen.
+
+               The position will be modified, if necessary, such that it
+               lies within the horizontal and vertical limits.
+
+See also       Function 03h
+
+
+==============================
+Function 05h:  Get button press information
+
+Call with      AX = 0005h
+               BX = button
+                 0 = left button
+                 1 = right button
+                 2 = center button
+
+Return         AX = button status
+                 bit 0   left button down (if set)
+                 bit 1   right button down (if set)
+                 bit 2   center button down (if set)
+               BX = button press counter (number since last call)
+               CX = x coordinate of last press
+               DX = y coordinate of last press
+
+Notes          The button press counter for the specified button is reset
+               to zero following a call to this function.
+
+See also       Function 05h
+
+
+==============================
+Function 06h:  Get button release information
+
+Call with      AX = 0006h
+               BX = button
+                 0 = left button
+                 1 = right button
+                 2 = center button
+
+Return         AX = button status
+                 bit 0   left button down (if set)
+                 bit 1   right button down (if set)
+                 bit 2   center button down (if set)
+               BX = button release counter (number since last call)
+               CX = x coordinate of last release
+               DX = y coordinate of last release
+
+Notes          The button release counter for the specified button is reset
+               to zero following a call to this function.
+
+See also       Function 04h
+
+
+==============================
+Function 07h:  Set pointer horizontal limits
+
+Call with      AX = 0007h
+               CX = minimum x coordinate
+               DX = maximum x coordinate
+
+Return         Nothing
+
+Notes          The two values will be swapped if necessary.
+
+               If necessary, the pointer will be moved such that it lies
+               within the new limits.
+
+See also       Functions 08h, 10h
+
+
+==============================
+Function 08h:  Set pointer vertical limits
+
+Call with      AX = 0008h
+               CX = minimum y coordinate
+               DX = maximum y coordinate
+
+Return         Nothing
+
+Notes          The two values will be swapped if necessary.
+
+               If necessary, the pointer will be moved such that it lies
+               within the new limits.
+
+See also       Functions 07h, 10h
+
+
+==============================
+Function 09h:  Set graphics pointer shape
+
+Call with      AX = 0009h
+               BX = hot spot offset from left
+               CX = hot spot offset from top
+               ES:DX = segment:offset of image buffer
+
+Return         Nothing
+
+Notes          The hot spot is the pixel of the image which the driver
+               considers to be the current position.  For instance, an
+               arrow pointer would have its hot spot at the upper left,
+               while a crosshairs pointer would have it at the center. 
+               Both the horizontal and vertical offsets must be between -16
+               and 16 inclusive.
+
+               The image buffer's length is 64 bytes.  The first 32 consist
+               of a bitmask which is ANDed with the screen image, and the
+               second 32 consist of a bitmap which is XORed with the screen
+               image.
+
+See also       Function 0Ah
+
+
+==============================
+Function 0Ah:  Set text pointer type
+
+Call with      AX = 000Ah
+               BX = pointer type
+                 0 = software cursor
+                 1 = hardware cursor
+               CX = If BX=0:  AND mask
+                    If BX=1:  Starting scan line
+               DX = If BX=0:  XOR mask
+                    If BX=1:  Ending scan line
+
+Return         Nothing
+
+Notes          If a software cursor is selected, CX and DX are as follows:
+                    bits 0-7   character code
+                    bits 8-10  foreground colour
+                    bit 11     intensity bit
+                    bits 12-14 background colour
+                    bit 15     blink bit
+
+               If the hardware cursor is selected, CX and DX are the
+               starting and ending scan lines for the blinking cursor which
+               the video card generates, which will depend upon the video
+               card used.
+
+
+==============================
+Function 0Bh:  Read motion counters
+
+Call with      AX = 000Bh
+               
+Return         CX = net horizontal mickey count
+               DX = net vertical mickey count
+
+Notes          This function will return the net mouse displacement since
+               the last call to this function.  The returned values are
+               measured in mickeys, where a negative value is upwards or to
+               the left and a positive value is downwards or to the right.
+
+See also       Functions 03h, 0Fh
+
+
+==============================
+Function 0Ch:  Set user-defined mouse event handler
+
+Call with      AX = 000Ch
+               CX = event mask
+                 bit 0   mouse movement
+                 bit 1   left button pressed
+                 bit 2   left button released
+                 bit 3   right button pressed
+                 bit 4   right button released
+                 bit 5   center button pressed
+                 bit 6   center button released
+               ES:DX = segment:offset of event handler
+
+Return         Nothing
+
+Notes          On entrance to the handler:
+                 AX = mouse event mask (see Notes)
+                 BX = button states
+                   bit 0 left button down (if set)
+                   bit 1 right button down (if set)
+                   bit 2 center button down (if set)
+                 CX = x coordinate of pointer
+                 DX = y coordinate of pointer
+                 DI = raw horizontal mickey count
+                 SI = raw vertical mickey count
+                 DS = mouse driver data segment
+
+               The event mask specified in CX is placed in AX before each
+               call to the handler, regardless of which of the events it
+               specifies actually occurred.
+
+               The handler may be deactivated by calling function 00h or
+               this function with an event mask of zero.
+
+See also       Functions 14h, 18h
+
+
+==============================
+Function 0Dh:  Activate light pen emulation
+
+Call with      AX = 000Dh
+
+Return         Nothing
+
+Notes          This function activates light pen emulation for IBM BASIC. 
+               The pen down condition is simulated by pressing the left and
+               right buttons simultaneously.
+
+See also       Function 0Eh
+
+
+==============================
+Function 0Eh:  Deactivate light pen emulation
+
+Call with      AX = 000Eh
+
+Return         Nothing
+
+Notes          None.
+
+See also       Function 0Dh
+
+
+==============================
+Function 0Fh:  Set mickeys to pixels ratio
+
+Call with      AX = 0Fh
+               CX = horizontal mickeys (default=8)
+               DX = vertical mickeys (default=16)
+
+Return         Nothing
+
+Notes          The mickey values must be between 1 and 32767 inclusive.
+
+               This function will set the number of mickeys necessary for 8
+               pixels of motion to occur.
+
+See also       Functions 13h, 1Ah, 1Bh
+
+
+==============================
+Function 10h:  Set pointer exclusion area
+
+Call with      AX = 0010h
+               CX = upper left x coordinate
+               DX = upper left y coordinate
+               SI = lower right x coordinate
+               DI = lower right y coordinate
+
+Return         Nothing
+
+Notes          This function defines an exclusion area wherein the pointer
+               is not displayed.  The exclusion area is cancelled by a call
+               to function 00h or 01h, or replaced by another call to this
+               function.
+
+See also       Functions 00h-02h
+
+
+==============================
+Function 13h:  Set double speed threshold
+
+Call with      AX = 0013h
+               DX = speed in mickeys/second
+
+Return         Nothing
+
+Note           This function sets the minimum speed necessary before
+               pointer motion will double.  The default is 64
+               mickeys/second; doubling can be disabled by setting DX to a
+               large value.
+
+See also       Functions 0Fh, 1Ah, 1Bh
+
+
+==============================
+Function 14h:  Swap user-defined mouse event handlers
+
+Call with      AX = 0014h
+               CX = event mask
+                 bit 0   mouse movement
+                 bit 1   left button pressed
+                 bit 2   left button released
+                 bit 3   right button pressed
+                 bit 4   right button released
+                 bit 5   center button pressed
+                 bit 6   center button released
+               ES:DX = segment:offset of event handler
+
+Return         CX = previous event mask
+               ES:DX = segment:offset of previous event handler
+
+Notes          On entrance to the handler:
+                 AX = mouse event flags (see Notes)
+                 BX = button states
+                   bit 0 left button down (if set)
+                   bit 1 right button down (if set)
+                   bit 2 center button down (if set)
+                 CX = x coordinate of pointer
+                 DX = y coordinate of pointer
+                 DI = raw horizontal mickey count
+                 SI = raw vertical mickey count
+                 DS = mouse driver data segment
+
+               The handler may be deactivated by calling function 00h or
+               this function with an event mask of zero.
+
+See also       Functions 0Ch, 18h
+
+
+==============================
+Function 15h:  Get save state buffer size
+
+Call with      AX = 0015h
+
+Return         BX = buffer size in bytes
+
+Notes          Before running any external programs, applications should
+               save the mouse driver state; doing so will ensure that any
+               event handlers, sensitivity settings, or other settings will
+               remain intact.  Of course, the driver state should be
+               restored when the external program is complete.
+
+See also       Functions 16h, 17h
+
+
+==============================
+Function 16h:  Save driver state
+
+Call with      AX = 0016h
+               ES:DX = segment:offset of buffer
+
+Return         Nothing
+
+Note           Before running any external programs, applications should
+               save the mouse driver state; doing so will ensure that any
+               event handlers, sensitivity settings, or other settings will
+               remain intact.  Of course, the driver state should be
+               restored when the external program is complete.
+
+See also       Functions 15h, 17h
+
+
+==============================
+Function 17h:  Restore driver state
+
+Call with      AX = 0017h
+               ES:DX = segment:offset of buffer
+
+Return         Nothing
+
+Note           Before running any external programs, applications should
+               save the mouse driver state; doing so will ensure that any
+               event handlers, sensitivity settings, or other settings will
+               remain intact.  Of course, the driver state should be
+               restored when the external program is complete.
+
+See also       Functions 15h, 16h
+
+
+==============================
+Function 18h:  Set alternate mouse event handler
+
+Call with      AX = 0018h
+               CX = event mask
+                 bit 0   mouse movement
+                 bit 1   left button pressed
+                 bit 2   left button released
+                 bit 3   right button pressed
+                 bit 4   right button released
+                 bit 5   center button pressed
+                 bit 6   center button released
+               ES:DX = segment:offset of event handler
+
+Return         If successful
+                 AX = 0018h
+               If unsuccessful
+                 AX = FFFFh
+
+Notes          On entrance to the handler:
+                 AX = mouse event flags (see Notes)
+                 BX = button states
+                   bit 0 left button down (if set)
+                   bit 1 right button down (if set)
+                   bit 2 center button down (if set)
+                 CX = x coordinate of pointer
+                 DX = y coordinate of pointer
+                 DI = raw horizontal mickey count
+                 SI = raw vertical mickey count
+                 DS = mouse driver data segment
+
+               The handler may be deactivated by calling function 00h.
+
+               As many as three alternate event handlers, with unique event
+               masks, may be installed.
+
+See also       Functions 0Ch, 14h
+
+
+==============================
+Function 19h:  Get address of alternate mouse event handler
+
+Call with      AX = 0019h
+               CX = event mask
+
+Return         If successful
+                 CX = event mask
+                 ES:DX = segment:offset of alternate event handler
+               If unsuccessful
+                 CX = 0000h
+
+Notes          None.
+
+See also       Function 18h
+
+
+==============================
+Function 1Ah:  Set sensitivity
+
+Call with      AX = 001Ah
+               BX = horizontal mickeys (default=8)
+               CX = vertical mickeys (default=16)
+               DX = double speed threshold (default=64)
+
+Return         Nothing
+
+Notes          This function will set the number of mickeys necessary for 8
+               pixels of motion to occur, as well as the double speed
+               threshold.
+
+See also       Functions 0Fh, 13h, 1Bh
+
+
+==============================
+Function 1Bh:  Get mouse sensitivity
+
+Call with      AX = 001Bh
+
+Return         BX = horizontal mickeys
+               CX = vertical mickeys
+               DX = double speed threshold
+
+Notes          None.
+
+See also       Functions 0Fh, 13h, 1Ah
+
+
+==============================
+Function 1Ch:  Set mouse interrupt rate
+
+Call with      AX = 001Ch
+               BX = interrupt rate flags
+                 bit 0   no interrupts (if set)
+                 bit 1   30 interrupts/second (if set)
+                 bit 2   50 interrupts/second (if set)
+                 bit 3   100 interrupts/second (if set)
+                 bit 4   200 interrupts/second (if set)
+
+Return         Nothing
+
+Notes          This function will only affect InPort mice.
+
+See also       Function 24h
+
+
+==============================
+Function 1Dh:  Set pointer page
+
+Call with      AX = 001Dh
+               BX = page
+
+Return         Nothing
+
+Notes          Valid page numbers depend on the active display mode.
+
+See also       Function 1Eh
+
+
+==============================
+Function 1Eh:  Get pointer page
+
+Call with      AX = 001Eh
+
+Return         BX = page
+
+Notes          None.
+
+See also       Function 1Dh
+
+
+==============================
+Function 1Fh:  Disable mouse driver
+
+Call with      AX = 001Fh
+
+Return         If successful
+                 AX = 001Fh
+                 ES:BX = segment:offset of previous INT 33h handler
+               If unsuccessful
+                 AX = FFFFh
+
+Notes          This function causes the mouse driver to release all
+               interrupts other than INT 33h.  The driver may then be
+               effectively removed by restoring the previous contents of
+               the INT 33h vector.
+
+See also       Function 20h
+
+
+==============================
+Function 20h:  Enable mouse driver
+
+Call with      AX = 0020h
+
+Return         Nothing
+
+Notes          Calling this function will re-enable the mouse driver and
+               the servicing of mouse interrupts.
+
+See also       Function 1Fh
+
+
+==============================
+Function 21h:  Reset mouse driver
+
+Call with      AX = 0021h
+
+Return         If mouse support available
+                 AX = FFFFh
+                 BX = number of buttons
+               If mouse support unavailable
+                 AX = 0021h
+
+Notes          The difference between this function and function 00h is
+               that this function performs no initialization of the mouse
+               hardware.
+
+See also       Function 00h
+
+
+==============================
+Function 22h:  Set language for driver messages
+
+Call with      AX = 0022h
+               BX = language code
+                 0 = English
+                 1 = French
+                 2 = Dutch
+                 3 = German
+                 4 = Swedish
+                 5 = Finnish
+                 6 = Spanish
+                 7 = Portuguese
+                 8 = Italian
+
+Return         Nothing
+
+Notes          This function is available only with international versions
+               of the mouse driver.
+
+See also       Function 23h
+
+
+==============================
+Function 23h:  Get language
+
+Call with      AX = 0023h
+
+Return         BX = language code
+
+Notes          This function is available only with international versions
+               of the mouse driver.
+
+See also       Function 22h
+
+
+==============================
+Function 24h:  Get mouse information
+
+Call with      AX = 0024h
+
+Return         BH = major version number of driver
+               BL = minor version number of driver
+               CH = mouse type
+                 1 = bus mouse
+                 2 = serial mouse
+                 3 = InPort mouse
+                 4 = PS/2 mouse
+                 5 = HP mouse
+               CL = IRQ number
+                 0 = PS/2
+                 2, 3, 4, 5, or 7 = IRQ number
+
+Notes          None.
+
+See also       None.
+
+
+
+
+                   **** FREQUENTLY ASKED QUESTIONS ****
+
+Q:   When I write something to the screen, it overwrites the mouse pointer. 
+     Then, when I move the mouse, the pointer comes back, along with a
+     rectangle of outdated screen information.  What do I do?
+A:   The mouse driver keeps track of what was behind the pointer so that it
+     may be restored when the mouse is moved.  To avoid this problem, hide
+     the pointer before writing to the screen, then show it when you're
+     done.
+
+Q:   When I'm in 320x200x256 mode or text mode, the driver returns
+     incorrect coordinate values.  What's wrong?
+A:   For whatever reason, the mouse driver returns values in this way when
+     in these modes.  In 320x200x256 mode, the driver uses horizontal
+     values which are actually twice the real value; shift the real value
+     left one bit when passing a coordinate to the driver, and shift the
+     returned value right one bit before using a value returned by the
+     driver.  Note that this shifting is only necessary for the horizontal
+     coordinate.  As for text mode, it's something of a similar absurd
+     nature, such as twice the real value in one direction and thrice in
+     the other, but I'm not sure.
+
+Q:   What the hell's a mickey, anyway?
+A:   The mickey is the smallest amount of motion the mouse can detect.  One
+     mickey is 1/200" on a 200 DPI mouse, 1/400" on a 400 DPI mouse, etc..
+
+Q:   How do I get those nifty-looking 256-colour mouse pointers?
+A:   You write a mouse event handler which will be called whenever the
+     mouse moves.  You may also wish to trap INT 33h for calls such as hide
+     pointer and show pointer.
+
+
+
+End of document

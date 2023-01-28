@@ -1,0 +1,100 @@
+C51 COMPILER V7.50   _²Ì_ÏÔÊ_                                                              08/17/2011 17:38:10 PAGE 1   
+
+
+C51 COMPILER V7.50, COMPILATION OF MODULE _²Ì_ÏÔÊ_
+OBJECT MODULE PLACED IN ¾²Ì¬ÏÔÊ¾.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE ¾²Ì¬ÏÔÊ¾.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          /********************************************************************
+   2          * ÎÄ¼þÃû  :  ÊýÂë¹ÜÏÔÊ¾.c
+   3          * ÃèÊö    :  ¸Ã³ÌÐòÎªÊýÂë¹Ü¾²Ì¬ÏÔÊ¾³ÌÐò,²¢ÇÒÍ¨¹ýÊµÏÖËø´æÆ÷µÄ¹¦ÄÜ¡£
+   4                                   Èç¹û°´ÁËP3.2¿Ú£¬P3.7¿ÚÓÉ¸ßµçÆ½±äµ½µÍµçÆ½ºó£¬Ëø´æÆ÷Ëø´æ¹¦ÄÜÊ¹ÄÜ¡£ÔÙ°´P3.4¿Ú£¬ÊýÂë¹ÜµÄÖµ¾Í²»»áÓÐËù¸Ä±ä¡£
+   5                                   ÔÙ°´P3.2¿Ú£¬P3.7¿ÚµçÆ½ÓÉµÍ±ä¸ß£¬Ëø´æ¹¦ÄÜÊ§Ð§¡£ÊýÂë¹ÜµÄÖµÓÖ»á¸Ä±ä¡£
+   6          
+   7          * ´´½¨ÈË  £º ¶«Á÷£¬2009Äê8ÔÂ27ÈÕ
+   8          * °æ±¾ºÅ  £º 1.0
+   9          ***********************************************************************/
+  10          #include<reg52.h>
+  11          #define uchar unsigned char
+  12          #define uint  unsigned int
+  13          
+  14          sbit KEY = P3^4;          //¶ÀÁ¢°´¼üµÄT0
+  15          sbit KEY_Lock = P3^2; //ÕâÀï£¬°´ÁË¸Ã°´¼üºó£¬ÊµÏÖ½âËøºÍ¿ªËø¡£
+  16          sbit LOCK = P3^7;     //Ëø´æ¹¦ÄÜ
+  17          
+  18          
+  19          /*ÏÂÒ»ÐÐÄã¿ÉÒÔÊÔ×Å°Ñ code È¥µô¿´¿´ÊÔÑé½á¹û¡£ È¥µôºó table[] »á±»´æµ½ RAM ÖÐ£¬ÒòÎªµ¥Æ¬»úµÄ RAM ±È ROM Ð¡µÄ¶
+             -à*/
+  20          /*ËùÒÔ£¬¶ÔÓÚ²»»á¸Ä±äµÄÖµÓ¦¸ÃÓÃ code »òÕß #define È¥¶¨Òå£¬ÈÃÕâÐ©¹Ì¶¨Öµ´æµ½ ROM ÖÐÈ¥*/
+  21          uchar code table[16] = {0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f,0x77,0x7c,0x39,0x5e,0x79,0x71};
+  22          /*ÏÂÒ»ÐÐµÄÊý×é¿ÉÒÔÏÔÊ¾ÊýÖµÍâ£¬»¹¿ÉÒÔÏÔÊ¾ÊýÂë¹ÜµÄµã*/
+  23          uchar code table_d[16] = {0xbf,0x86,0xdb,0xcf,0xe6,0xed,0xfd,0x87,0xff,0xef,0xf7,0xfc,0xb9,0xde,0xf9,0xf1}
+             -;
+  24          
+  25          /********************************************************************
+  26          * Ãû³Æ : Delay()
+  27          * ¹¦ÄÜ : ÑÓÊ±,ÑÓÊ±Ê±¼äÎª 10ms * del
+  28          * ÊäÈë : del
+  29          * Êä³ö : ÎÞ
+  30          ***********************************************************************/
+  31          void Delay(uint del)
+  32          {
+  33   1              uint i,j;
+  34   1              for(i=0; i<del; i++)
+  35   1              for(j=0; j<1827; j++)    
+  36   1              ;
+  37   1      }
+  38          
+  39          /********************************************************************
+  40          * Ãû³Æ : Main()
+  41          * ¹¦ÄÜ : Ö÷º¯Êý
+  42          * ÊäÈë : ÎÞ
+  43          * Êä³ö : ÎÞ
+  44          ***********************************************************************/
+  45          void main()
+  46          {
+  47   1              uchar i = 0;
+  48   1              LOCK = 1;
+  49   1              //P2=0xff;
+  50   1              while(1)
+  51   1              {
+  52   2                      P0 = table[i % 16];        //ÔÚÕâÀïÈ¡ i µÄ¸öÎ»Êý£¬²»´øµãÏÔÊ¾
+  53   2                      //P0 = table_d[i % 16];      //´øµãÏÔÊ¾
+C51 COMPILER V7.50   _²Ì_ÏÔÊ_                                                              08/17/2011 17:38:10 PAGE 2   
+
+  54   2                      if(KEY == 0)
+  55   2                      {
+  56   3                              Delay(1);              //Èí¼þÏû¶¶£¬ÊÔÑéÎª20ms
+  57   3                              if(KEY == 0)
+  58   3                              {
+  59   4                                      i++;
+  60   4                              }
+  61   3                              Delay(50);                         //ÑÓÊ±0.5Ãëºó½øÐÐÏÂÒ»´ÎµÄ°´¼ü¼ì²â
+  62   3                      }
+  63   2                      if(KEY_Lock == 0)
+  64   2                      {
+  65   3                              Delay(1);              //Èí¼þÏû¶¶£¬ÊÔÑéÎª20ms
+  66   3                              if(KEY_Lock == 0)
+  67   3                              {
+  68   4                                      LOCK = !LOCK;   
+  69   4                              }
+  70   3                              Delay(50);                         //ÑÓÊ±0.5Ãëºó½øÐÐÏÂÒ»´ÎµÄ°´¼ü¼ì²â    
+  71   3                      }                               
+  72   2              }
+  73   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     90    ----
+   CONSTANT SIZE    =     32    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

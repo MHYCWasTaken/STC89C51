@@ -1,0 +1,127 @@
+BL51 BANKED LINKER/LOCATER V5.03                                                        05/13/2009  13:43:03  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V5.03, INVOKED BY:
+D:\KEIL\C51\BIN\BL51.EXE 计数器1.obj TO 按键计数器 RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  计数器1.obj (计数器1)
+  D:\KEIL\C51\LIB\C51S.LIB (?C_STARTUP)
+
+
+LINK MAP OF MODULE:  按键计数器 (计数器1)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     0003H     UNIT         ?DT?计数器1
+            IDATA   000BH     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     0003H     ABSOLUTE     
+            CODE    0006H     0036H     UNIT         ?PR?INT0_ISR?计数器1
+            CODE    003CH     0022H     UNIT         ?PR?MAIN?计数器1
+            CODE    005EH     000CH     UNIT         ?C_C51STARTUP
+            CODE    006AH     000AH     UNIT         ?PR?_DELAY?计数器1
+            CODE    0074H     000AH     UNIT         ?CO?计数器1
+
+
+
+OVERLAY MAP OF MODULE:   按键计数器 (计数器1)
+
+
+SEGMENT
+  +--> CALLED SEGMENT
+---------------------
+?PR?INT0_ISR?计数器1
+  +--> ?CO?计数器1
+
+*** NEW ROOT ***************************************************
+
+?C_C51STARTUP
+  +--> ?PR?MAIN?计数器1
+
+?PR?MAIN?计数器1
+  +--> ?PR?_DELAY?计数器1
+
+
+
+SYMBOL TABLE OF MODULE:  按键计数器 (计数器1)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+BL51 BANKED LINKER/LOCATER V5.03                                                      05/13/2009  13:43:03  PAGE 2
+
+
+  -------         MODULE        计数器1
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  D:00B0H         PUBLIC        P3
+  B:00A8H.7       PUBLIC        EA
+  D:00A8H         PUBLIC        IE
+  D:00B8H         PUBLIC        IP
+  C:003CH         PUBLIC        main
+  D:0098H         PUBLIC        SCON
+  D:0088H         PUBLIC        TCON
+  C:0074H         PUBLIC        tab
+  B:00A8H.0       PUBLIC        EX0
+  B:0088H.0       PUBLIC        IT0
+  D:00C8H         PUBLIC        T2CON
+  C:0006H         PUBLIC        INT0_ISR
+  D:0009H         PUBLIC        Dis_Shiwei
+  C:006AH         PUBLIC        _delay
+  D:000AH         PUBLIC        Dis_Gewei
+  D:00D0H         PUBLIC        PSW
+  -------         PROC          _DELAY
+  D:0006H         SYMBOL        cnt
+  C:006AH         LINE#         22
+  C:006AH         LINE#         23
+  C:006AH         LINE#         24
+  C:0073H         LINE#         25
+  -------         ENDPROC       _DELAY
+  -------         PROC          MAIN
+  C:003CH         LINE#         29
+  C:003CH         LINE#         30
+  C:003CH         LINE#         32
+  C:003EH         LINE#         33
+  C:0040H         LINE#         34
+  C:0042H         LINE#         36
+  C:0042H         LINE#         37
+  C:0042H         LINE#         38
+  C:0045H         LINE#         39
+  C:0048H         LINE#         40
+  C:004FH         LINE#         41
+  C:0052H         LINE#         42
+  C:0055H         LINE#         43
+  C:005CH         LINE#         44
+  -------         ENDPROC       MAIN
+  -------         PROC          INT0_ISR
+  -------         DO            
+  D:0008H         SYMBOL        second
+  -------         ENDDO         
+  C:0006H         LINE#         50
+  C:0010H         LINE#         54
+  C:0012H         LINE#         55
+  C:0017H         LINE#         56
+  C:001AH         LINE#         57
+  C:0026H         LINE#         58
+  C:0031H         LINE#         60
+  -------         ENDPROC       INT0_ISR
+  -------         ENDMOD        计数器1
+BL51 BANKED LINKER/LOCATER V5.03                                                      05/13/2009  13:43:03  PAGE 3
+
+
+
+Program Size: data=12.0 xdata=0 code=126
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

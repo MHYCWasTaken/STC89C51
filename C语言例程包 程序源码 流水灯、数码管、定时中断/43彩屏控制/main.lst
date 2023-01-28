@@ -1,0 +1,120 @@
+C51 COMPILER V7.50   MAIN                                                                  03/30/2011 19:43:20 PAGE 1   
+
+
+C51 COMPILER V7.50, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN main.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Source\main.c LARGE BROWSE DEBUG OBJECTEXTEND PRINT(.\main.lst) OBJECT(main
+                    -.obj)
+
+line level    source
+
+   1          /*
+   2          ================================================================================
+   3          Copytight      : Yihetech Co,.Ltd, All rightd reserved. 版权归属亿和电子工作室
+   4          Store          : http://shop57165217.taobao.com/
+   5          
+   6          File Name      : main.c
+   7          Description    :  
+   8          Date           : 2009-7-19 21:17:45
+   9          Version        : V1.0
+  10          Author         : LiYong(李勇), yihe_liyong@126.com
+  11          Target device  : ATmega32L
+  12          Compiler       : AVRStudio + GCCAVR
+  13          Note           : 转载时务必保留此信息，否则无权以任何形式传播本文件
+  14          ================================================================================
+  15          */
+  16          
+  17          #include <reg51.h>
+  18          #include "MyTypedef.h"
+  19          #include "GUI_Basic.h"
+  20          #include "LCD.H"                         
+  21          
+  22          
+  23          
+  24              RECT rect  ;
+  25              CIRCLE circle ;
+  26              LINE line;
+  27              FONT font ;
+  28              ELLIPSE ellipse;
+  29          
+  30          int main( void )
+  31          {       
+  32   1        
+  33   1          LCD_Init( );
+  34   1              rect.xs = 10;
+  35   1              rect.ys = 10;
+  36   1              rect.xe = 50;
+  37   1              rect.ye = 50;
+  38   1              rect.Color = 0xFF00;
+  39   1      
+  40   1              circle.x = 64;
+  41   1              circle.y = 64;
+  42   1              circle.r = 40;
+  43   1              circle.Color = 0xFF00;
+  44   1      
+  45   1              line.xs = 10;
+  46   1              line.xe = 100;
+  47   1              line.ys = 10;
+  48   1              line.ye = 120;
+  49   1              line.Color = 0x00FF;
+  50   1      
+  51   1              font.Height = 14;
+  52   1              font.Width = 7;
+  53   1              font.Color = 0xF800;
+  54   1              font.BackColor = 0x07FF;
+C51 COMPILER V7.50   MAIN                                                                  03/30/2011 19:43:20 PAGE 2   
+
+  55   1      
+  56   1              ellipse.xs = 10;
+  57   1              ellipse.xe = 100;
+  58   1              ellipse.ys = 80;
+  59   1              ellipse.ye = 120;
+  60   1              ellipse.Color = 0x00FF;
+  61   1      
+  62   1      
+  63   1              GUI_Inital( 0x000f );
+  64   1              GUI_DrawRectangle( &rect );
+  65   1              GUI_DrawCircle( &circle );
+  66   1      
+  67   1              circle.r = 20;
+  68   1              GUI_DrawCircleFill( &circle );
+  69   1              GUI_DrawLine( &line );
+  70   1      
+  71   1              line.xe = 160;
+  72   1              GUI_DrawLine( &line );
+  73   1      
+  74   1              GUI_DrawEllipse( &ellipse );
+  75   1              ellipse.xs = 10;
+  76   1              ellipse.xe = 120;
+  77   1              ellipse.ys = 90;
+  78   1              ellipse.ye = 110;
+  79   1              ellipse.Color = 0x07E0;
+  80   1              GUI_DrawEllipseFill( &ellipse );
+  81   1      
+  82   1              GUI_DisplayStr( 60, 20, &font, "taobao" );
+  83   1              GUI_DisplayStr( 60, 80, &font, "ABCDEFG" );
+  84   1      
+  85   1      
+  86   1      
+  87   1              while( 1 );
+  88   1      }
+  89          
+  90          /*
+  91          ================================================================================
+  92          -----------------------------------End of file----------------------------------
+  93          ================================================================================
+  94          */
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    280    ----
+   CONSTANT SIZE    =     15    ----
+   XDATA SIZE       =     29    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

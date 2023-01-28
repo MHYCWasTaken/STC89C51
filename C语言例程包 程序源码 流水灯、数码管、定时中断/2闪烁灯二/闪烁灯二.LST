@@ -1,0 +1,91 @@
+C51 COMPILER V7.50   闪烁灯二                                                              08/16/2011 17:01:50 PAGE 1   
+
+
+C51 COMPILER V7.50, COMPILATION OF MODULE 闪烁灯二
+OBJECT MODULE PLACED IN 闪烁灯二.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE 闪烁灯二.c LARGE BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          /********************************************************************
+   2          * 文件名  ： 闪烁灯二.c
+   3          * 描述    :  
+   4          * 创建人  ： 东流，2009年8月27日
+   5          * 版本号  ： 1.0
+   6          ***********************************************************************/
+   7          #include<reg52.h>
+   8          #define uchar unsigned char
+   9          #define uint  unsigned int
+  10          
+  11          /********************************************************************
+  12          * 名称 : Delay()
+  13          * 功能 : 延时,延时时间为 10ms * del
+  14          * 输入 : del
+  15          * 输出 : 无
+  16          ***********************************************************************/
+  17          void Delay(uint del)
+  18          {
+  19   1              uint i,j;
+  20   1              for(i=0; i<del; i++)
+  21   1              for(j=0; j<1827; j++)    
+  22   1              ;
+  23   1      }
+  24          
+  25          /********************************************************************
+  26          * 名称 : Main()
+  27          * 功能 : 实现灯的闪烁
+  28          * 输入 : 无
+  29          * 输出 : 无
+  30          ***********************************************************************/
+  31          void Main(void)
+  32          {
+  33   1              P0 = 0xff;                 //关闭所有LED
+  34   1              while(1)
+  35   1              {
+  36   2                      /*下面四行用于控制LED每隔一个亮*/
+  37   2                      P0 = 0xaa;   
+  38   2                      Delay(50);
+  39   2                      P0 = 0x55;  
+  40   2                      Delay(50);
+  41   2      
+  42   2                      /*下面四行用于控制LED每隔一个亮*/
+  43   2                      P0 = 0xcc;
+  44   2                      Delay(50);
+  45   2                      P0 = 0x33;
+  46   2                      Delay(50);
+  47   2      
+  48   2                      /*下面四行用于控制LED 高四位 或者 低四位亮*/
+  49   2                      P0 = 0x0f;
+  50   2                      Delay(50);
+  51   2                      P0 = 0xf0;
+  52   2                      Delay(50);
+  53   2      
+  54   2                      /*下面八行用于控制LED的两次全亮 全灭*/
+  55   2                      P0 = 0x00;
+C51 COMPILER V7.50   闪烁灯二                                                              08/16/2011 17:01:50 PAGE 2   
+
+  56   2                      Delay(25);
+  57   2                      P0 = 0xff;
+  58   2                      Delay(25);
+  59   2                      P0 = 0x00;
+  60   2                      Delay(25);
+  61   2                      P0 = 0xff;
+  62   2                      Delay(25);
+  63   2      
+  64   2                      Delay(200);  //延时两秒
+  65   2              }
+  66   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    102    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

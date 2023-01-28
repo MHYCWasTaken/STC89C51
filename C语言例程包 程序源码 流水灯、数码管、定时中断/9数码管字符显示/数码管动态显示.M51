@@ -1,0 +1,148 @@
+BL51 BANKED LINKER/LOCATER V5.12                                                        08/18/2011  09:46:27  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V5.12, INVOKED BY:
+C:\KEIL\C51\BIN\BL51.EXE STARTUP.obj, 动态显示.obj TO 数码管动态显示 RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  STARTUP.obj (?C_STARTUP)
+  动态显示.obj (动蘝显蔩)
+
+
+LINK MAP OF MODULE:  数码管动态显示 (?C_STARTUP)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            IDATA   0008H     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     0022H     UNIT         ?PR?MAIN?动蘝显蔩
+            CODE    0025H     0016H     UNIT         ?PR?_DELAY?动蘝显蔩
+            CODE    003BH     0010H     UNIT         ?CO?动蘝显蔩
+            CODE    004BH     000CH     UNIT         ?C_C51STARTUP
+
+
+
+OVERLAY MAP OF MODULE:   数码管动态显示 (?C_STARTUP)
+
+
+SEGMENT
+  +--> CALLED SEGMENT
+---------------------
+?C_C51STARTUP
+  +--> ?PR?MAIN?动蘝显蔩
+
+?PR?MAIN?动蘝显蔩
+  +--> ?CO?动蘝显蔩
+  +--> ?PR?_DELAY?动蘝显蔩
+
+
+
+SYMBOL TABLE OF MODULE:  数码管动态显示 (?C_STARTUP)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        ?C_STARTUP
+  C:004BH         SEGMENT       ?C_C51STARTUP
+  I:0008H         SEGMENT       ?STACK
+  C:0000H         PUBLIC        ?C_STARTUP
+  D:00E0H         SYMBOL        ACC
+  D:00F0H         SYMBOL        B
+  D:0083H         SYMBOL        DPH
+BL51 BANKED LINKER/LOCATER V5.12                                                      08/18/2011  09:46:27  PAGE 2
+
+
+  D:0082H         SYMBOL        DPL
+  N:0000H         SYMBOL        IBPSTACK
+  N:0100H         SYMBOL        IBPSTACKTOP
+  N:0080H         SYMBOL        IDATALEN
+  C:004EH         SYMBOL        IDATALOOP
+  N:0000H         SYMBOL        PBPSTACK
+  N:0000H         SYMBOL        PBPSTACKTOP
+  N:0000H         SYMBOL        PDATALEN
+  N:0000H         SYMBOL        PDATASTART
+  N:0000H         SYMBOL        PPAGE
+  N:0000H         SYMBOL        PPAGEENABLE
+  D:00A0H         SYMBOL        PPAGE_SFR
+  D:0081H         SYMBOL        SP
+  C:004BH         SYMBOL        STARTUP1
+  N:0000H         SYMBOL        XBPSTACK
+  N:0000H         SYMBOL        XBPSTACKTOP
+  N:0000H         SYMBOL        XDATALEN
+  N:0000H         SYMBOL        XDATASTART
+  C:0000H         LINE#         92
+  C:004BH         LINE#         99
+  C:004DH         LINE#         100
+  C:004EH         LINE#         101
+  C:004FH         LINE#         102
+  C:0051H         LINE#         151
+  C:0054H         LINE#         155
+  -------         ENDMOD        ?C_STARTUP
+
+  -------         MODULE        动蘝显蔩
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  D:00B0H         PUBLIC        P3
+  C:0003H         PUBLIC        Main
+  C:003BH         PUBLIC        table
+  C:0043H         PUBLIC        LED_W
+  D:00A8H         PUBLIC        IE
+  D:00B8H         PUBLIC        IP
+  D:0098H         PUBLIC        SCON
+  D:0088H         PUBLIC        TCON
+  C:0025H         PUBLIC        _Delay
+  D:00C8H         PUBLIC        T2CON
+  D:00D0H         PUBLIC        PSW
+  -------         PROC          _DELAY
+  D:0006H         SYMBOL        i
+  -------         DO            
+  D:0004H         SYMBOL        x
+  D:0005H         SYMBOL        j
+  -------         ENDDO         
+  C:0025H         LINE#         20
+  C:0025H         LINE#         21
+  C:0025H         LINE#         23
+  C:002EH         LINE#         24
+  C:003AH         LINE#         25
+  -------         ENDPROC       _DELAY
+  -------         PROC          MAIN
+  -------         DO            
+BL51 BANKED LINKER/LOCATER V5.12                                                      08/18/2011  09:46:27  PAGE 3
+
+
+  D:0003H         SYMBOL        i
+  D:0002H         SYMBOL        j
+  -------         ENDDO         
+  C:0003H         LINE#         33
+  C:0003H         LINE#         34
+  C:0003H         LINE#         35
+  C:0006H         LINE#         36
+  C:0006H         LINE#         37
+  C:0006H         LINE#         38
+  C:000DH         LINE#         39
+  C:0014H         LINE#         40
+  C:001BH         LINE#         41
+  C:001CH         LINE#         42
+  C:001DH         LINE#         43
+  C:0020H         LINE#         44
+  C:0020H         LINE#         45
+  C:0022H         LINE#         46
+  C:0023H         LINE#         47
+  C:0023H         LINE#         48
+  -------         ENDPROC       MAIN
+  -------         ENDMOD        动蘝显蔩
+
+Program Size: data=9.0 xdata=0 code=87
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

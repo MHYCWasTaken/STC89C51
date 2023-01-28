@@ -1,0 +1,164 @@
+C51 COMPILER V7.06   MAIN                                                                  07/19/2010 11:10:51 PAGE 1   
+
+
+C51 COMPILER V7.06, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\obj\main.obj
+COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE main.c BROWSE DEBUG OBJECTEXTEND PRINT(.\obj\main.lst) OBJECT(.\obj\main.ob
+                    -j)
+
+stmt level    source
+
+   1          /*------------------------------------------------
+   2                          °üº¬Í·ÎÄ¼þ
+   3          ------------------------------------------------*/
+   4          #include"keyboard.h"
+   5          #include"delay.h"
+   6          #include"18b20.h"
+   7          #include "ds1302.h"
+   8          #include "i2c.h"
+   9          #include"uart.h"
+  10          #include "pcf8591.h"
+  11          #include "LED8x8.h"
+  12          #include "timer.h"
+  13          #include "1602.h"
+  14          #include<stdio.h>
+  15          extern unsigned char TempData[8]; //´æ´¢ÏÔÊ¾ÖµµÄÈ«¾Ö±äÁ¿
+  16          /*------------------------------------------------
+  17                             ¶¨Òå¶Ë¿Ú
+  18          ------------------------------------------------*/
+  19          sbit LATCH1=P2^7;//¶¨ÒåËø´æÊ¹ÄÜ¶Ë¿Ú ¶ÎËø´æ
+  20          sbit LATCH2=P2^3;//                 Î»Ëø´æ
+  21          /*------------------------------------------------
+  22                             S¼¶ÑÓÊ±
+  23          ------------------------------------------------*/
+  24          void DelayS(unsigned char u)
+  25          {
+  26   1       while(u--)
+  27   1            {
+  28   2                DelayMs(250);
+  29   2                DelayMs(250);
+  30   2                DelayMs(250);
+  31   2                DelayMs(250);
+  32   2                }
+  33   1      }
+  34          /*------------------------------------------------
+  35                             Ö÷º¯Êý
+  36          ------------------------------------------------*/
+  37          main()
+  38          {
+  39   1       unsigned char doflye=0x55;//ÓÃÓÚ24c02²âÊÔ
+  40   1      // unsigned char i;
+  41   1       unsigned char keynum;     //°´¼ü·µ»ØÖµ
+  42   1       int temp;                 //ÎÂ¶ÈÖµ
+  43   1      
+  44   1      
+  45   1      
+  46   1       Ds1302_Init();   //³õÊ¼»¯Ê±ÖÓÐ¾Æ¬
+  47   1       InitUART ();     //³õÊ¼»¯´®¿Ú
+  48   1       LCD_Init();      //³õÊ¼»¯LCD1602
+  49   1       DelayMs(30);     //ÎÈ¶¨
+  50   1       LCD_Write_String(0,0,"www.doflye.net");//Òº¾§ÏÔÊ¾²âÊÔ
+  51   1       LCD_Write_String(0,1,"LCD1602 test ok!");
+  52   1       EN_CLR;
+  53   1       Init_Timer0();
+  54   1      
+C51 COMPILER V7.06   MAIN                                                                  07/19/2010 11:10:51 PAGE 2   
+
+  55   1                 P0=0xff;   //È«²¿µãÁÁ
+  56   1             LATCH1=1;  //¶ÎËø´æ
+  57   1             LATCH1=0;
+  58   1      
+  59   1             P0=0;      //8Î»È«²¿Ñ¡ÖÐ 
+  60   1             LATCH2=1;  //Î»Ëø´æ
+  61   1             LATCH2=0;
+  62   1       DelayS(1);
+  63   1      
+  64   1       while(1)
+  65   1           {
+  66   2                ISendStr(0xae,400,&doflye,1);//Ð´Èë24c02
+  67   2                        DelayMs(60);                 //ÑÓÊ±ÎªÁËÈÃ24c02×ÔÉíÐ´ÈëÖµ
+  68   2                        doflye=0;                    //ÇåÁã¸ÃÖµ£¬ÎªÁËÑéÖ¤´æ´¢ÓÐÐ§ÐÔ
+  69   2                        IRcvStr(0xae,400,&doflye,1); //¶Á³ödoflyeµÄÖµ£¬²¢½øÐÐÈçÏÂ±È½Ï
+  70   2                        if(doflye==0x55)             //¶Á³öÓëÐ´ÈëÖµÏàµÈ£¬±íÊ¾²Ù×÷ÕýÈ·£¬Æ÷¼þÕý³£
+  71   2                          printf("1¡¢24c02 ²âÊÔÕý³£\n");
+  72   2                        else
+  73   2                          printf("1¡¢24c02 ´íÎóXXXX£¬Çë¼ì²â¶Å°îÏßÁ¬½Ó\n");
+  74   2                DelayS(1);
+  75   2                        if(2==ADCheck())             //2¸öµçÎ»Æ÷µ÷½ÚÖÁÖÐ¼äÎ»ÖÃ£¬Èç¹ûÓÐ2Â·¼ì²âµ½Õâ¸öÊýÖµ£¬±íÊ¾ADCÐ¾Æ¬¹¤×÷Õý³££¬
+             -Ò²¿ÉÒÔ×ÔÐÐÌí¼Ó4Â·
+  76   2                          printf("2¡¢ADC ²âÊÔÕý³£\n");
+  77   2                        else
+  78   2                          printf("2¡¢ADC ´íÎóXXXX£¬Çë¼ì²â¶Å°îÏßÁ¬½Ó\n");
+  79   2                DelayS(1);
+  80   2                        Ds1302_Write_Time();//Ð´ÈëÊ±¼ä
+  81   2                        Ds1302_Read_Time(); //¶Á³öÊ±¼ä
+  82   2                        if(time_buf1[1]==10)//ÅÐ¶ÁÐ´ÈëÓë¶Á³öÆäÖÐÖ®Ò»¸öÊýÖµÊÇ·ñÏàµÈ£¬ÏàµÈ±íÊ¾ÔËÐÐÕýÈ·
+  83   2                  printf("3¡¢DS1302 ²âÊÔÕý³£\n");
+  84   2                        else
+  85   2                          printf("3¡¢DS1302 ²âÊÔ´íÎóXXXX,Çë¼ì²â¶Å°îÏßÁ¬½Ó\n");
+  86   2                DelayS(1);
+  87   2                        printf("4¡¢¼ì²é8Î»ÊýÂë¹ÜÊÇ·ñÈ«ÁÁ\n");
+  88   2                        DelayS(1);
+  89   2                        printf("5¡¢J9È«²¿½ÓGND£¬¼ì²é8Î»LEDÊÇ·ñÈ«ÁÁ\n");
+  90   2                        printf("6¡¢J6È«²¿½ÓGND£¬¼ì²éµ¥¸ö¹²ÑôÊýÂë¹ÜÊÇ·ñÈ«ÁÁ\n");
+  91   2                        DelayS(1);
+  92   2      
+  93   2                        printf("7¡¢Çë²åÈë18B20£¬ÇëµÈ´ý£¡\n");
+  94   2                DelayS(1);
+  95   2                        temp=ReadTemperature();//¶ÁÈ¡ÎÂ¶È
+  96   2                DelayS(1);
+  97   2                temp=ReadTemperature();//µÚ¶þ´Î¶ÁÈ¡ÎÂ¶È£¬ÒÔ±ãÈ¡µÃÕýÈ·Öµ
+  98   2                        printf("   ÏÖÔÚÎÂ¶È %7.3f ¶È\n",(float)temp*0.0625);
+  99   2                DelayS(1);
+ 100   2                    Ds1302_Read_Time(); //¶Á³öÊ±¼ä
+ 101   2                        printf("   ÈÕÆÚ %02d-%02d-%02d ÐÇÆÚ%d\n",(int)time_buf1[1],(int)time_buf1[2],(int)time_buf1[3],(int)ti
+             -me_buf1[7]);//ÄêÔÂÖÜ
+ 102   2                printf("   Ê±¼ä %02d:%02d:%02d\n",(int)time_buf1[4],(int)time_buf1[5],(int)time_buf1[6]);//Ê±·ÖÃ
+             -ë
+ 103   2                        DelayS(1);
+ 104   2                printf("8¡¢Á¬½ÓP0¿Úµ½J24£¬Çë°´ÈÎÒâ¾ØÕó°´¼ü£¡\n");
+ 105   2                        DelayS(1);
+ 106   2                        printf("9¡¢Çë²åÈëµãÕó£¬¼ì²éÊÇ·ñÈ«²¿µãÁÁ£¡\n");
+ 107   2                        printf("   Èç¹ûÕý³££¬Çë°ÎµôµãÕó£¬·ÀÖ¹¹¦ºÄ¹ý´ó\n");
+ 108   2                
+ 109   2                 while(1)
+ 110   2                      {
+ 111   3                
+ 112   3                keynum=KeyPro(); //¶ÁÈ¡¾ØÕó¼üÅÌµÄÖµ
+ 113   3                if(keynum!=0xff) //ÅÐ¶ÏÊÇ0~15 ÓÐÐ§Öµ
+C51 COMPILER V7.06   MAIN                                                                  07/19/2010 11:10:51 PAGE 3   
+
+ 114   3                          {
+ 115   4                          printf("¾ØÕó¼üÅÌ¼üÖµÊÇ£º%02d\n",(int)keynum);//2Î»Êý×ÖÏÔÊ¾ÓÐÐ§Öµ
+ 116   4                              Ds1302_Read_Time(); //¶Á³öÊ±¼ä
+ 117   4                  printf("Ê±¼ä %02d:%02d:%02d\n",(int)time_buf1[4],(int)time_buf1[5],(int)time_buf1[6]);//Ê±·ÖÃë
+ 118   4                  DelayMs(50);
+ 119   4                              }
+ 120   3                              }
+ 121   2               }
+ 122   1      }
+ 123          /*------------------------------------------------
+ 124                           ¶¨Ê±Æ÷ÖÐ¶Ï×Ó³ÌÐò
+ 125          ------------------------------------------------*/
+ 126          void Timer0_isr(void) interrupt 1 
+ 127          {
+ 128   1       TH0=(65536-2000)/256;            //ÖØÐÂ¸³Öµ 2ms
+ 129   1       TL0=(65536-2000)%256;
+ 130   1       
+ 131   1       LED8x8Display();
+ 132   1      
+ 133   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    547    ----
+   CONSTANT SIZE    =    565    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       3
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

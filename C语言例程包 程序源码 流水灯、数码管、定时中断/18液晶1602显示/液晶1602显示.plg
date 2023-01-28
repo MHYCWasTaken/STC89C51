@@ -1,0 +1,16 @@
+<html>
+<body>
+<pre>
+<h1>µVision3 Build Log</h1>
+<h2>Project:</h2>
+C:\Documents and Settings\Administrator\◊¿√Ê\≥Ã–Ú¥˙¬Î\18“∫æß1602œ‘ æ\“∫æß1602œ‘ æ.uv2
+Project File Date:  08/27/2011
+
+<h2>Output:</h2>
+Build target 'Target 1'
+assembling STARTUP.A51...
+compiling “∫æß1602œ‘ æ.c...
+linking...
+Program Size: data=9.1 xdata=0 code=277
+creating hex file from "“∫æß1602œ‘ æ"...
+"“∫æß1602œ‘ æ" - 0 Error(s), 0 Warning(s).

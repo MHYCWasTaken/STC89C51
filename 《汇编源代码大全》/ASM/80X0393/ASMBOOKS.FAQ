@@ -1,0 +1,96 @@
+Fri 29 Jan 93  8:34
+By: Yousuf Khan
+To: All
+Re: FAQ: Books on Assembler
+------------------------------------------------------------------------
+
+Q2) I want to learn assembler, what books should I read?
+
+                                  ***
+
+A2) Various people have found these books useful to them:
+
+
+                                General
+                                =======
+
+Beginner:
+---------
+-"Assembly Language from Square One", Jeff Duntemann, Scott Foresman IBM
+Comptuter Books. ISBN 0-673-38590-6.
+-"Assembly Language for the IBM PC", Kip R. Irvine, ISBN 0-02-359840-9
+-"Mastering Turbo Assembler", by Tom Swan, Hayden Books, 1989.
+ISBN 0-672-48435-8.
+-"Assembly Language and Systems Programming for the IBM PC and
+Compatables", Karen A. Lemone, Little, Brown, & Co. ISBN 0-316-52069-1.
+-"Assembly Language Primer for the IBM PC/XT", Robert Lafore,
+Plume/Waite.
+-"Using Assembly Language", Allen L. Wyatt Sr., Que 1990.
+ISBN 0-88022-464-9.
+
+Intermediate:
+-------------
+-"The Zen of Assembly", Michael Abrash, Scott Foresman Publ.
+-"Assembly Language Primer for the IBM PC/XT"
+-"IBM Microcomputers: A Programmer's Handbook", Julio Sanchez and Maria
+P. Canton, McGraw-Hill. ISBN 0-07-054594-4.
+-"Programmer's Problem Solver for the IBM PC, XT, and AT", Robert
+Jourdain, Prentice Hall 1986. ISBN 0-89303-787-7.
+-"IBM PC ASSEMBLER LANGUAGE AND PROGRAMMING", Peter Abel, 1987,
+Prentice-Hall, hardcover (college text). ISBN 0-13-448143-7.
+
+Advanced:
+---------
+-"80386: A Programming and Design Handbook", 2nd ed., Penn & Don Brumm,
+TAB Books. ISBN 0-8306-3237-9.
+-"80486 Programming", Penn & Don Brumm and Leo J. Scanlon, McGraw-Hill.
+ISBN 0-8306-3577-7.
+-"ADVANCED ASSEMBLY LANGUAGE", Steven Holzner and Peter Norton Computing,
+Inc., Brady Books/Simon and Schuster. ISBN 0-13-658774-7.
+
+
+                             Video Graphics
+                             ==============
+
+Intermediate:
+-------------
+-"Programmer's Guide to PC & PS/2 Video Systems", Richard Wilton,
+Microsoft Press. ISBN 1-55615-103-9.
+
+Advanced:
+---------
+-"Power Graphics Programming", Michael Abrash, Que Corporation. ISBN
+0-88022-500-9
+-"Programmers Guide to the EGA and VGA cards", 2nd Ed., Richard F.
+Ferraro, Addison-Wesley Publishing Co. ISBN 0-201-57025-4.
+-"Advanced Programmers Guide to the EGA/VGA", George Sutty and Steve
+Blair, Brady Books/Prentice Hall Trade. ISBN 0-13-729039-X.
+
+
+                         References/Specialized
+                         ======================
+
+Intermediate:
+-------------
+-"Undocumented DOS", Andrew Schulman, Raymond J. Michels, Jim Kyle, Tim
+Paterson, David Maxey, and Ralf Brown, Addison-Wesley. ISBN
+0-201-57064-5.
+-"DOS Programmer's Reference", 2nd Edition, Terry Dettmann, QUE.
+ISBN 0-88022-458-4.
+
+Advanced:
+---------
+-"386SX Microprocessor Programmer's Reference Manual", Intel Corp.,
+McGraw-Hill. ISBN 0-07-881673-4.
+-"i486 Microprocessor Programmer's Reference Manual", Intel Corporation,
+McGraw-Hill. ISBN 0-07-881674-2.
+-"The Programmer's PC Sourcebook", Thom Hogan, Microsoft Press. ISBN
+1-55615-321-X.
+-"System BIOS for IBM PCs, Compatables, and EISA Computers", 2nd Ed.,
+Phoenix Technologies Ltd., Addison Wesley. ISBN 0-201-57760-7.
+-"PC Magazine Programmers Technical Reference: The Processor and
+Coprocessor", Robert L. Hummel, Ziff-Davis Press. ISBN 1-56276-016-5.
+-"Mastering Serial Communications", Peter W. Gofton, Sybex 1986.  ISBN
+0-89588-180-2.
+-"DOS Programmer's Reference", 2nd Ed.
+-"MS-DOS Programmer's Reference", MS Press. ISBN 1-555615-329-5.

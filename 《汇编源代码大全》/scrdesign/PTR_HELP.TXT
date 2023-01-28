@@ -1,0 +1,273 @@
+Date:   Tue Jun 16 1992  11:05:08
+From:   Ted Jensen
+To:     Michael Halcrow
+Subj:   Pointers & things
+Attr:   
+international C echo
+-------------------------------
+Michael-
+ 
+   In reading your messages to Mike Dalsanto, Robert Place, and
+All I see you need some help on pointers, arrays, and strings.
+Perhaps the following will help:
+ 
+   A string is a one dimensional array of characters.  A one
+dimensional array of a given type is contiguous in memory with
+each element following in memory the one preceding it.
+ 
+   A pointer is a variable much like any other variable.  For
+example, let's consider a more easily understood variable, the
+integer:
+ 
+    int k;
+ 
+    defines an integer and reserves x bytes of space in memory
+for its storage.  The number of bytes reserved depends on the
+system and/or compiler.  For DOS systems an integer requires 2
+bytes of storage.  Defining an integer, as above, does not give
+it a value.  If it is defined as a global variable, it will be
+intialized it to zero.  If it is defined as an auto variable
+(i.e. within a function) its value is indeterminate (i.e. a
+random value).  Before use, the safest thing to do with any
+variable is to intialize it to some value (though in this case
+most (all?) compilers will intialize it to zero if it is global.
+ 
+    Now, let's look at a pointer to the type integer which can be
+defined as:
+ 
+    int *int_ptr;
+ 
+    defines a pointer and reserves x bytes of space in memory for
+its storage.  The number of bytes reserved depends on the system
+and/or compiler.  But, fundamentally, since a pointer is designed
+to hold an address in memory, it must reserve the number of bytes
+necessary to contain such an address.  Defining a pointer, as
+above, does not give it a value.  If it is defined as a global
+variable it will be initialzed to a NULL, i.e. the address it
+will contain (which is the same as saying "the address to which
+it points to") will be set to a value of NULL which is #defined
+in <stdio.h>.  In DOS systems, NULL is defined as the address of
+the first byte of the data segment.  In Borland products, the
+first few bytes of the data segment contain a copyright notice.
+Before use, a pointer _must_ be "pointed at something", i.e.
+assigned a value equal to the address of some data item. More on
+this later.
+ 
+    The key to understanding pointers is to remember that they
+are variables which contain addresses and that when we say a
+pointer "points to something", we mean that it contains the
+address of another variable or some other point in memory (such
+as the video screen buffer).
+ 
+    Suppose now, that I want to "point" my integer pointer,
+int_ptr, at my integer k.  We do this as follows:
+ 
+    int_ptr = &k;
+ 
+    Why use the '&'?  Well, let's say k = 7;, were we to write
+"int_ptr = k;" we would be "pointing our pointer" at memory
+location 7.  But what we want is to "point our pointer" to the
+memory location where the value of k is stored, which is an
+entirely different thing.  By preceding the 'k' with the '&' we
+get the that address where the value of k is stored and point the
+pointer where we intend.
+ 
+    Now, let's move on to arrays, and eventually arrays of
+characters which, in some languages, are called strings.  But
+first, let's discuss an array of integers as in:
+ 
+    int int_array[5];
+ 
+defines an array capable of holding 5 integers.  We could then
+intialize these with statement such as:  int_array[0] = 4; ,
+int_array[1] = 7 , etc.  Or, we could initialize the array at the
+same time as we define it with:
+ 
+    int int_array[5] = { 4, 7, 2, -2, 6 };
+ 
+    The 5 memory locations for these integers will be contiguous
+in memory, i.e. if the 4 is stored at memory location 1000, it is
+gauranteed that the 7 will be stored at memory location 1002
+(recall an integer takes 2 bytes of storage) and the 2 will be
+stored at 1004, etc.
+ 
+    Recall that we stated that &k returned the address where the
+value of the integer k was stored.  Similarly
+ 
+        &int_array[0]    will return the memory location of the
+first integer in the array.  Thus, if we want to point our
+pointer at the array (i.e. the first element of the array) we can
+write:
+ 
+    int_ptr = &int_array[0];
+ 
+However, with arrays, there is a second option.  The name of our
+array will also return the memory location of the first element.
+This means that we can write:
+ 
+    int_ptr = int_array;
+ 
+and get exactly the same result.
+ 
+    With that as background, let's now turn to "strings", (called
+character arrays in C).  Everything we said about integer arrays
+can also be said about character arrays.  Thus:
+ 
+    char c_array[20];   /* reserves space for 20 characters */
+    char *c_ptr;        /* an (unitialized) pointer to a
+                           character */
+ 
+    c_ptr = &c_array[0];    /* points the pointer at the first
+                               char of the array ("string") */
+ 
+    c_ptr = c_array;        /* does the same */
+ 
+    Note that &c_array is meaningless.
+ 
+    char c_array[] = { 'M', 'i', 'c', 'h', 'a', 'e', 'l', '\0' };
+ 
+    This last line intializes c_array to hold "Michael".
+However, with character arrays, the above line can be written
+using a sort of shorthand as:
+ 
+    char c_array[] = "Michael";
+ 
+    Note that in the later case, the space reserved will be 8
+bytes and the 8th byte will automatically be set to '\0' so that
+this syntax is, in fact, shorthand for the longer method
+preceding it.
+ 
+    Now, let's to back to pointers and discuss them in context
+with functions.  Consider the following function:
+ 
+    void do_something(int k, int *p);
+ 
+    If you have studied functions you know that parameters are
+passed by _value_.  That is, if k = 7, what gets passed as a
+parameter is the value 7 (as distinguished from the address of
+k).  Similarly, what gets passed for the second parameter is the
+value of p.  But, the value of p is an address.  Thus, the
+following three calls to do_something are equivalent:
+ 
+    int k = 7;
+    int int_arr[5] = { 1, 2, 3, 4, 5 };
+    int *pk;
+    int *pa;
+    pk = &k;
+    pa = int_arr;
+ 
+    do_something( 3, pk );
+    do_something( 3, &k );
+ 
+Similarly, these three calls to our function
+ 
+    do_something( 3, pa);
+    do_something( 3, &int_arr[0]);
+    do_something( 3, int_arr);
+ 
+are identical, i.e. the _value_ of the second parameter is the
+same in all three cases.  This frees the programmer to choose
+that approach which he/she is more comfortable with.
+ 
+Now, let's talk about "strings" some more.  There is one more
+kind of "string" that we have yet to discuss.  It is called the
+"literal string".  A literal string is any string in your code
+that appears in quotes.  Thus, in all the following cases the
+string "l_string" is a literal string.
+ 
+    char s_arr[] = "l_string";
+    fopen("my_file", "wb");
+    strcpy(s_arr, "l_string");
+    printf("This is a test");
+
+During the compilation process, whenever and where ever the
+compiler sees a literal string it a) reserves space in the data
+segment to hold the string, b) puts the string within the quotes
+in that space and terminates it with the '\0' character, and c)
+replaces the literal string in the statement with a pointer
+"pointing to" the memory location where it is stored.
+ 
+Thus, for example, if the compiler sees:
+ 
+     strcpy(s_arr, "l_string");
+ 
+it moves the characters "l_string\0" to a memory location in the
+data segment, lets say it is at DS:0205.  It then "modifies" the
+statement to read:
+ 
+    strcpy(s_arr, DS:0205);   And if s_arr is located at DS:0097,
+ 
+it becomes:
+ 
+    strcpy(DS:0097, DS:0097);
+ 
+Thus, if you look at the prototype for strcpy(), located in
+<string.h>, you will see something like:
+ 
+    char *strcpy(char *p1, char *p2);
+ 
+which indicates that this function should be passed "pointers".
+But, now we know that it _really_ means that the function should
+be passed the _values_ of these pointers, which are _addresses_.
+And because we also recognize that the compiler replaces literal
+strings with addresses, a statment such as:
+ 
+    strcpy(s_arr, "Michael");
+ 
+begins to make some sense (at least I hope it does!).
+ 
+Michael, I have just scratched the surface here.  Other things
+that need "going into" include how and why the compiler _always_
+converts array notation to pointer notation as in converting:
+ 
+    a[n]     to       *(a + n);
+ 
+Why are arrays always based at zero?  i.e. why is the first
+element of an array always referred to as array[0] and not
+array[1]?  Why does something like:
+ 
+    char *p = "This is a test";
+ 
+initialize a string much the same as;
+ 
+    char arr[] = "This is a test";   but with different results.
+ 
+There are dozens of other issues that you will learn as you gain
+experience.  In the long run, you will find that C is much more
+powerful than BASIC.  But, having the power makes it more
+difficult to use.  One can add, subtract, multiply or divide with
+pencil and paper, and this is the way we all learn in the
+beginning.  A little later we learn there is a machine that we
+can use to do this called a calculator, and this does things
+faster.  Further more, calculators come in various degrees of
+complexity, including some that can be programmed.  When using
+the more complex calculators we must have a little more knowledge
+and take a little more care to avoid errors.
+ 
+As we move up this chain of experience we eventually come to
+computers where, once again, we can still add, subtract,
+multiply, and divide, but to do so (in a program) requires still
+more knowledge and care.  With each increase in power comes the
+need for more knowledge and the attainment of more flexibility
+(ever try and do wordprocessing on a four function calculator?).
+ 
+If you want to use sharper knives to make your task easier, you
+just have to be more careful not to cut yourself since the cut
+will go a lot deeper!
+ 
+At the point you are in your development of skills with C, I
+_strongly_ recommend you purchase:
+ 
+    "The C Programming Language"   (2nd edition)
+     Kernighan and Ritchie
+     Prentice Hall
+ 
+This is the 2nd edition of the book that started it all.  The
+authors were the ones who developed the C language and the book,
+often referred to as K&R or K&R2, is the _true_ bible for C
+users.  If you start at page 1, take it slow, and read it
+carefully, it will really pay off and it won't be any time at all
+before you are answering the questions here that you are now
+asking!
+ 
+Hope this helps!   ... and good luck!

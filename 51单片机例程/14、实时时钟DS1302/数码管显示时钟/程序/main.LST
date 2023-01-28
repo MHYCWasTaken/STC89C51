@@ -1,0 +1,120 @@
+C51 COMPILER V9.01   MAIN                                                                  07/25/2015 15:40:16 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN main.OBJ
+COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE main.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          /*******************************************************************************
+   2          *                 
+   3          *                                      普中科技
+   4          --------------------------------------------------------------------------------
+   5          * 实 验 名               : DS1302时钟显示试验
+   6          * 实验说明       : 数码管显示时钟信息
+   7          * 连接方式       : 见连接图
+   8          * 注    意               : 
+   9          *******************************************************************************/
+  10          
+  11          #include<reg51.h>
+  12          #include"ds1302.h"
+  13          
+  14          
+  15          //--定义使用的IO--//
+  16          #define GPIO_DIG P0
+  17          
+  18          sbit LSA=P2^2;
+  19          sbit LSB=P2^3;
+  20          sbit LSC=P2^4;
+  21          
+  22          //--定义全局变量--//
+  23          unsigned char code DIG_CODE[17]={
+  24          0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,
+  25          0x7f,0x6f,0x77,0x7c,0x39,0x5e,0x79,0x71};
+  26          //0、1、2、3、4、5、6、7、8、9、A、b、C、d、E、F的显示码
+  27          unsigned char DisplayData[8];
+  28          //用来存放要显示的8位数的值
+  29          
+  30          //--声明全局变量--//
+  31          void DigDisplay();
+  32          
+  33          /*******************************************************************************
+  34          * 函 数 名         : main
+  35          * 函数功能                 : 主函数
+  36          * 输    入         : 无
+  37          * 输    出         : 无
+  38          *******************************************************************************/
+  39          
+  40          void main()
+  41          {
+  42   1              Ds1302Init();
+  43   1              while(1)
+  44   1              {       
+  45   2                      Ds1302ReadTime();
+  46   2                      DisplayData[0] = DIG_CODE[TIME[2]/16];                          //时
+  47   2                      DisplayData[1] = DIG_CODE[TIME[2]&0x0f];                                 
+  48   2                      DisplayData[2] = 0x40;
+  49   2                      DisplayData[3] = DIG_CODE[TIME[1]/16];                          //分
+  50   2                      DisplayData[4] = DIG_CODE[TIME[1]&0x0f];        
+  51   2                      DisplayData[5] = 0x40;
+  52   2                      DisplayData[6] = DIG_CODE[TIME[0]/16];                          //秒
+  53   2                      DisplayData[7] = DIG_CODE[TIME[0]&0x0f];
+  54   2                      DigDisplay();   
+  55   2              }
+C51 COMPILER V9.01   MAIN                                                                  07/25/2015 15:40:16 PAGE 2   
+
+  56   1              
+  57   1      }
+  58          
+  59          /*******************************************************************************
+  60          * 函 数 名         : DigDisplay
+  61          * 函数功能                 : 使用数码管显示
+  62          * 输    入         : 无
+  63          * 输    出         : 无
+  64          *******************************************************************************/
+  65          void DigDisplay()
+  66          {
+  67   1              unsigned char i;
+  68   1              unsigned int j;
+  69   1              for(i=0;i<8;i++)
+  70   1              {
+  71   2                      switch(i)        //位选，选择点亮的数码管，
+  72   2                      {
+  73   3                              case(0):
+  74   3                                      LSA=0;LSB=0;LSC=0; break;//显示第0位
+  75   3                              case(1):
+  76   3                                      LSA=1;LSB=0;LSC=0; break;//显示第1位
+  77   3                              case(2):
+  78   3                                      LSA=0;LSB=1;LSC=0; break;//显示第2位
+  79   3                              case(3):
+  80   3                                      LSA=1;LSB=1;LSC=0; break;//显示第3位
+  81   3                              case(4):
+  82   3                                      LSA=0;LSB=0;LSC=1; break;//显示第4位
+  83   3                              case(5):
+  84   3                                      LSA=1;LSB=0;LSC=1; break;//显示第5位
+  85   3                              case(6):
+  86   3                                      LSA=0;LSB=1;LSC=1; break;//显示第6位
+  87   3                              case(7):
+  88   3                                      LSA=1;LSB=1;LSC=1; break;//显示第7位    
+  89   3                      }
+  90   2                      GPIO_DIG=DisplayData[i];//发送段码
+  91   2                      j=50;                                            //扫描间隔时间设定
+  92   2                      while(j--);     
+  93   2                      GPIO_DIG=0x00;//消隐
+  94   2              }
+  95   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    181    ----
+   CONSTANT SIZE    =     17    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      8    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,151 @@
+C51 COMPILER V7.50   DA_AD                                                                 09/19/2011 17:35:06 PAGE 1   
+
+
+C51 COMPILER V7.50, COMPILATION OF MODULE DA_AD
+OBJECT MODULE PLACED IN DA-AD.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE DA-AD.C BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          /**********************************************************************************
+   2          *  标题:       ************* DA-AD试验*******************                         *
+   3          *                                                                                                                                                                 *
+   4          *   1.通过本例程了解并掌握AD-DA转换芯片的基本原理和使用                                                   *
+   5          *   2.了解掌握I2C总线接口的工作原理及一般编程方法。
+   6          *                                                                                     *
+   7          * 请学员认真消化本例程，懂得AD-DA 在C语言中的操作应用                             *
+   8          ***********************************************************************************/
+   9          
+  10          #include<reg52.h>
+  11          #include <I2C.H>
+  12          
+  13          #define  PCF8591 0x90    //PCF8591 地址
+  14          
+  15          
+  16          //else IO
+  17          sbit    LS138A=P2^2;  
+  18          sbit    LS138B=P2^3;
+  19          sbit    LS138C=P2^4;  
+  20          
+  21          // 此表为 LED 的字模            // 0    1    2    3    4    5    6   7    8    9    A    b    c    d    E 
+             -   -    L   P    U    Hidden  _ (20)
+  22          unsigned char code  Disp_Tab[] = { 0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f,0x88,0x83,0xC6,0xA1,0
+             -x86,0xbf,0xc7,0x8c,0xc1, 0xff,  0xf7 }; 
+  23          
+  24          unsigned char AD_CHANNEL;
+  25          unsigned long xdata  LedOut[8];
+  26          unsigned int  D[32];
+  27                           
+  28          
+  29          /*******************************************************************
+  30          DAC 变换, 转化函数               
+  31          *******************************************************************/
+  32          bit DACconversion(unsigned char sla,unsigned char c,  unsigned char Val)
+  33          {
+  34   1         Start_I2c();              //启动总线
+  35   1         SendByte(sla);            //发送器件地址
+  36   1         if(ack==0)return(0);
+  37   1         SendByte(c);              //发送控制字节
+  38   1         if(ack==0)return(0);
+  39   1         SendByte(Val);            //发送DAC的数值  
+  40   1         if(ack==0)return(0);
+  41   1         Stop_I2c();               //结束总线
+  42   1         return(1);
+  43   1      }
+  44          
+  45          /*******************************************************************
+  46          ADC发送字节[命令]数据函数               
+  47          *******************************************************************/
+  48          bit ISendByte(unsigned char sla,unsigned char c)
+  49          {
+  50   1         Start_I2c();              //启动总线
+  51   1         SendByte(sla);            //发送器件地址
+  52   1         if(ack==0)return(0);
+  53   1         SendByte(c);              //发送数据
+C51 COMPILER V7.50   DA_AD                                                                 09/19/2011 17:35:06 PAGE 2   
+
+  54   1         if(ack==0)return(0);
+  55   1         Stop_I2c();               //结束总线
+  56   1         return(1);
+  57   1      }
+  58          
+  59          /*******************************************************************
+  60          ADC读字节数据函数               
+  61          *******************************************************************/
+  62          unsigned char IRcvByte(unsigned char sla)
+  63          {  unsigned char c;
+  64   1      
+  65   1         Start_I2c();          //启动总线
+  66   1         SendByte(sla+1);      //发送器件地址
+  67   1         if(ack==0)return(0);
+  68   1         c=RcvByte();          //读取数据0
+  69   1      
+  70   1         Ack_I2c(1);           //发送非就答位
+  71   1         Stop_I2c();           //结束总线
+  72   1         return(c);
+  73   1      }
+  74          
+  75          //******************************************************************/
+  76          main()
+  77          {  unsigned char i,j;
+  78   1      
+  79   1       while(1)
+  80   1       {/********以下AD-DA处理*************/  
+  81   2         switch(AD_CHANNEL)
+  82   2         {
+  83   3           case 0: ISendByte(PCF8591,0x41);
+  84   3                   D[0]=IRcvByte(PCF8591)*2;  //ADC0 模数转换1
+  85   3                               break;  
+  86   3       
+  87   3               case 1: ISendByte(PCF8591,0x42);
+  88   3                   D[1]=IRcvByte(PCF8591)*2;  //ADC1  模数转换2
+  89   3                               break;  
+  90   3      
+  91   3               case 2: ISendByte(PCF8591,0x43);
+  92   3                   D[2]=IRcvByte(PCF8591)*2;  //ADC2  模数转换3
+  93   3                               break;  
+  94   3      
+  95   3               case 3: ISendByte(PCF8591,0x40);
+  96   3                   D[3]=IRcvByte(PCF8591)*2;  //ADC3   模数转换4
+  97   3                               break;  
+  98   3      
+  99   3               case 4: DACconversion(PCF8591,0x40, D[4]/4); //DAC       数模转换
+ 100   3                       break;
+ 101   3         }
+ 102   2      
+ 103   2         if(++AD_CHANNEL>4) AD_CHANNEL=0;
+ 104   2      
+ 105   2       /********以下将AD的值送到LED数码管显示*************/
+ 106   2               D[4]+=1;               
+ 107   2               LedOut[0]=Disp_Tab[D[4]%10000/1000];
+ 108   2           LedOut[1]=Disp_Tab[D[4]%1000/100];
+ 109   2           LedOut[2]=Disp_Tab[D[4]%100/10];
+ 110   2           LedOut[3]=Disp_Tab[D[4]%10];  
+ 111   2              
+ 112   2               for( i=0; i<4; i++) 
+ 113   2               {       
+ 114   3                      P0 = LedOut[i];
+ 115   3                      P2 = i;          
+C51 COMPILER V7.50   DA_AD                                                                 09/19/2011 17:35:06 PAGE 3   
+
+ 116   3                  for (j = 0 ; j<200 ;j++) { ;}
+ 117   3                } 
+ 118   2              }  
+ 119   1      }
+ 120          
+ 121          
+ 122          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    486    ----
+   CONSTANT SIZE    =     21    ----
+   XDATA SIZE       =     32    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     65       8
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

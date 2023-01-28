@@ -1,0 +1,338 @@
+A51 MACRO ASSEMBLER  JCM12864M                                                            11/04/2008 23:41:31 PAGE     1
+
+
+MACRO ASSEMBLER A51 V6.12
+OBJECT MODULE PLACED IN .\JCM12864M.OBJ
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE .\JCM12864M.ASM SET(SMALL) DEBUG EP
+
+LOC  OBJ            LINE     SOURCE
+
+                       1     ;************************************************
+                       2     ;8031并口连接间接访问方式程序
+                       3     ;        ST7920C   JCM12864M
+                       4     ;  CPU  ST7920C   内置英文字符库及汉字字符库
+                       5     ;2008-01-08该程序在液晶显示模块JCM12864M,JCM89S51上进行调试运行OK
+                       6     ;4行都显示:金聚宝电子科技
+                       7     ;*************************************************************
+  00B0                 8           RS  EQU P3.0
+  00B1                 9           RW  EQU P3.1
+  00B3                10           E   EQU P3.3
+  00B4                11           PSB EQU P3.4
+  00B6                12           RST EQU P3.6
+  0030                13           LCD_X  EQU 30H
+  0031                14           LCD_Y  EQU 31H
+  0032                15           COUNT  EQU 32H
+  0033                16           COUNT1 EQU 33H
+  0034                17           COUNT2 EQU 34H
+  0035                18           COUNT3 EQU 35H
+  0036                19           LCD_DATA  EQU 36H
+  0037                20           LCD_DATA1 EQU 37H
+  0038                21           LCD_DATA2 EQU 38H
+  0039                22           STORE     EQU 39H
+                      23     ;********************************************************
+0000                  24              ORG 0000H
+0000 020006           25              LJMP MAIN
+0003                  26              ORG 0003H
+0003 020163           27              LJMP PAUSE
+0006                  28        MAIN:
+0006 758160           29             MOV SP,#60H
+0009 75A881           30             MOV IE,#81H
+000C 75B801           31             MOV IP,#01H
+000F 758800           32             MOV TCON,#00H
+0012 C2B6             33             CLR RST
+0014 12015A           34             LCALL DELAY4        ;T=4084US=4MS
+0017 D2B6             35             SETB RST
+0019 00               36             NOP
+001A D2B4             37             SETB PSB
+001C                  38         INT:
+001C 7434             39              MOV A,#34H
+001E 12011D           40              LCALL SEND_I
+0021 7430             41              MOV A,#30H
+0023 12011D           42              LCALL SEND_I
+0026 7401             43              MOV A,#01H
+0028 12011D           44              LCALL SEND_I
+002B 7406             45              MOV A,#06H
+002D 12011D           46              LCALL SEND_I
+0030 740C             47              MOV A,#0CH
+0032 12011D           48              LCALL SEND_I
+0035                  49     DISPLAY:
+0035 7401             50              MOV A,#01H
+0037 12011D           51              LCALL SEND_I
+003A 7537CC           52              MOV LCD_DATA1,#0CCH
+003D 7538CC           53              MOV LCD_DATA2,#0CCH
+0040 12009C           54              LCALL DISP
+0043 12014D           55              LCALL DELAY3
+0046 12014D           56              LCALL DELAY3
+0049 12014D           57              LCALL DELAY3
+004C 12014D           58              LCALL DELAY3
+A51 MACRO ASSEMBLER  JCM12864M                                                            11/04/2008 23:41:31 PAGE     2
+
+004F                  59     DISPLAY1:
+004F 1200F0           60             LCALL CLEAR_P
+0052                  61     DISPLAY1A:
+0052 900185           62             MOV DPTR,#TAB1A            ;第1行
+0055 753210           63             MOV COUNT,#10H
+0058 7480             64             MOV A,#80H
+005A 12011D           65             LCALL SEND_I
+005D 120100           66             LCALL QUSHU
+0060                  67     DISPLAY1B:
+0060 900195           68             MOV DPTR,#TAB1B            ;第2行
+0063 753210           69             MOV COUNT,#10H
+0066 7490             70             MOV A,#90H
+0068 12011D           71             LCALL SEND_I
+006B 120100           72             LCALL QUSHU
+006E                  73     DISPLAY1C:
+006E 9001A5           74             MOV DPTR,#TAB1C            ;第3行
+0071 753210           75             MOV COUNT,#10H
+0074 7488             76             MOV A,#88H
+0076 12011D           77             LCALL SEND_I
+0079 120100           78             LCALL QUSHU
+007C                  79     DISPLAY1D:
+007C 9001B5           80             MOV DPTR,#TAB1D            ;第4行
+007F 753210           81             MOV COUNT,#10H
+0082 7498             82             MOV A,#98H
+0084 12011D           83             LCALL SEND_I
+0087 120100           84             LCALL QUSHU
+                      85     
+008A 12014D           86             LCALL DELAY3
+008D 12014D           87             LCALL DELAY3
+0090 12014D           88             LCALL DELAY3
+0093 12014D           89             LCALL DELAY3
+0096 12014D           90             LCALL DELAY3
+                      91     
+0099 020035           92             LJMP DISPLAY
+                      93     ;****************************************************
+009C                  94         DISP:
+009C 753502           95              MOV COUNT3,#02H
+009F 753080           96              MOV LCD_X,#80H
+00A2                  97         DISP1:
+00A2 753180           98              MOV LCD_Y,#80H
+00A5 C2D5             99              CLR F0
+00A7 753420          100              MOV COUNT2,#20H
+00AA                 101         DISP2:
+00AA 753310          102              MOV COUNT1,#10H
+00AD 1200DB          103              LCALL WR_ZB
+00B0                 104         DISP3:
+00B0 20D505          105              JB F0,DISP32
+00B3 853736          106              MOV LCD_DATA,LCD_DATA1
+00B6 01BB            107              AJMP DISP31
+00B8                 108        DISP32:
+00B8 853836          109              MOV LCD_DATA,LCD_DATA2
+00BB                 110        DISP31:
+00BB E536            111              MOV A,LCD_DATA
+00BD 12010D          112              LCALL SEND_D
+00C0 D533F8          113              DJNZ COUNT1,DISP31
+00C3 0531            114              INC LCD_Y
+00C5 B2D5            115              CPL F0
+00C7 D534E0          116              DJNZ COUNT2,DISP2
+00CA 753088          117              MOV LCD_X,#88H
+00CD D535D2          118              DJNZ COUNT3,DISP1
+00D0 7436            119              MOV A,#36H
+00D2 12011D          120              LCALL SEND_I
+00D5 7430            121              MOV A,#30H
+00D7 12011D          122              LCALL SEND_I
+00DA 22              123              RET
+00DB                 124        WR_ZB:
+A51 MACRO ASSEMBLER  JCM12864M                                                            11/04/2008 23:41:31 PAGE     3
+
+00DB 7434            125              MOV A,#34H
+00DD 12011D          126              LCALL SEND_I
+00E0 E531            127              MOV A,LCD_Y
+00E2 12011D          128              LCALL SEND_I
+00E5 E530            129              MOV A,LCD_X
+00E7 12011D          130              LCALL SEND_I
+00EA 7430            131              MOV A,#30H
+00EC 12011D          132              LCALL SEND_I
+00EF 22              133              RET
+                     134     ;***********************
+00F0                 135     CLEAR_P:
+00F0 7401            136             MOV A,#01H
+00F2 12011D          137             LCALL SEND_I
+00F5 7434            138             MOV A,#34H
+00F7 12011D          139             LCALL SEND_I
+00FA 7430            140             MOV A,#30H
+00FC 12011D          141             LCALL SEND_I
+00FF 22              142             RET
+                     143     ;*************************
+0100                 144     QUSHU:
+0100 E4              145             CLR A
+0101 93              146             MOVC A,@A+DPTR
+0102 12010D          147             LCALL SEND_D
+0105 A3              148             INC DPTR
+0106 12015A          149             LCALL DELAY4
+0109 D532F4          150             DJNZ COUNT,QUSHU
+010C 22              151             RET
+                     152     ;*************************
+010D                 153     SEND_D:
+010D 12013E          154             LCALL CHK_BUSY
+0110 D2B0            155             SETB RS
+0112 C2B1            156             CLR RW
+0114 F590            157             MOV P1,A
+0116 D2B3            158             SETB E
+0118 00              159             NOP
+0119 00              160             NOP
+011A C2B3            161             CLR E
+011C 22              162             RET
+                     163     ;**************************
+011D                 164     SEND_I:
+011D 12013E          165            LCALL CHK_BUSY
+0120 C2B0            166            CLR RS
+0122 C2B1            167            CLR RW
+0124 F590            168            MOV P1,A
+0126 D2B3            169            SETB E
+0128 00              170            NOP
+0129 00              171            NOP
+012A C2B3            172            CLR E
+012C 22              173            RET
+                     174     ;**************************
+012D                 175     READ_D:
+012D 12013E          176           LCALL CHK_BUSY
+0130 D2B0            177           SETB RS
+0132 D2B1            178           SETB RW
+0134 D2B3            179           SETB E
+0136 00              180           NOP
+0137 E590            181           MOV A,P1
+0139 C2B3            182           CLR E
+013B F539            183           MOV STORE,A
+013D 22              184           RET
+                     185     ;*******************************
+013E                 186     CHK_BUSY:
+013E 7590FF          187            MOV P1,#0FFH
+0141 C2B0            188            CLR RS
+0143 D2B1            189            SETB RW
+0145 D2B3            190            SETB E
+A51 MACRO ASSEMBLER  JCM12864M                                                            11/04/2008 23:41:31 PAGE     4
+
+0147 2097FD          191            JB P1.7,$
+014A C2B3            192            CLR E
+014C 22              193            RET
+                     194     ;*******************************
+014D                 195     DELAY3:
+014D 7D16            196            MOV R5,#16H
+014F 7E64            197     DEL31: MOV R6,#100
+0151 7FFF            198     DEL32: MOV R7,#0FFH
+0153 DFFE            199     DEL33: DJNZ R7,DEL33
+0155 DEFA            200            DJNZ R6,DEL32
+0157 DDF6            201            DJNZ R5,DEL31
+0159 22              202            RET
+015A                 203     DELAY4:   ;延时80ms,
+015A 7E64            204            MOV R6,#100
+015C 7FC8            205     DEL41: MOV R7,#200
+015E DFFE            206     DEL42: DJNZ R7,DEL42
+0160 DEFA            207            DJNZ R6,DEL41
+0162 22              208            RET
+                     209     ;********************************
+0163                 210      PAUSE:
+0163 D2B2            211           SETB P3.2
+0165 D2B2            212           SETB P3.2
+0167 12015A          213           LCALL DELAY4
+016A A2B2            214           MOV C,P3.2
+016C A2B2            215           MOV C,P3.2
+016E 50F3            216           JNC PAUSE
+0170                 217      PAUSE1:
+0170 A2B2            218           MOV C,P3.2
+0172 A2B2            219           MOV C,P3.2
+0174 12015A          220           LCALL DELAY4
+0177 40F7            221           JC PAUSE1
+0179                 222      PAUSE2:
+0179 D2B2            223           SETB P3.2
+017B D2B2            224           SETB P3.2
+017D A2B2            225           MOV C,P3.2
+017F A2B2            226           MOV C,P3.2
+0181 50F6            227           JNC PAUSE2
+0183 00              228           NOP
+0184 32              229           RETI
+0185                 230     TAB1A:
+0185 BDF5B2FD        231     DB 0BDH,0F5H,0B2H,0FDH,0B5H,0E7H,0D7H,0D3H,0B2H,0E2H,0CAH,0D4H,0B3H,0CCH,0D0H,0F2H ; 1  
+0189 B5E7D7D3                
+018D B2E2CAD4                
+0191 B3CCD0F2                
+0195                 232     TAB1B: 
+0195 BDF5B2FD        233     DB 0BDH,0F5H,0B2H,0FDH,0B5H,0E7H,0D7H,0D3H,0B2H,0E2H,0CAH,0D4H,0B3H,0CCH,0D0H,0F2H ; 1
+0199 B5E7D7D3                
+019D B2E2CAD4                
+01A1 B3CCD0F2                
+01A5                 234     TAB1C: 
+01A5 BDF5B2FD        235     DB 0BDH,0F5H,0B2H,0FDH,0B5H,0E7H,0D7H,0D3H,0B2H,0E2H,0CAH,0D4H,0B3H,0CCH,0D0H,0F2H ; 1
+01A9 B5E7D7D3                
+01AD B2E2CAD4                
+01B1 B3CCD0F2                
+01B5                 236     TAB1D:  
+01B5 BDF5B2FD        237     DB 0BDH,0F5H,0B2H,0FDH,0B5H,0E7H,0D7H,0D3H,0B2H,0E2H,0CAH,0D4H,0B3H,0CCH,0D0H,0F2H ; 1
+01B9 B5E7D7D3                
+01BD B2E2CAD4                
+01C1 B3CCD0F2                
+                     238     end
+A51 MACRO ASSEMBLER  JCM12864M                                                            11/04/2008 23:41:31 PAGE     5
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+CHK_BUSY . . . . .  C ADDR   013EH   A   
+CLEAR_P. . . . . .  C ADDR   00F0H   A   
+COUNT. . . . . . .  N NUMB   0032H   A   
+COUNT1 . . . . . .  N NUMB   0033H   A   
+COUNT2 . . . . . .  N NUMB   0034H   A   
+COUNT3 . . . . . .  N NUMB   0035H   A   
+DEL31. . . . . . .  C ADDR   014FH   A   
+DEL32. . . . . . .  C ADDR   0151H   A   
+DEL33. . . . . . .  C ADDR   0153H   A   
+DEL41. . . . . . .  C ADDR   015CH   A   
+DEL42. . . . . . .  C ADDR   015EH   A   
+DELAY3 . . . . . .  C ADDR   014DH   A   
+DELAY4 . . . . . .  C ADDR   015AH   A   
+DISP . . . . . . .  C ADDR   009CH   A   
+DISP1. . . . . . .  C ADDR   00A2H   A   
+DISP2. . . . . . .  C ADDR   00AAH   A   
+DISP3. . . . . . .  C ADDR   00B0H   A   
+DISP31 . . . . . .  C ADDR   00BBH   A   
+DISP32 . . . . . .  C ADDR   00B8H   A   
+DISPLAY. . . . . .  C ADDR   0035H   A   
+DISPLAY1 . . . . .  C ADDR   004FH   A   
+DISPLAY1A. . . . .  C ADDR   0052H   A   
+DISPLAY1B. . . . .  C ADDR   0060H   A   
+DISPLAY1C. . . . .  C ADDR   006EH   A   
+DISPLAY1D. . . . .  C ADDR   007CH   A   
+E. . . . . . . . .  B ADDR   00B0H.3 A   
+F0 . . . . . . . .  B ADDR   00D0H.5 A   
+IE . . . . . . . .  D ADDR   00A8H   A   
+INT. . . . . . . .  C ADDR   001CH   A   
+IP . . . . . . . .  D ADDR   00B8H   A   
+LCD_DATA . . . . .  N NUMB   0036H   A   
+LCD_DATA1. . . . .  N NUMB   0037H   A   
+LCD_DATA2. . . . .  N NUMB   0038H   A   
+LCD_X. . . . . . .  N NUMB   0030H   A   
+LCD_Y. . . . . . .  N NUMB   0031H   A   
+MAIN . . . . . . .  C ADDR   0006H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+P3 . . . . . . . .  D ADDR   00B0H   A   
+PAUSE. . . . . . .  C ADDR   0163H   A   
+PAUSE1 . . . . . .  C ADDR   0170H   A   
+PAUSE2 . . . . . .  C ADDR   0179H   A   
+PSB. . . . . . . .  B ADDR   00B0H.4 A   
+QUSHU. . . . . . .  C ADDR   0100H   A   
+READ_D . . . . . .  C ADDR   012DH   A   
+RS . . . . . . . .  B ADDR   00B0H.0 A   
+RST. . . . . . . .  B ADDR   00B0H.6 A   
+RW . . . . . . . .  B ADDR   00B0H.1 A   
+SEND_D . . . . . .  C ADDR   010DH   A   
+SEND_I . . . . . .  C ADDR   011DH   A   
+SP . . . . . . . .  D ADDR   0081H   A   
+STORE. . . . . . .  N NUMB   0039H   A   
+TAB1A. . . . . . .  C ADDR   0185H   A   
+TAB1B. . . . . . .  C ADDR   0195H   A   
+TAB1C. . . . . . .  C ADDR   01A5H   A   
+TAB1D. . . . . . .  C ADDR   01B5H   A   
+TCON . . . . . . .  D ADDR   0088H   A   
+WR_ZB. . . . . . .  C ADDR   00DBH   A   
+
+
+REGISTER BANK(S) USED: 0 
+A51 MACRO ASSEMBLER  JCM12864M                                                            11/04/2008 23:41:31 PAGE     6
+
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

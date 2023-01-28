@@ -1,0 +1,4 @@
+"STARTUP.obj",
+" ±÷”DS1302LCD.obj" 
+TO " ±÷”DS1302LCD" 
+RAMSIZE(256) 

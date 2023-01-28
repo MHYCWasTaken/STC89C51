@@ -1,0 +1,140 @@
+BL51 BANKED LINKER/LOCATER V5.03                                                        08/05/2009  13:45:35  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V5.03, INVOKED BY:
+D:\KEIL\C51\BIN\BL51.EXE 步进电机.obj TO 步进电机 RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  步进电机.obj (步进_缁_)
+  D:\KEIL\C51\LIB\C51S.LIB (?C_STARTUP)
+
+
+LINK MAP OF MODULE:  步进电机 (步进_缁_)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            REG     0008H     0008H     ABSOLUTE     "REG BANK 1"
+                    0010H     0010H                  *** GAP ***
+            BIT     0020H.0   0000H.1   UNIT         ?BI?步进_缁_
+                    0020H.1   0000H.7                *** GAP ***
+            IDATA   0021H     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     000CH     UNIT         ?C_C51STARTUP
+                    000FH     0004H                  *** GAP ***
+            CODE    0013H     0003H     ABSOLUTE     
+            CODE    0016H     0035H     UNIT         ?PR?MAIN?步进_缁_
+            CODE    004BH     0015H     UNIT         ?PR?ISR_KEY?步进_缁_
+            CODE    0060H     0012H     UNIT         ?PR?_DELAY?步进_缁_
+            CODE    0072H     0008H     UNIT         ?CO?步进_缁_
+
+
+
+OVERLAY MAP OF MODULE:   步进电机 (步进_缁_)
+
+
+SEGMENT
+  +--> CALLED SEGMENT
+---------------------
+?PR?ISR_KEY?步进_缁_
+  +--> ?PR?_DELAY?步进_缁_
+
+*** NEW ROOT ***************************************************
+
+?C_C51STARTUP
+  +--> ?PR?MAIN?步进_缁_
+
+?PR?MAIN?步进_缁_
+  +--> ?CO?步进_缁_
+  +--> ?PR?_DELAY?步进_缁_
+
+
+
+BL51 BANKED LINKER/LOCATER V5.03                                                      08/05/2009  13:45:35  PAGE 2
+
+
+SYMBOL TABLE OF MODULE:  步进电机 (步进_缁_)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        步进_缁_
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+  D:0090H         PUBLIC        P1
+  D:00B0H         PUBLIC        P3
+  B:00A8H.7       PUBLIC        EA
+  D:00A8H         PUBLIC        IE
+  D:00B8H         PUBLIC        IP
+  C:0016H         PUBLIC        main
+  D:0098H         PUBLIC        SCON
+  D:0088H         PUBLIC        TCON
+  B:00A8H.2       PUBLIC        EX1
+  B:0088H.2       PUBLIC        IT1
+  C:0068H         PUBLIC        _Delay
+  D:00C8H         PUBLIC        T2CON
+  C:0076H         PUBLIC        B_Rotation
+  C:004BH         PUBLIC        ISR_Key
+  D:00D0H         PUBLIC        PSW
+  C:0072H         PUBLIC        F_Rotation
+  B:0020H.0       PUBLIC        Flag
+  -------         PROC          L?0017
+  -------         ENDPROC       L?0017
+  -------         PROC          _DELAY
+  D:0006H         SYMBOL        i
+  C:0068H         LINE#         24
+  C:0068H         LINE#         25
+  C:0068H         LINE#         26
+  C:0071H         LINE#         27
+  -------         ENDPROC       _DELAY
+  -------         PROC          MAIN
+  -------         DO            
+  D:0005H         SYMBOL        i
+  -------         ENDDO         
+  C:0016H         LINE#         31
+  C:0016H         LINE#         32
+  C:0016H         LINE#         37
+  C:0018H         LINE#         38
+  C:001AH         LINE#         39
+  C:001CH         LINE#         41
+  C:001FH         LINE#         42
+  C:001FH         LINE#         43
+  C:0022H         LINE#         44
+  C:002AH         LINE#         45
+  C:002AH         LINE#         46
+  C:002DH         LINE#         47
+  C:0030H         LINE#         48
+  C:0033H         LINE#         49
+  C:0033H         LINE#         50
+  C:0036H         LINE#         51
+  C:0036H         LINE#         52
+  C:0039H         LINE#         53
+  C:0041H         LINE#         54
+BL51 BANKED LINKER/LOCATER V5.03                                                      08/05/2009  13:45:35  PAGE 3
+
+
+  C:0041H         LINE#         55
+  C:0044H         LINE#         56
+  C:0047H         LINE#         57
+  C:004AH         LINE#         58
+  C:004AH         LINE#         59
+  -------         ENDPROC       MAIN
+  -------         PROC          ISR_KEY
+  C:004BH         LINE#         63
+  C:0052H         LINE#         65
+  C:0059H         LINE#         67
+  C:005BH         LINE#         69
+  -------         ENDPROC       ISR_KEY
+  -------         ENDMOD        步进_缁_
+
+Program Size: data=17.1 xdata=0 code=118
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

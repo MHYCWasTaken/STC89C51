@@ -1,0 +1,66 @@
+C51 COMPILER V7.06   TIM2                                                                  05/13/2009 08:50:34 PAGE 1   
+
+
+C51 COMPILER V7.06, COMPILATION OF MODULE TIM2
+OBJECT MODULE PLACED IN tim2.OBJ
+COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE tim2.c BROWSE DEBUG OBJECTEXTEND
+
+stmt level    source
+
+   1          /*-----------------------------------------------
+   2            名称：定时器1
+   3            公司：上海浩豚电子科技有限公司
+   4            编写：师访
+   5            日期：2009.5
+   6            修改：无
+   7            内容：通过定时让LED灯闪烁
+   8          ------------------------------------------------*/
+   9          #include<reg52.h> //包含头文件，一般情况不需要改动，头文件包含特殊功能寄存器的定义
+  10          
+  11          sbit LED=P1^2;    //定义LED端口
+  12          
+  13          
+  14          /*------------------------------------------------
+  15                              定时器初始化子程序
+  16          ------------------------------------------------*/
+  17          void TIM2Inital(void)
+  18          {
+  19   1        RCAP2H = (65536-60000)/256;//晶振12M 10ms 16bit 自动重载
+  20   1        RCAP2L = (65536-60000)%256;
+  21   1        ET2=1;                     //打开定时器中断
+  22   1        EA=1;                      //打开总中断
+  23   1        TR2=1;                     //打开定时器开关
+  24   1      }
+  25          /*------------------------------------------------
+  26                              主程序
+  27          ------------------------------------------------*/
+  28          main()
+  29          {
+  30   1       TIM2Inital();
+  31   1       while(1);
+  32   1      }
+  33          
+  34          /*------------------------------------------------
+  35                           定时器中断子程序
+  36          ------------------------------------------------*/
+  37          void TIM2(void) interrupt 5 using 1//定时器2中断
+  38          {
+  39   1      
+  40   1          TF2=0;
+  41   1          LED=~LED;               //指示灯反相
+  42   1         
+  43   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     23    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

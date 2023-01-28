@@ -1,0 +1,621 @@
+                   ASMLIB 3.5 Programmer's Toolkit
+               tools for assembly-language programming
+     Copyright (C) 1991 - 1993 Douglas Herr - All rights reserved
+
+
+What is ASMLIB?
+
+ASMLIB is a library of assembly-language subroutines, linkable with
+your .OBJ code.  ASMLIB provides many tools to the assembly-language
+programmer which eliminate much of the tedious and repetetive coding
+that assembly-language programming is infamous for.
+
+DISTRIBUTION AND REGISTRATION
+
+ASMLIB is user-supported software, NOT public domain software.
+Possession of the ASMLIB files entitles you to evaluate this product.
+If, after evaluation, you choose to use ASMLIB subroutines in your
+programs, you are expected to register with the library's author.
+By registering, you will be entitled to use the latest version of ASMLIB,
+you will be entitled to low-cost upgrades, you will have confidence that
+the version of ASMLIB you are using has not been altered by others, and
+you will be supporting my programming efforts.
+
+Two levels of registration are available: For $25, you will recieve  the
+most recent version of ASMLIB (tiny, small, medium and huge models); for
+$50 you will receive full source code to the ASMLIB subroutines along with
+the assembled libraries.  If you first register at the $25 level, you may
+register for ASMLIB source code at any time for $25.  Upgrades for either
+level of registration are $10.
+
+Register by sending the registration fee to:
+
+   Douglas Herr
+   P. O. Box 207
+   Sacramento, CA  95812
+   U.S.A.
+
+   Telephone (916) 721-8762
+   CompuServe 71247,3542
+
+Please specify either 5 1/4 or 3 1/2 inch disks.  Bug reports (if any)
+should be sent to the same address.  If you wish to contact me by
+telephone, please call after 8:00 PM Pacific time so I can get my kids
+in bed.
+
+Registration is a LICENSE fee, not a purchase of ASMLIB.  Registered users
+may use ASMLIB or modified subroutines based on ASMLIB source code in their
+own programs.  Registered users may distribute programs using ASMLIB
+subroutines without royalty payments.
+
+ASMLIB object files, ASMLIB source code (unmodified or modified) and the
+ASMLIB library and documentation remain the property of Douglas Herr.
+ASMLIB source code, modified or unmodified, may not be re-distributed.
+
+The ASMLIB3 shareware package includes these files:
+
+ASMLIB.LIB      the ASMLIB medium model library
+ASMLIB.DOC      this introductory file
+DATA.DOC        documentation for string and integer data manipulation
+DISK.DOC        documentation for disk & file subroutines
+EMSXMS.DOC      documentation for EMS and XMS subroutines
+FLOAT.DOC       documentation for floating-point subroutines
+GRAPHICS.DOC    documentation for ASMLIB graphics
+INPUT.DOC       documentation for keyboard input subroutines
+MODE.DOC        ASMLIB screen mode subroutines
+MULTIWIN.DOC    documentation for text-mode multi-window subroutines
+SOLVE.DOC       documentation for ASMLIB mathematical solutions
+SYSTEM.DOC      documentation for subroutines which determine PC status
+TEXT.DOC        documentation for text-mode video subroutines
+STARTUP.ASM     sample startup code
+ASM.INC         medium model INCLUDE file for STARTUP.ASM
+ASMDEMO.ZIP     archive of simple ASMLIB demonstration program
+
+These files may be copied and distributed freely provided that all the
+above files are distributed together in unmodified or archived form
+and provided that distribution charges are less than $10.
+
+
+LIMITED LIABILITY
+
+Since I am unable to supervise all uses of ASMLIB, I cannot be held
+responsible for any damages, either direct or incidental, resulting
+from the use or abuse of ASMLIB.  I have used ASMLIB subroutines on
+a wide variety of equipment and have found the library to be highly
+compatible with common PC equipment, but you must use this library at
+your own risk.  Try it before you buy it.
+
+
+COMPATIBILITY
+
+ASMLIB subroutines are intended for IBM PC, XT, AT, PS/2, and compatible
+equipment in real mode with PC-DOS or MS-DOS operating systems.  I cannot
+provide support for use of ASMLIB on other equipment or with other operating
+systems.
+
+
+ABBREVIATIONS for video boards
+
+MDA   IBM-standard Monochrome Display Adapter
+CGA   IBM-standard Color Graphics Adapter (ugh!)
+MCGA  IBM-standard Multi-color Graphics Array
+EGA   IBM-standard Enhanced Graphics Adapter
+VGA   IBM-standard Video Graphics Array
+SVGA  VGA equipment with additional capabilities
+ATT   ATT 6300 and compatible Olivetti
+HGC   Hercules Graphics Card and compatibles
+HGC+  Hercules Graphics Card Plus
+InC   Hercules InColor Card
+
+OTHER ABBREVIATIONS
+
+CF = Carry Flag
+ZF = Zero Flag
+SF = Sign Flag
+
+
+ASSUMPTIONS
+
+Unless otherwise stated, ASMLIB subroutines assume that:
+
+1) All strings are terminated with a NUL character.
+
+2) Subroutines with names including '$' trash registers, and are
+   intended primarily for ASMLIB's internal use.  All '$' subroutines
+   require a near call.  Documentation for '$' subroutines is in
+   SOURCE.DOC, provided to registered ASMLIB programmers.
+
+3) ASMLIB subroutines without '$' in the name require a far call, and
+   are compatible with object files assembled with the
+
+   .model medium
+
+   directive.  Subroutines in ASMSMALL.LIB, provided upon registration,
+   require a near call, and are compatible with object code assembled with
+   the
+
+   .model small
+
+   directive.  Subroutines in ASMTINY.LIB, provided to registered
+   programmers, also require near calls and are intended for development
+   of .COM format programs.  ASMTINY is compatile with object code assembled
+   with the TASM
+
+   .model tiny
+
+   directive.  MASM users may use the TINY.INC include file to achieve the
+   same results.  Subroutines in ASMHUGE.LIB, also provided upon
+   registration, includes support for data blocks > 64k.  Support
+   for huge data is indicated in the description of each subroutine.
+
+   Aside from the MODEL.INC include file and parameters as required for
+   HUGE model programming, ASMLIB source code does not need any alteration
+   when changing memory models.  All ASMLIB source code is compatible with
+   MASM 5.0, MASM 5.1 and TASM 2.01.
+
+4) ASMLIB data types are:
+
+   chr   1 byte
+   str   character string, normally terminated with ASCII 0 (NUL)
+   I2    2-byte signed integer
+   U2    2-byte unsigned integer
+   I4    4-byte signed integer
+   U4    4-byte unsigned integer
+   F4    4-byte floating point value, IEEE format
+   F8    8-byte floating point value, IEEE format
+
+5) ASMLIB GRAPHICS subroutines assume DS:@DATA
+
+HOW DO I USE ALL THIS NEAT STUFF?
+
+Any program that calls an ASMLIB subroutine must declare the subroutine as
+an external procedure, like this:
+
+extrn  gedit:proc        ; tell assembler to assume that GEDIT is an external
+                         ; procedure to be linked later
+
+
+I also find it handy to make LINK search through ASMLIB for object code,
+rather than specifying ASMLIB on the command line.  Do this with the
+command
+
+includelib asmlib.lib    ; automatic search through ASMLIB for externals
+
+in your calling program.  See STARTUP.ASM.  (Note: this may not work with
+TASM 2.01 & TLINK.  You will need to specify ASMLIB on the command line.)
+
+
+CALLING ASMLIB FROM C PROGRAMS
+
+It's easy to call ASMLIB subroutines from C if you follow these simple
+rules (Turbo C examples):
+
+1)  Tell your C program that the ASMLIB subroutine is a PASCAL function
+    This makes the C compiler convert the subroutine name to upper case
+    and supresses the _leading _underscore in the subroutine name.
+
+    Example:
+    extern  void pascal tprint();
+
+
+2)  In case of naming conflicts (such as strlen), declare the ASMLIB
+    subroutine in upper case and use upper case in the C code.
+
+    Example:
+    extern  void pascal STRLEN();
+    .
+    .
+    .
+    _BX = msg;              /* pointer to ASCIIZ string */
+    STRLEN();               /* ASMLIB subroutine  */
+    string_length = _CX
+
+
+3)  Load the 80x86 registers before calling the ASMLIB subroutine.
+
+    Example:
+    _DX = 0;               /* upper left corner of screen */
+    _AH = 15;              /* bright white */
+    _SI = msg;             /* pointer to ASCIIZ string */
+    tprint();
+
+
+4)  ASMLIB subroutines using the 8087 will use Turbo C's
+    emulation library if re-assembled with the /E option.
+
+
+5)  values in registers returned by ASMLIB subroutines should be used
+    or saved immediately; C code executed after calling an ASMLIB
+    subroutine may change any of the registers
+
+
+6)  When compiling from within the Turbo C editor, include ASMLIB.LIB
+    in your .PRJ file (ASMSMALL.LIB for small model, ASMHUGE.LIB for
+    huge model).
+
+
+DOCUMENTATION
+
+There's alot of stuff in ASMLIB, so I've tried to keep the documentation
+succinct.  Here's a general guide to ASMLIB's documentation:
+
+
+
+SUBROUTINE:  a brief description
+Source:      the source code file (and other subroutines used)
+
+Call with:   this tells you what data the subroutine expects
+             additional information may be found here
+Returns:     tells you what registers and/or flags contain useful info
+             Additional lines may include more specific information about
+             the register values returned.
+Uses:        registers and flags which may be changed
+Supports:    particular equipment or operating modes; this will not apply to
+             all subroutines.
+Example:     an example of how parameters are passed to the subroutine
+             and a typical use of the subroutine.
+
+
+
+Documentation for ASMLIB subroutines is in the following files:
+
+Subroutine      description                                           .DOC file
+
+A$EDIT          editor module used by TEdit and GEdit                 INPUT.DOC
+ADDF4           adds two float4 values without 80x87                  FLOAT.DOC
+ADDF8           adds two float8 values without 80x87                  FLOAT.DOC
+ALLOCEMS        allocate memory from Expanded Memory                 EMSXMS.DOC
+ALLOCXMS        allocate memory from XMS Extended Memory             EMSXMS.DOC
+ANSICOLOR       returns color attribute used by ANSI device driver     TEXT.DOC
+BITBLOCKBYTES   calculate bytes required to save a bit block       GRAPHICS.DOC
+BITPLANEBYTES   calculate bytes to save a plane of bit block       GRAPHICS.DOC
+BLINKOFF        turn blink attributes off                              TEXT.DOC
+BLINKON         turn blink attributes on                               TEXT.DOC
+BREAKTRAP       initialize Ctrl+Break trap                           SYSTEM.DOC
+BREAKRELEASE    de-activate Ctrl+Break trap                          SYSTEM.DOC
+BREAKFLAG       public byte flagging a Ctrl+Break keypress           SYSTEM.DOC
+C2F             convert degrees Celcius to degrees Fahrenheit         SOLVE.DOC
+CHRDEL          delete a character from an ASCIIZ string               DATA.DOC
+CHRNDEL         delete a character from an n-length string             DATA.DOC
+CIRCLEASPECT    modifies aspect ratio of circle                    GRAPHICS.DOC
+CLEARKEY        clears the keyboard's 'type-ahead' buffer             INPUT.DOC
+CMPF4           compare two float4 values                             FLOAT.DOC
+CMPF8           compare two float8 values                             FLOAT.DOC
+COLOR16         calculate color value for 16-color palette           SYSTEM.DOC
+COLORATTR       calculates a color attribute byte                      DATA.DOC
+CRTINFO         returns video buffer, screen size, etc.                TEXT.DOC
+CSET            centers a string in a fixed field                      DATA.DOC
+CUBEFITF4       fit a cubic equation to a float4 point series         SOLVE.DOC
+CUBEFITF8       fit a cubic equation to a float8 point series         SOLVE.DOC
+CUBEFITI2       fit a cubic equation to an integer2 point series      SOLVE.DOC
+CUBEFITI4       fit a cubic equation to an integer4 point series      SOLVE.DOC
+CURSORCOLOR     enable InColor palette, set cursor color               TEXT.DOC
+CURSOROFF       make hardware cursor invisible at present location     TEXT.DOC
+CURSORON        move cursor to (row, col) and update cursor shape      TEXT.DOC
+DAYNAME         returns ASCII string for day number                    DATA.DOC
+DEFGMODE        ASMLIB uses system graphics mode (default)         GRAPHICS.DOC
+DEG2RAD         convert degrees of arc to radians                     SOLVE.DOC
+DISKWP          determines if a floppy disk is writable                DISK.DOC
+DIVI2           divide one I2 number by another, returns f4 quotient  FLOAT.DOC
+DOSALLOC        dynamic memory allocation                            SYSTEM.DOC
+DOTBAK          changes a file to a .BAK file                          DISK.DOC
+DRAWCIRCLE      draw a circle                                      GRAPHICS.DOC
+DRAWBOX         draw a rectangle on a graphics screen              GRAPHICS.DOC
+DRAWLINE        draw a line on a graphics screen                   GRAPHICS.DOC
+DRAWMODE        public byte modifying ASMLIB graphics drawing mode GRAPHICS.DOC
+EMGET           copy data from Expanded Memory to system RAM         EMSXMS.DOC
+EMPUT           copy data from system RAM to Expanded Memory         EMSXMS.DOC
+EMSFREE         determine available EMS memory                       EMSXMS.DOC
+EMSTOTAL        determine total EMS memory installed                 EMSXMS.DOC
+ENDPROG         determine size of program                            SYSTEM.DOC
+EXENAME         determine full path and name of executing program    SYSTEM.DOC
+
+F2C             convert degrees Fahrenheit to degrees Celcius         SOLVE.DOC
+F4TOF8          converts float4 value to float8 format                FLOAT.DOC
+F4TOI2          converts float4 value to an integer                   FLOAT.DOC
+F4TOI4          converts float4 value to a long integer               FLOAT.DOC
+F8TOF4          converts float8 value to float4 format                FLOAT.DOC
+FACTORIAL       calculate the factorial of an integer                 SOLVE.DOC
+FARALLOC        allocates memory from a far heap                     SYSTEM.DOC
+FARFREE         releases memory allocated by FARALLOC                SYSTEM.DOC
+FARINIT         initializes a far heap                               SYSTEM.DOC
+FARREALLOC      re-sizes a memory block in a far heap                SYSTEM.DOC
+FCLOSE          close a file managed by ASMLIB buffered I/O system     DISK.DOC
+FCOPY           copies one file to another                             DISK.DOC
+FCOUNT          counts the number of files matching filespec mask      DISK.DOC
+FCREATE         create new file and initialize I/O buffer              DISK.DOC
+FEXIST          determines if a file exists                            DISK.DOC
+FFLUSH          flushes the DOS file output buffer for specifed handle DISK.DOC
+FGET            read specified number of bytes from a file buffer      DISK.DOC
+FGETCHR         read a character from a file buffer                    DISK.DOC
+FGETSTR         read an ASCII string from a file buffer                DISK.DOC
+FILELIST        creates a list of filenames matching filespec mask     DISK.DOC
+FILL4, FILL4B   fill a buffer with 4-byte data                         DATA.DOC
+FILL8, FILL8B   fill a buffer with 8-byte data                         DATA.DOC
+FILLAREA        fills an irregular area on a graphics screen       GRAPHICS.DOC
+FILLBOX         draw a filled rectangle on a graphics screen       GRAPHICS.DOC
+FILLPATTERN     define an optional pattern for FillArea & FillBox  GRAPHICS.DOC
+FINDDATE        returns date of file found with FindFirst/FindNext     DISK.DOC 
+FINDFIRST       find first file matching filespec mask                 DISK.DOC
+FINDMONO        determine if monochrome monitor is installed         SYSTEM.DOC
+FINDNEXT        find next file matching filespec mask                  DISK.DOC
+FINDTIME        returns time of file found with FindFirst/FindNext     DISK.DOC
+FLOPPIES        determines the number of floppy drives installed     SYSTEM.DOC
+FLOPPYTYPE      determines the type of floppy drive installed        SYSTEM.DOC
+FOPEN           open a file and initilaize buffered I/O                DISK.DOC
+FORCEGMODE      force ASMLIB to use a graph mode                   GRAPHICS.DOC
+FPRIMEI2        calculates the derivative of a polynomial function    SOLVE.DOC
+FPRIMEF4        calculates the derivative of a polynomial function    SOLVE.DOC
+FPUT            write specified data to output file buffer             DISK.DOC
+FPUTCHR         writes a character to output file buffer               DISK.DOC
+FPUTCRLF        writes a CR+LF pair to output file buffer              DISK.DOC
+FPUTSTR         writes a string to output file buffer                  DISK.DOC
+FREEEMS         release Expanded Memory handle                       EMSXMS.DOC
+FREEXMS         release XMS Extended Memory handle                   EMSXMS.DOC
+FSEEK           move file pointer for file opened by FOPEN             DISK.DOC
+FSIZE           determines the size of an open file                    DISK.DOC
+FSTRISTR        searches for a string in a disk file (case-insensetive)DATA.DOC
+FSTRSTR         searches for a string in a disk file (case-sensetive)  DATA.DOC
+FVALUE          calculate future value of an even cash flow           SOLVE.DOC
+
+GBASESEG        change ASMLIB graphics default base segment        GRAPHICS.DOC
+GCENTER         centers a string on a graphics screen              GRAPHICS.DOC
+GCLEAR          clears the active portion of a graphics screen     GRAPHICS.DOC
+GCOLOR          establish color used by ASMLIB graphics            GRAPHICS.DOC
+GCOPY           copies one page of graphics memory to another      GRAPHICS.DOC
+GCURSOR         simulate text-mode cursor on graphics screen       GRAPHICS.DOC
+GEDIT           string editor for graphics modes                      INPUT.DOC
+GETBITBLOCK     saves a portion of a graphics screen in memory     GRAPHICS.DOC
+GETBITPLANE     saves one plane of a bit block in memory           GRAPHICS.DOC
+GETCMD          isolates multiple command line parameters              DATA.DOC
+GETCPU          determines the computer's CPU chip                   SYSTEM.DOC
+GETCRT          determine active monitor                             SYSTEM.DOC
+GETDOT          determine pixel value on graphics screen           GRAPHICS.DOC
+GETKEY          returns next key pressed                              INPUT.DOC
+GETSCREEN       save screen image in memory to restore later           TEXT.DOC
+GETVIEW         returns a pointer to graphics view area data       GRAPHICS.DOC
+GLOAD           loads a graphics screen saved by GSave             GRAPHICS.DOC
+GPAGE           changes active and displayed graphics page         GRAPHICS.DOC
+GPICKF          select a filename from a list (graphics mode)         INPUT.DOC
+GPICKSTR        select a string from a list (graphics mode)           INPUT.DOC
+GPRINT          prints ASCIIZ string on a graphics screen          GRAPHICS.DOC
+GPRINTDOWN      prints ASCIIZ string vertically on graph screen    GRAPHICS.DOC
+GPRINTDOWNX     print string vertically on graph screen, 2x width  GRAPHICS.DOC
+GPRINTDOWN2X    print string vertically on graph screen, 2x size   GRAPHICS.DOC
+GPRINTUP        prints ASCIIZ string vertically on graph screen    GRAPHICS.DOC
+GPRINTUPX       print string vertically on graph screen, 2x width  GRAPHICS.DOC
+GPRINTUP2X      print string vertically on graph screen, 2x sixe   GRAPHICS.DOC
+GPRINTX         print string on a graphics screen, double width    GRAPHICS.DOC
+GPRINT2X        print string on a graphics screen, double size     GRAPHICS.DOC
+GSAVE           saves a graphics screen as a disk file             GRAPHICS.DOC
+GUCURSOR        simulate underscore cursor on graphics screen      GRAPHICS.DOC
+HALLOC          allocates memory from near heap                      SYSTEM.DOC
+HFREE           releases memory allocated by HALLOC                  SYSTEM.DOC
+HGRAPH          establish Hercules graphics mode using two pages       MODE.DOC
+HGRAPH0         establish Hercules graphics mode using one page        MODE.DOC
+HIDEMOUSE       make mouse cursor disappear                           INPUT.DOC
+HINIT           initializes near heap                                SYSTEM.DOC
+HMAX            determines maximum block size available in near heap SYSTEM.DOC
+HRAM8043        establish 80-column, 43-row RamFont mode               MODE.DOC
+HRAM9025        establish 90-column, 25-row RamFont mode               MODE.DOC
+HRAM9043        establish 90-column, 43-row RamFont mode               MODE.DOC
+HREALLOC        re-sizes a memory block in the near heap             SYSTEM.DOC
+HSCROLL         scrolls a portion of the screen left or right          TEXT.DOC
+HTEXT           establish Hercules text mode                           MODE.DOC
+
+I2TOF4          convert a 2-byte integer to float4 format             FLOAT.DOC
+I2TOSTR         convert a 2-byte integer to an ASCIIZ string           DATA.DOC
+I4TOF4          convert a 4-byte integer to float4 format             FLOAT.DOC
+I4TOSTR         convert a 4-byte integer to an ASCIIZ string           DATA.DOC
+ISALPHA         determines if a keycode returned by GetKey is A - z   INPUT.DOC
+ISANSI          determines if ANSI is loaded and active              SYSTEM.DOC
+ISATT           determines if ATT 6300 display card is installed     SYSTEM.DOC
+ISDIGIT         determines if a keycode returned by GetKey is 0 - 9   INPUT.DOC
+ISEMS           determines if an EMS driver is loaded                EMSXMS.DOC
+ISEVGA          determines if an EGA or VGA is installed             SYSTEM.DOC
+ISHERC          determine if a Hercules card is installed            SYSTEM.DOC
+ISLOWER         determines if a keycode returned by GetKey is a - z   INPUT.DOC
+ISMOUSE         determines if a mouse is installed                   SYSTEM.DOC
+ISSEVGA         determines if a Super EGA or Super VGA is installed  SYSTEM.DOC
+ISUPPER         determines if a keycode returned by GetKey is A - Z   INPUT.DOC
+ISXMS           determines if an XMS driver is loaded                EMSXMS.DOC
+INVF4           calculate the inverse of a float4 value               FLOAT.DOC
+JANEIN          German language version of YesNo                      INPUT.DOC
+KEYIFWAITING    returns first key if one waiting in keyboard buffer   INPUT.DOC
+KEYORBUTTON     returns either keypress or mouse button press         INPUT.DOC
+KEYWAITING      determines if a key is waiting in keyboard buffer     INPUT.DOC
+LINEFITF4       fit a line equation to point series                   SOLVE.DOC
+LINEFITF8       fit a line equation to point series                   SOLVE.DOC
+LINEFITI2       fit a line equation to point series                   SOLVE.DOC
+LINEFITI4       fit a line equation to point series                   SOLVE.DOC
+LINEPATTERN     defines an optional pattern to use with DrawLine   GRAPHICS.DOC
+LOWDS2HI        convert segment:offset address to lowest offset        DATA.DOC
+LOWES2HI        convert segment:offset address to lowest offset        DATA.DOC
+LSET            left-justifies a string in a field                     DATA.DOC
+LTRIM           removes leading blanks from an ASCIIZ string           DATA.DOC
+MATHCHIP        determine if 80x87 math coprocessor is installed     SYSTEM.DOC
+MAXF4, MAXF4B   determine maximum value in a real number array        FLOAT.DOC
+MAXF8, MAXF8B   determine maximum value in a real number array        FLOAT.DOC
+MAXI2, MAXI2B   determine maximum value in integer array               DATA.DOC
+MAXI4, MAXI4B   determine maximum value in long integer array          DATA.DOC
+MAXU2, MAXU2B   determine maximum value in unsigned integer array      DATA.DOC
+MAXU4, MAXU4B   determine maximum value in unsigned long integer array DATA.DOC
+MENUOPTION      define options for PullDown menu system               INPUT.DOC
+MINF4, MINF4B   determine minimum value in a real number array        FLOAT.DOC
+MINF8, MINF8B   determine minimum value in a real number array        FLOAT.DOC
+MINI2, MINI2B   determine minimum value in integer array               DATA.DOC
+MINI4, MINI4B   determine minimum value in long integer array          DATA.DOC
+MINU2, MINU2B   determine minimum value in unsigned integer array      DATA.DOC
+MINU4, MINU4B   determine minimum value in unsigned long integer array DATA.DOC
+MODECOLOR       switch system to color monitor or color text mode      MODE.DOC
+MODEMONO        switch system to monochrome monitor or mono text mode  MODE.DOC
+MODE13225       switches supported systems to 132-column 25-row mode   MODE.DOC
+MODE13243       switches supported systems to 132-column 43-row mode   MODE.DOC
+MODE43          switch EGA to 80x43 text mode or VGA to 80x50 text     MODE.DOC
+MONTHNAME       returns ASCII string for month given month number      DATA.DOC
+
+MOUSEINIT       determines if a mouse is installed                   SYSTEM.DOC
+MOUSELIMIT      limit mouse's range on screen                         INPUT.DOC
+MOUSEPOS        position mouse on the screen                          INPUT.DOC
+MOUSESTATUS     determine mouse location & buttons pressed            INPUT.DOC
+MRESTORE        restore previously saved mouse state                 SYSTEM.DOC
+MSAVE           save mouse state                                     SYSTEM.DOC
+MULF4           multiplies two float4 values without 80x87            FLOAT.DOC
+MULF4TEN        multiplies a float4 value by 10.0 without 80x87       FLOAT.DOC
+MULF8           multiplies two float8 values without 80x87            FLOAT.DOC
+MULF8TEN        multiplies a float8 value by 10.0 without 80x87       FLOAT.DOC
+MWBORDER        draw border around window opened by MWOPEN         MULTIWIN.DOC
+MWCENTER        center a string in a window opened by MWOPEN       MULTIWIN.DOC
+MWCLEAR         clear a window opened by MWOPEN                    MULTIWIN.DOC
+MWCLOSE         close window opened with MWOPEN and release buffer MULTIWIN.DOC
+MWCLOSEALL      close all open windows and release window buffers  MULTIWIN.DOC
+MWDEFAULT       change MWOPEN default window status                MULTIWIN.DOC
+MWDISPLAY       display all unhidden windows in multiwindow system MULTIWIN.DOC
+MWHIDE          hide window in multiwindow display system          MULTIWIN.DOC
+MWHIDEALL       hide all windows in multiwindow display system     MULTIWIN.DOC
+MWINIT          initialize multi-window base screen                MULTIWIN.DOC
+MWNOBORDER      set "no border" bit in window status byte          MULTIWIN.DOC
+MWNOSHADOW      disable "shadow" effect for selected window        MULTIWIN.DOC
+MWOPEN          open a window in multi-window system               MULTIWIN.DOC
+MWPRINT         print string in window opened by MWOPEN            MULTIWIN.DOC
+MWPRINTCE       print string in window and clear to edge of window MULTIWIN.DOC
+MWSELECT        determine window visible at screen coordinates     MULTIWIN.DOC
+MWSHADOW        enable "shadow" effect for selected window         MULTIWIN.DOC
+MWTOP           move selected window to top of overlapping windows MULTIWIN.DOC
+MWUNHIDE        unhide window in multiwindow display system        MULTIWIN.DOC
+MWUNHIDEALL     unhide all windows in multiwindow display system   MULTIWIN.DOC
+NFORMAT         formats a numeric string                               DATA.DOC
+NORMF4, NORMF4B normalize a float4 data series                        SOLVE.DOC
+NORMF8, NORMF8B normalize a float8 data series                        SOLVE.DOC
+NPVALUE         calculate net present value of an uneven cash flow    SOLVE.DOC
+OUINON          French language version of YesNo                      INPUT.DOC
+PALETTE16       update 16-color palette registers                    SYSTEM.DOC
+PAINT           change all color attributes on a text-mode screen      TEXT.DOC
+PATH            returns a PATH from the program's enviornment block  SYSTEM.DOC
+PAYMENT         calculate payment required given n, i, pv, fv         SOLVE.DOC
+PICKF           select filename from list                             INPUT.DOC
+PICKSTR         select one from a list of strings                     INPUT.DOC
+PSOLVEF4        solve a polynomial equation for y, given x            SOLVE.DOC
+PSOLVEF8        solve a polynomial equation for y, given x            SOLVE.DOC
+PSOLVEI2        solve a polynomial equation for y, given x            SOLVE.DOC
+PSOLVEI4        solve a polynomial equation for y, given x            SOLVE.DOC
+PULLDOWN        pull-down menu system; text mode                      INPUT.DOC
+PUTBITBLOCK     restores bit block saved by GetBitBlock            GRAPHICS.DOC
+PUTBITPLANE     restores bit plane saved by GetBitPlane            GRAPHICS.DOC
+PUTDOT          set a pixel on a graphics screen                   GRAPHICS.DOC
+PUTSCREEN       restores screen image saved by GetScreen               TEXT.DOC
+PVALUE          calculate present value of an even cash flow          SOLVE.DOC
+
+QFNAME          given a partial filename, returns full path+filename   DISK.DOC
+QUADFITF4       fit a quadratic equation to a data series             SOLVE.DOC
+QUADFITF8       fit a quadratic equation to a data series             SOLVE.DOC
+QUADFITI2       fit a quadratic equation to a data series             SOLVE.DOC
+QUADFITI4       fit a quadratic equation to a data series             SOLVE.DOC
+RAD2DEG         convert radians to degrees of arc                     SOLVE.DOC
+RANDOM          generates a near-random number                         DATA.DOC
+RECOLOR         change selected color attributes on a text-mode screen TEXT.DOC
+RESETVIEW       restores defalt view area on active graphics page  GRAPHICS.DOC
+RSET            right-justifies a string in a field                    DATA.DOC
+RTRIM           removes trailing blanks from an ASCIIZ string          DATA.DOC
+SAMP2POP        stddev option                                         SOLVE.DOC
+SCALEF4         scales a float4 value by an integer power of 2        FLOAT.DOC
+SCALEF8         scales a float8 value by an integer power of 2        FLOAT.DOC
+SCREENMEM       calculates bytes required to save screen image         TEXT.DOC
+SHOWGPAGE       change graphics page displayed on screen           GRAPHICS.DOC
+SHOWGPLANE      show one or more planes of 16-color EGA/VGA screen GRAPHICS.DOC
+SHOWMOUSE       make mouse cursor visible                             INPUT.DOC
+SHOWTPAGE       change video page shown on screen                      TEXT.DOC
+SINO            Spanish language version of YesNo                     INPUT.DOC
+SMALLTEXT       change GPrint default to 8x8 characters            GRAPHICS.DOC
+SNOWOFF         disables CGA snow control                              TEXT.DOC
+SNOWON          enables CGA snow control (ASMLIB default)              TEXT.DOC
+SORTF4HI        sorts the values in a float4 array, highest first     FLOAT.DOC
+SORTF4LO        sorts the values in a float4 array, lowest first      FLOAT.DOC
+SORTI4HI        sorts the values in an array of 4-byte integers        DATA.DOC
+SORTI4LO        sorts the values in an array of 4-byte integers        DATA.DOC
+STDDEVF4        calculate standard deviation of float4 series         SOLVE.DOC
+STDDEVF8        calculate standard deviation of float8 series         SOLVE.DOC
+STDDEVI2        calculate standard deviation of integer2 series       SOLVE.DOC
+STDDEVI4        calculate standard deviation of integer4 series       SOLVE.DOC
+STDTEXT         restore GPrint default characters                  GRAPHICS.DOC
+STR2VBUF        copies a string to the video buffer                    TEXT.DOC
+STRCPY          copy an ASCIIZ string to existing buffer               DATA.DOC
+STRNCPY         copy CX bytes of an ASCII string to existing buffer    DATA.DOC
+STRTOI2         converts an ASCIIZ string to an equivalent integer     DATA.DOC
+STRNTOI2        converts n bytes of a string to an equivalent integer  DATA.DOC
+STRTOI4         converts an ASCII string to equivalent long integer    DATA.DOC
+STRNTOI4        converts n bytes of string to equivalent long integer  DATA.DOC
+STRCPY          copies an ASCIIZ string to an existing buffer          DATA.DOC
+STRNCPY         copies CX bytes of a string to an existing buffer      DATA.DOC
+STRCAT          catenates (adds) two strings                           DATA.DOC
+STRCHR          searches for a specified character in a string         DATA.DOC
+STRDUP          duplicates an ASCIIZ string                            DATA.DOC
+STRINS          combines string0 and string1 at specified position     DATA.DOC
+STRIPCHR        removes selected character from a string               DATA.DOC
+STRISTR         finds a substring in a string, case insensetive        DATA.DOC
+STRLEN          determines the length of an ASCIIZ string              DATA.DOC
+STRLWR          change upper-case characters in a string to lower      DATA.DOC
+STRNCHR         searches n bytes of a string for for a character       DATA.DOC
+STRNDUP         duplicates n characters of a string                    DATA.DOC
+STRNLWR         changes n bytes in string to lower case                DATA.DOC
+
+STRNRCHR        finds the last character matching AL in n bytes        DATA.DOC
+STRNREV         reverses n bytes of an ASCIIZ string                   DATA.DOC
+STRNSET         sets n characters in a string to specified character   DATA.DOC
+STRNUPR         changes n bytes in string to upper case                DATA.DOC
+STRREV          reverses all characters in an ASCIIZ string            DATA.DOC
+STRRCHR         finds the last byte in an ASCIIZ string matching AL    DATA.DOC
+STRRSTR         finds the last substring in a string, case sensetive   DATA.DOC
+STRSET          sets all characters in a string to specified character DATA.DOC
+STRSPACE        creates a new string of space characters               DATA.DOC
+STRSTR          finds a substring in a string, case sensetive          DATA.DOC
+STRUPR          changes lower-case characters in string to upper case  DATA.DOC
+SUBF4           subtract a float4 value from another                  FLOAT.DOC
+SUBF8           subtract a float8 value from another                  FLOAT.DOC
+SUPER13         use undocumented 320x400 256-color VGA mode, 2 pages   MODE.DOC
+SUPER13A        use undocumented 360x480 256-color VGA mode            MODE.DOC
+SVGA16          set 800x600 or 1024x768 16-color mode                  MODE.DOC
+SVGA256         set 256-color mode up to 1024x768 pixels               MODE.DOC
+SWAPB           swaps data areas                                       DATA.DOC
+SYSTEM          executes a second copy of COMMAND.COM                SYSTEM.DOC
+TCENTER         prints a string on the screen, centered horizontally   TEXT.DOC
+TCOPY           copies one page of text-mode video memory to another   TEXT.DOC
+TCLEAR          clears text-mode screen with specified color attribute TEXT.DOC
+TEDIT           string editor for text modes                          INPUT.DOC
+TFILL           fill text-mode screen with specified character & color TEXT.DOC
+TGETCHR         read character and color attribute from text screen    TEXT.DOC
+TLOAD           loads a screen image disk file saved by TSave          TEXT.DOC
+TMOUSELIMIT     limit mouse's range of motion on text screen          INPUT.DOC
+TOLOWER         converts keycode from GetKey to lower case            INPUT.DOC
+TOUPPER         converts keycode from GetKey to upper case            INPUT.DOC
+TPAGE           changes active page and shows active page              TEXT.DOC
+TPRINT          print ASCIIZ string directly to video buffer           TEXT.DOC
+TPRINTCE        print ASCIIZ string & clear to end of line             TEXT.DOC
+TPRINTL         print directly to video buffer, lower case             TEXT.DOC
+TPRINTU         print directly to video buffer, upper case             TEXT.DOC
+TSAVE           saves a screen image as a disk file                    TEXT.DOC
+
+UCURSORON       move cursor to (row, col), change to underscore        TEXT.DOC
+USE32K, USE64K  Hercules memory configuration control                SYSTEM.DOC
+USEGPAGE        changes active graphics page                       GRAPHICS.DOC
+USETPAGE        establish ASMLIB's active page                         TEXT.DOC
+VIEWLIMIT       determine current mode's maximum dimensions        GRAPHICS.DOC
+VSCROLL         scroll a portion of the screen up or down              TEXT.DOC
+WCLEAR          clears a rectangular portion of a text-mode screen     TEXT.DOC
+WFILL           fills a window of a text-mode screen w/specified char  TEXT.DOC
+WFRAME          draws a box on a text-mode screen                      TEXT.DOC
+WPAINT          replaces all color attributes in screen window         TEXT.DOC
+WPRINT          print directly to a window with word wrap              TEXT.DOC
+WRECOLOR        changes selected color attributes in screen window     TEXT.DOC
+WRESTORE        restore window saved by WSAVE                          TEXT.DOC
+WSAVE           save screen window in memory                           TEXT.DOC
+WSIZE           calculates the memory required to save screen window   TEXT.DOC
+XMGET           copy data from XMS Extended Memory to system RAM     EMSXMS.DOC
+XMPUT           copy data from system RAM to XMS Extended Memory     EMSXMS.DOC
+XMODE16         use super EGA /super VGA 16-color graphics modes       MODE.DOC
+XMODECLEAR      reset ASMLIB graphics mode flags                       MODE.DOC
+XMSFREE         determine available XMS memory                       EMSXMS.DOC
+XMSCONTIG       determine largest contiguous XMS memory block        EMSXMS.DOC
+XTOTHEY         calculate X to the Y power                            SOLVE.DOC
+YESNO           wait for 'Y' or 'N' key to be pressed                 INPUT.DOC
+

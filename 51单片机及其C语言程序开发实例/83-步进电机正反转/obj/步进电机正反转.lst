@@ -1,0 +1,113 @@
+C51 COMPILER V7.06   步进_缁_正__转                                                        05/20/2010 15:02:07 PAGE 1   
+
+
+C51 COMPILER V7.06, COMPILATION OF MODULE 步进_缁_正__转
+OBJECT MODULE PLACED IN .\obj\步进电机正反转.obj
+COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE 步进电机正反转.c BROWSE DEBUG OBJECTEXTEND PRINT(.\obj\步进电机正反转.lst) 
+                    -OBJECT(.\obj\步进电机正反转.obj)
+
+stmt level    source
+
+   1          /*-----------------------------------------------
+   2            名称：步进电机
+   3            公司：上海浩豚电子科技有限公司
+   4            网站：www.doflye.cn
+   5            编写：师访
+   6            日期：2009.5
+   7            修改：无
+   8            内容：本程序用于测试4相步进电机常规驱动 使用2相励磁
+   9                  2相激励功率增倍
+  10          
+  11           ------------------------------------------------*/
+  12          
+  13          #include <reg52.h>
+  14          
+  15          
+  16          
+  17          sbit A1=P1^0; //定义步进电机连接端口
+  18          sbit B1=P1^1;
+  19          sbit C1=P1^2;
+  20          sbit D1=P1^3;
+  21          
+  22          
+  23          #define Coil_AB1 {A1=1;B1=1;C1=0;D1=0;}//AB相通电，其他相断电
+  24          #define Coil_BC1 {A1=0;B1=1;C1=1;D1=0;}//BC相通电，其他相断电
+  25          #define Coil_CD1 {A1=0;B1=0;C1=1;D1=1;}//CD相通电，其他相断电
+  26          #define Coil_DA1 {A1=1;B1=0;C1=0;D1=1;}//D相通电，其他相断电
+  27          #define Coil_OFF {A1=0;B1=0;C1=0;D1=0;}//全部断电
+  28          
+  29          unsigned char Speed;
+  30          /*------------------------------------------------
+  31           uS延时函数，含有输入参数 unsigned char t，无返回值
+  32           unsigned char 是定义无符号字符变量，其值的范围是
+  33           0~255 这里使用晶振12M，精确延时请使用汇编,大致延时
+  34           长度如下 T=tx2+5 uS 
+  35          ------------------------------------------------*/
+  36          void DelayUs2x(unsigned char t)
+  37          {   
+  38   1       while(--t);
+  39   1      }
+  40          /*------------------------------------------------
+  41           mS延时函数，含有输入参数 unsigned char t，无返回值
+  42           unsigned char 是定义无符号字符变量，其值的范围是
+  43           0~255 这里使用晶振12M，精确延时请使用汇编
+  44          ------------------------------------------------*/
+  45          void DelayMs(unsigned char t)
+  46          {
+  47   1           
+  48   1       while(t--)
+  49   1       {
+  50   2           //大致延时1mS
+  51   2           DelayUs2x(245);
+  52   2               DelayUs2x(245);
+  53   2       }
+  54   1      }
+C51 COMPILER V7.06   步进_缁_正__转                                                        05/20/2010 15:02:07 PAGE 2   
+
+  55          /*------------------------------------------------
+  56                              主函数
+  57          ------------------------------------------------*/
+  58          main()
+  59          {
+  60   1       unsigned int i=512;//旋转一周时间
+  61   1       Speed=5;
+  62   1       Coil_OFF
+  63   1       while(i--)  //正向
+  64   1        {         
+  65   2           Coil_AB1                 //遇到Coil_AB1  用{A1=1;B1=1;C1=0;D1=0;}代替
+  66   2           DelayMs(Speed);         //改变这个参数可以调整电机转速 ,数字越小，转速越大,力矩越小
+  67   2           Coil_BC1
+  68   2           DelayMs(Speed);
+  69   2           Coil_CD1
+  70   2           DelayMs(Speed);
+  71   2           Coil_DA1
+  72   2           DelayMs(Speed);
+  73   2        }
+  74   1        Coil_OFF
+  75   1        i=512;
+  76   1        while(i--)//反向
+  77   1        {
+  78   2           Coil_DA1                 //遇到Coil_AB1  用{A1=1;B1=1;C1=0;D1=0;}代替
+  79   2           DelayMs(Speed);         //改变这个参数可以调整电机转速 ,数字越小，转速越大,力矩越小
+  80   2           Coil_CD1
+  81   2           DelayMs(Speed);
+  82   2           Coil_BC1
+  83   2           DelayMs(Speed);
+  84   2           Coil_AB1
+  85   2           DelayMs(Speed);
+  86   2        }
+  87   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    161    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      1    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

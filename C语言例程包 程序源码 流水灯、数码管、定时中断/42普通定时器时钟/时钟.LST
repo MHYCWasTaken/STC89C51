@@ -1,0 +1,201 @@
+C51 COMPILER V7.50   时钟                                                                  04/14/2010 01:27:31 PAGE 1   
+
+
+C51 COMPILER V7.50, COMPILATION OF MODULE 时钟
+OBJECT MODULE PLACED IN 时钟.OBJ
+COMPILER INVOKED BY: D:\Program Files\KEIL\C51\BIN\C51.EXE 时钟.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          /*
+   2          1、按键可以调整当时时间
+   3          2、按键可以调节定时时间
+   4          3、定时时间到继电器吸合
+   5          
+   6          *8位数码管显示 时间格式格式 12-08-00 标示12点08分00秒
+   7          
+   8          S1 用于小时 加1操作  
+   9          S2 用于分钟 加1操作
+  10          S2 用于分钟减1操作
+  11          */
+  12          
+  13          #include <reg52.h>
+  14          
+  15          
+  16          sbit KEY1=P3^2;
+  17          sbit KEY2=P3^3;
+  18          sbit KEY3=P3^4;
+  19          
+  20          
+  21          sbit LED=P1^2;
+  22          code unsigned char tab[]={0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f}; 
+  23                                  //共阴数码管 0-9
+  24          unsigned char StrTab[8];  //定义缓冲区
+  25          unsigned char minute=30,hour=12,second;  //定义并且初始化值 12:30:00
+  26          
+  27          void delay(unsigned int cnt)//延时函数
+  28          {
+  29   1       while(--cnt);
+  30   1      }
+  31          
+  32          
+  33          void Displaypro(void)
+  34          {
+  35   1      
+  36   1                      StrTab[0]=tab[hour/10];    //显示正常时间
+  37   1                              StrTab[1]=tab[hour%10];
+  38   1                              StrTab[2]=0x40;
+  39   1                              StrTab[3]=tab[minute/10];
+  40   1                              StrTab[4]=tab[minute%10];
+  41   1                              StrTab[5]=0x40;
+  42   1                  StrTab[6]=tab[second/10];
+  43   1                              StrTab[7]=tab[second%10];
+  44   1              
+  45   1      }
+  46          
+  47          main()//主函数
+  48          {
+  49   1      
+  50   1          
+  51   1          TMOD |=0x01;//定时器0 10ms in 12M crystal 用于计时
+  52   1              TH0=0xd8;
+  53   1              TL0=0xf0;
+  54   1              ET0=1;
+  55   1              TR0=1;
+C51 COMPILER V7.50   时钟                                                                  04/14/2010 01:27:31 PAGE 2   
+
+  56   1      
+  57   1          TMOD |=0x10; //定时器1用于动态扫描
+  58   1              TH1=0xF8;
+  59   1              TL1=0xf0;
+  60   1              ET1=1;
+  61   1              TR1=1;
+  62   1          EA =1;
+  63   1          
+  64   1      
+  65   1       Displaypro();
+  66   1      
+  67   1      while(1)//主循环
+  68   1        {
+  69   2         
+  70   2      /////////////////////////////////////////////////////////////////
+  71   2        if(!KEY1) //按键1去抖以及动作
+  72   2          {
+  73   3          delay(10000);
+  74   3          if(!KEY1)
+  75   3                 {          
+  76   4                   hour++;if(hour==24)hour=0;     //正常时间 小时 加1
+  77   4               Displaypro();
+  78   4                 }
+  79   3              }
+  80   2      ////////////////////////////////////////////////////////////////
+  81   2      /////////////////////////////////////////////////////////////////
+  82   2        if(!KEY2) //按键去抖以及动作
+  83   2          {
+  84   3          delay(10000);
+  85   3          if(!KEY2)
+  86   3                 {
+  87   4                  minute++;if(minute==59)minute=0;//分加1
+  88   4                  Displaypro();
+  89   4                }
+  90   3              }
+  91   2      /////////////////////////////////////////////////////////////////
+  92   2        if(!KEY3) //按键去抖以及动作
+  93   2          {
+  94   3          delay(10000);
+  95   3          if(!KEY3)
+  96   3                 {
+  97   4                  minute--;if(minute==0)minute=59;  //分减1
+  98   4                  Displaypro();
+  99   4                }
+ 100   3              }
+ 101   2        }
+ 102   1      }
+ 103          ////////////////////////////////////////////////////////////////
+ 104          /********************************/
+ 105          /*      定时中断1                */
+ 106          /********************************/
+ 107          void time1_isr(void) interrupt 3 using 0//定时器1用来动态扫描
+ 108          {
+ 109   1          static unsigned char num;
+ 110   1          TH1=0xF8;//重入初值
+ 111   1              TL1=0xf0;
+ 112   1      
+ 113   1              switch (num){
+ 114   2           case 0:P2=0;P0=StrTab[num];break; //分别调用缓冲区的值进行扫描
+ 115   2               case 1:P2=1;P0=StrTab[num];break;
+ 116   2               case 2:P2=2;P0=StrTab[num];break;
+ 117   2               case 3:P2=3;P0=StrTab[num];break;
+C51 COMPILER V7.50   时钟                                                                  04/14/2010 01:27:31 PAGE 3   
+
+ 118   2               case 4:P2=4;P0=StrTab[num];break;
+ 119   2               case 5:P2=5;P0=StrTab[num];break;
+ 120   2           case 6:P2=6;P0=StrTab[num];break;
+ 121   2               case 7:P2=7;P0=StrTab[num];break;
+ 122   2               default:break;
+ 123   2      }
+ 124   1      num++;     //扫描8次，使用8个数码管
+ 125   1      if(num==8)
+ 126   1         num=0;
+ 127   1      }
+ 128          //////////////////////////////////////////////////////////////////
+ 129          /********************************/
+ 130          /*      定时中断0                */
+ 131          /********************************/
+ 132          void tim(void) interrupt 1 using 1
+ 133          {
+ 134   1      static unsigned char count;//定义内部静态变量
+ 135   1      
+ 136   1      TH0=0xd8;//重新赋值
+ 137   1      TL0=0xf0;
+ 138   1      count++;
+ 139   1         switch (count)
+ 140   1                {
+ 141   2                 case 0:
+ 142   2                 case 20:
+ 143   2                 case 40:
+ 144   2                 case 60:
+ 145   2                 case 80:Displaypro(); //隔一定时间调用显示处理
+ 146   2                         break;
+ 147   2                 case 50:LED=!LED; //半秒 LED闪烁
+ 148   2                         break;
+ 149   2                 default:break;
+ 150   2                }
+ 151   1      
+ 152   1      if (count==100)
+ 153   1          {
+ 154   2          count=0;
+ 155   2          second++;//秒加1
+ 156   2              if(second==60)
+ 157   2                 {
+ 158   3                 second=0;
+ 159   3                 minute++; //分加1
+ 160   3                 if(minute==60)
+ 161   3                        {
+ 162   4                         minute=0;
+ 163   4                         hour++;  //时加1
+ 164   4                         if(hour==24)
+ 165   4                            hour=0;
+ 166   4                        }  
+ 167   3            
+ 168   3                 }
+ 169   2          
+ 170   2         } 
+ 171   1       
+ 172   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    399    ----
+   CONSTANT SIZE    =     10    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+C51 COMPILER V7.50   时钟                                                                  04/14/2010 01:27:31 PAGE 4   
+
+   DATA SIZE        =     13    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

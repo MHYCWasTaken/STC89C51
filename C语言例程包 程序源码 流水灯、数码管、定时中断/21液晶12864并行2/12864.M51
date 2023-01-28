@@ -1,0 +1,292 @@
+BL51 BANKED LINKER/LOCATER V5.12                                                        11/10/2010  11:25:08  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V5.12, INVOKED BY:
+E:\PROGRAM FILES\KEIL\C51\BIN\BL51.EXE STARTUP.obj, 12864.obj TO 12864 RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  STARTUP.obj (?C_STARTUP)
+  12864.obj (12864)
+  E:\PROGRAM FILES\KEIL\C51\LIB\C51S.LIB (?C?CLDPTR)
+
+
+LINK MAP OF MODULE:  12864 (?C_STARTUP)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     0003H     UNIT         _DATA_GROUP_
+            IDATA   000BH     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     0038H     UNIT         ?CO?12864
+            CODE    003BH     0030H     UNIT         ?PR?MAIN?12864
+            CODE    006BH     002EH     UNIT         ?PR?_V_LCD12864PUTSTRING_F?12864
+            CODE    0099H     002CH     UNIT         ?PR?_V_LCD12864SETADDRESS_F?12864
+            CODE    00C5H     0025H     UNIT         ?PR?_V_DELAYMS_F?12864
+            CODE    00EAH     001FH     UNIT         ?PR?V_LCD12864CHECKBUSY_F?12864
+            CODE    0109H     001AH     UNIT         ?PR?_V_LCD12864SENDCMD_F?12864
+            CODE    0123H     001AH     UNIT         ?PR?_V_LCD12864SENDDATA_F?12864
+            CODE    013DH     0019H     UNIT         ?C?LIB_CODE
+            CODE    0156H     0014H     UNIT         ?PR?V_LCD12864INIT_F?12864
+            CODE    016AH     000CH     UNIT         ?C_C51STARTUP
+
+
+
+OVERLAY MAP OF MODULE:   12864 (?C_STARTUP)
+
+
+SEGMENT                                     DATA_GROUP 
+  +--> CALLED SEGMENT                     START    LENGTH
+---------------------------------------------------------
+?C_C51STARTUP                             -----    -----
+  +--> ?PR?MAIN?12864
+
+?PR?MAIN?12864                            -----    -----
+  +--> ?PR?V_LCD12864INIT_F?12864
+  +--> ?CO?12864
+  +--> ?PR?_V_LCD12864PUTSTRING_F?12864
+
+?PR?V_LCD12864INIT_F?12864                -----    -----
+  +--> ?PR?_V_DELAYMS_F?12864
+  +--> ?PR?_V_LCD12864SENDCMD_F?12864
+
+BL51 BANKED LINKER/LOCATER V5.12                                                      11/10/2010  11:25:08  PAGE 2
+
+
+?PR?_V_DELAYMS_F?12864                    -----    -----
+  +--> ?PR?_V_LCD12864SENDCMD_F?12864
+
+?PR?_V_LCD12864SENDCMD_F?12864            -----    -----
+  +--> ?PR?V_LCD12864CHECKBUSY_F?12864
+
+?PR?_V_LCD12864PUTSTRING_F?12864          0008H    0003H
+  +--> ?PR?_V_LCD12864SETADDRESS_F?12864
+  +--> ?PR?_V_LCD12864SENDDATA_F?12864
+
+?PR?_V_LCD12864SETADDRESS_F?12864         -----    -----
+  +--> ?PR?_V_LCD12864SENDCMD_F?12864
+
+?PR?_V_LCD12864SENDDATA_F?12864           -----    -----
+  +--> ?PR?V_LCD12864CHECKBUSY_F?12864
+
+
+
+SYMBOL TABLE OF MODULE:  12864 (?C_STARTUP)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        ?C_STARTUP
+  C:016AH         SEGMENT       ?C_C51STARTUP
+  I:000BH         SEGMENT       ?STACK
+  C:0000H         PUBLIC        ?C_STARTUP
+  D:00E0H         SYMBOL        ACC
+  D:00F0H         SYMBOL        B
+  D:0083H         SYMBOL        DPH
+  D:0082H         SYMBOL        DPL
+  N:0000H         SYMBOL        IBPSTACK
+  N:0100H         SYMBOL        IBPSTACKTOP
+  N:0080H         SYMBOL        IDATALEN
+  C:016DH         SYMBOL        IDATALOOP
+  N:0000H         SYMBOL        PBPSTACK
+  N:0000H         SYMBOL        PBPSTACKTOP
+  N:0000H         SYMBOL        PDATALEN
+  N:0000H         SYMBOL        PDATASTART
+  N:0000H         SYMBOL        PPAGE
+  N:0000H         SYMBOL        PPAGEENABLE
+  D:00A0H         SYMBOL        PPAGE_SFR
+  D:0081H         SYMBOL        SP
+  C:016AH         SYMBOL        STARTUP1
+  N:0000H         SYMBOL        XBPSTACK
+  N:0000H         SYMBOL        XBPSTACKTOP
+  N:0000H         SYMBOL        XDATALEN
+  N:0000H         SYMBOL        XDATASTART
+  C:0000H         LINE#         92
+  C:016AH         LINE#         99
+  C:016CH         LINE#         100
+  C:016DH         LINE#         101
+  C:016EH         LINE#         102
+  C:0170H         LINE#         151
+  C:0173H         LINE#         155
+  -------         ENDMOD        ?C_STARTUP
+
+BL51 BANKED LINKER/LOCATER V5.12                                                      11/10/2010  11:25:08  PAGE 3
+
+
+  -------         MODULE        12864
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  D:00B0H         PUBLIC        P3
+  B:00A0H.7       PUBLIC        io_LCD12864_EN
+  D:00A8H         PUBLIC        IE
+  C:0099H         PUBLIC        _v_Lcd12864SetAddress_f
+  D:00B8H         PUBLIC        IP
+  B:00A0H.5       PUBLIC        io_LCD12864_RS
+  B:00A0H.6       PUBLIC        io_LCD12864_RW
+  C:0123H         PUBLIC        _v_Lcd12864SendData_f
+  C:003BH         PUBLIC        main
+  C:00CCH         PUBLIC        _v_DelayMs_f
+  D:0098H         PUBLIC        SCON
+  D:0088H         PUBLIC        TCON
+  C:0109H         PUBLIC        _v_Lcd12864SendCmd_f
+  C:00EAH         PUBLIC        v_Lcd12864CheckBusy_f
+  C:006FH         PUBLIC        _v_Lcd12864PutString_f
+  C:0156H         PUBLIC        v_Lcd12864Init_f
+  D:00C8H         PUBLIC        T2CON
+  D:00D0H         PUBLIC        PSW
+  -------         PROC          V_LCD12864CHECKBUSY_F
+  -------         DO            
+  D:0006H         SYMBOL        nTimeOut
+  -------         ENDDO         
+  C:00EAH         LINE#         16
+  C:00EAH         LINE#         17
+  C:00EAH         LINE#         18
+  C:00EDH         LINE#         19
+  C:00EFH         LINE#         20
+  C:00F1H         LINE#         21
+  C:00F3H         LINE#         22
+  C:00F5H         LINE#         23
+  C:0102H         LINE#         24
+  C:0104H         LINE#         25
+  C:0106H         LINE#         26
+  C:0108H         LINE#         27
+  -------         ENDPROC       V_LCD12864CHECKBUSY_F
+  -------         PROC          _V_LCD12864SENDCMD_F
+  D:0005H         SYMBOL        byCmd
+  C:0109H         LINE#         29
+  C:010BH         LINE#         30
+  C:010BH         LINE#         31
+  C:010EH         LINE#         32
+  C:0110H         LINE#         33
+  C:0112H         LINE#         34
+  C:0114H         LINE#         35
+  C:0116H         LINE#         36
+  C:0117H         LINE#         37
+  C:0118H         LINE#         38
+  C:011AH         LINE#         39
+  C:011BH         LINE#         40
+  C:011CH         LINE#         41
+  C:011EH         LINE#         42
+  C:0120H         LINE#         43
+BL51 BANKED LINKER/LOCATER V5.12                                                      11/10/2010  11:25:08  PAGE 4
+
+
+  C:0122H         LINE#         44
+  -------         ENDPROC       _V_LCD12864SENDCMD_F
+  -------         PROC          _V_LCD12864SENDDATA_F
+  D:0005H         SYMBOL        byData
+  C:0123H         LINE#         45
+  C:0125H         LINE#         46
+  C:0125H         LINE#         47
+  C:0128H         LINE#         48
+  C:012AH         LINE#         49
+  C:012CH         LINE#         50
+  C:012EH         LINE#         51
+  C:0130H         LINE#         52
+  C:0131H         LINE#         53
+  C:0132H         LINE#         54
+  C:0134H         LINE#         55
+  C:0135H         LINE#         56
+  C:0136H         LINE#         57
+  C:0138H         LINE#         58
+  C:013AH         LINE#         59
+  C:013CH         LINE#         60
+  -------         ENDPROC       _V_LCD12864SENDDATA_F
+  C:00C5H         SYMBOL        L?0032
+  -------         PROC          L?0031
+  -------         ENDPROC       L?0031
+  C:00C5H         SYMBOL        L?0032
+  -------         PROC          _V_DELAYMS_F
+  D:0006H         SYMBOL        nDelay
+  -------         DO            
+  D:0004H         SYMBOL        i
+  -------         ENDDO         
+  C:00CCH         LINE#         62
+  C:00CCH         LINE#         63
+  C:00CCH         LINE#         65
+  C:00D5H         LINE#         66
+  C:00D5H         LINE#         67
+  C:00E2H         LINE#         68
+  C:00E9H         LINE#         69
+  -------         ENDPROC       _V_DELAYMS_F
+  -------         PROC          V_LCD12864INIT_F
+  C:0156H         LINE#         71
+  C:0156H         LINE#         72
+  C:0156H         LINE#         73
+  C:0158H         LINE#         74
+  C:015BH         LINE#         75
+  C:015DH         LINE#         76
+  C:0160H         LINE#         77
+  C:0162H         LINE#         78
+  C:0165H         LINE#         79
+  -------         ENDPROC       V_LCD12864INIT_F
+  -------         PROC          _V_LCD12864SETADDRESS_F
+  D:0007H         SYMBOL        x
+  D:0004H         SYMBOL        y
+  -------         DO            
+  D:0003H         SYMBOL        byAddress
+  -------         ENDDO         
+  C:0099H         LINE#         81
+  C:0099H         LINE#         82
+BL51 BANKED LINKER/LOCATER V5.12                                                      11/10/2010  11:25:08  PAGE 5
+
+
+  C:0099H         LINE#         84
+  C:00AAH         LINE#         85
+  C:00AAH         LINE#         86
+  C:00AEH         LINE#         87
+  C:00B0H         LINE#         88
+  C:00B4H         LINE#         89
+  C:00B6H         LINE#         90
+  C:00BAH         LINE#         91
+  C:00BCH         LINE#         92
+  C:00C0H         LINE#         93
+  C:00C0H         LINE#         94
+  C:00C0H         LINE#         95
+  C:00C0H         LINE#         96
+  C:00C0H         LINE#         97
+  -------         ENDPROC       _V_LCD12864SETADDRESS_F
+  -------         PROC          L?0033
+  -------         ENDPROC       L?0033
+  -------         PROC          _V_LCD12864PUTSTRING_F
+  D:0007H         SYMBOL        x
+  D:0005H         SYMBOL        y
+  D:0008H         SYMBOL        pData
+  C:006FH         LINE#         99
+  C:0075H         LINE#         100
+  C:0075H         LINE#         101
+  C:007AH         LINE#         102
+  C:0085H         LINE#         103
+  C:0085H         LINE#         104
+  C:0096H         LINE#         105
+  C:0098H         LINE#         106
+  -------         ENDPROC       _V_LCD12864PUTSTRING_F
+  -------         PROC          MAIN
+  C:003BH         LINE#         107
+  C:003BH         LINE#         108
+  C:003BH         LINE#         109
+  C:003EH         LINE#         110
+  C:004AH         LINE#         111
+  C:0057H         LINE#         112
+  C:0060H         LINE#         113
+  C:0069H         LINE#         114
+  -------         ENDPROC       MAIN
+  -------         ENDMOD        12864
+
+  -------         MODULE        ?C?CLDPTR
+  C:013DH         PUBLIC        ?C?CLDPTR
+  -------         ENDMOD        ?C?CLDPTR
+
+Program Size: data=12.0 xdata=0 code=374
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

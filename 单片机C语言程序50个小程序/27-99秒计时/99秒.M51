@@ -1,0 +1,139 @@
+BL51 BANKED LINKER/LOCATER V5.03                                                        05/13/2009  13:26:56  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V5.03, INVOKED BY:
+D:\KEIL\C51\BIN\BL51.EXE 99취.obj TO 99취 RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  99취.obj (99취)
+  D:\KEIL\C51\LIB\C51S.LIB (?C_STARTUP)
+
+
+LINK MAP OF MODULE:  99취 (99취)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     0004H     UNIT         ?DT?99취
+            IDATA   000CH     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+                    0003H     0008H                  *** GAP ***
+            CODE    000BH     0003H     ABSOLUTE     
+            CODE    000EH     0046H     UNIT         ?PR?TIM?99취
+            CODE    0054H     002AH     UNIT         ?PR?MAIN?99취
+            CODE    007EH     000CH     UNIT         ?C_C51STARTUP
+            CODE    008AH     000AH     UNIT         ?PR?_DELAY?99취
+            CODE    0094H     000AH     UNIT         ?CO?99취
+
+
+
+OVERLAY MAP OF MODULE:   99취 (99취)
+
+
+SEGMENT
+  +--> CALLED SEGMENT
+---------------------
+?PR?TIM?99취
+  +--> ?CO?99취
+
+*** NEW ROOT ***************************************************
+
+?C_C51STARTUP
+  +--> ?PR?MAIN?99취
+
+?PR?MAIN?99취
+  +--> ?PR?_DELAY?99취
+
+
+
+SYMBOL TABLE OF MODULE:  99취 (99취)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+BL51 BANKED LINKER/LOCATER V5.03                                                      05/13/2009  13:26:56  PAGE 2
+
+
+
+  -------         MODULE        99취
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  D:00B0H         PUBLIC        P3
+  D:00A8H         PUBLIC        IE
+  D:00B8H         PUBLIC        IP
+  C:0054H         PUBLIC        main
+  D:0098H         PUBLIC        SCON
+  D:0089H         PUBLIC        TMOD
+  D:0088H         PUBLIC        TCON
+  C:0094H         PUBLIC        tab
+  C:000EH         PUBLIC        tim
+  D:008CH         PUBLIC        TH0
+  D:008AH         PUBLIC        TL0
+  B:0088H.4       PUBLIC        TR0
+  D:00C8H         PUBLIC        T2CON
+  D:000AH         PUBLIC        Dis_Shiwei
+  C:008AH         PUBLIC        _delay
+  D:000BH         PUBLIC        Dis_Gewei
+  D:00D0H         PUBLIC        PSW
+  -------         PROC          _DELAY
+  D:0006H         SYMBOL        cnt
+  C:008AH         LINE#         20
+  C:008AH         LINE#         21
+  C:008AH         LINE#         22
+  C:0093H         LINE#         23
+  -------         ENDPROC       _DELAY
+  -------         PROC          MAIN
+  C:0054H         LINE#         27
+  C:0054H         LINE#         28
+  C:0054H         LINE#         30
+  C:0057H         LINE#         31
+  C:005AH         LINE#         32
+  C:005DH         LINE#         33
+  C:0060H         LINE#         34
+  C:0062H         LINE#         36
+  C:0062H         LINE#         37
+  C:0062H         LINE#         38
+  C:0065H         LINE#         39
+  C:0068H         LINE#         40
+  C:006FH         LINE#         41
+  C:0072H         LINE#         42
+  C:0075H         LINE#         43
+  C:007CH         LINE#         44
+  -------         ENDPROC       MAIN
+  -------         PROC          TIM
+  -------         DO            
+  D:0008H         SYMBOL        second
+  D:0009H         SYMBOL        count
+  -------         ENDDO         
+  C:000EH         LINE#         50
+  C:0018H         LINE#         53
+  C:001BH         LINE#         54
+  C:001EH         LINE#         56
+BL51 BANKED LINKER/LOCATER V5.03                                                      05/13/2009  13:26:56  PAGE 3
+
+
+  C:0020H         LINE#         57
+  C:0025H         LINE#         58
+  C:0025H         LINE#         59
+  C:0028H         LINE#         60
+  C:002AH         LINE#         61
+  C:002FH         LINE#         62
+  C:0032H         LINE#         63
+  C:003EH         LINE#         64
+  C:0049H         LINE#         66
+  C:0049H         LINE#         69
+  -------         ENDPROC       TIM
+  -------         ENDMOD        99취
+
+Program Size: data=13.0 xdata=0 code=150
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

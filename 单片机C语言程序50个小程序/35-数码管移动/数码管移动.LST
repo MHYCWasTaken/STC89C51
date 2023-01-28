@@ -1,0 +1,72 @@
+C51 COMPILER V7.06   数码_芤芲_                                                            05/13/2009 14:43:24 PAGE 1   
+
+
+C51 COMPILER V7.06, COMPILATION OF MODULE 数码_芤芲_
+OBJECT MODULE PLACED IN 数码管移动.OBJ
+COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE 数码管移动.c BROWSE DEBUG OBJECTEXTEND
+
+stmt level    source
+
+   1          /*-----------------------------------------------
+   2            名称：数码管移动
+   3            公司：上海浩豚电子科技有限公司
+   4            网站：www.doflye.cn
+   5            编写：师访
+   6            日期：2009.5
+   7            修改：无
+   8            内容：从右往左移动，利用缓冲区即可
+   9          ------------------------------------------------*/
+  10          #include<reg52.h>     //包含头文件，一般情况不需要改动，头文件包含特殊功能寄存器的定义
+  11          
+  12          unsigned  char const  dofly[]={0,0,0,0,0,0,0,0,          //不显示
+  13                                         0x6e,0x38,0x71,0x5c,0x5e, //DOFLY 共阴值，显示时候取反
+  14                                                                     0,0,0,0,0,0,0,0,};//dofly 码值
+  15          code unsigned char table[]={0,1,2,3,4,5,6,7};    //8位动态扫描值
+  16                                                           //显示位码表
+  17          /******************************************************************/
+  18          /*                    延时函数                                    */
+  19          /******************************************************************/
+  20          void delay(unsigned int cnt)//简单延时
+  21          {
+  22   1       while(--cnt);
+  23   1      }
+  24          /******************************************************************/
+  25          /*                    主函数                                      */
+  26          /******************************************************************/
+  27          main()
+  28          {
+  29   1       unsigned char i,j ;          //定义内部变量
+  30   1       unsigned char a;
+  31   1       a=13;                        //移动13次 数码管个数8 + 显示字符个数 5 = 13
+  32   1       while(1)
+  33   1            {
+  34   2                for(j=0;j<8;j++)        //移动字符时间
+  35   2                   {
+  36   3             for(i=0;i<8;i++)       //动态扫描8为数码管
+  37   3                        {
+  38   4                  P0=dofly[i+a];    //取显示的码值
+  39   4                              P2=table[7-i];    //取显示的位置
+  40   4                              delay(300);       //扫描延时 大会闪烁 小会降低亮度并重影
+  41   4                         }
+  42   3                         P2=0xff;           //有效的消除重影
+  43   3              }
+  44   2              a--;
+  45   2                      if(a==0)a=13;         //重新循环
+  46   2           }
+  47   1       }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     73    ----
+   CONSTANT SIZE    =      8    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     21    ----
+C51 COMPILER V7.06   数码_芤芲_                                                            05/13/2009 14:43:24 PAGE 2   
+
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

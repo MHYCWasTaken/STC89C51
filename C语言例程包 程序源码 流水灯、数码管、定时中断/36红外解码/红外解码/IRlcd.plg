@@ -1,0 +1,18 @@
+<html>
+<body>
+<pre>
+<h1>礦ision2 Build Log</h1>
+<h2>Project:</h2>
+C:\Users\Administrator\Desktop\程序代码B\程序代码\C语言\32红外解码\红外解码\IRlcd.uv2
+Project File Date:  04/19/2010
+
+<h2>Output:</h2>
+Build target 'Target 1'
+assembling STARTUP.A51...
+compiling IRLCD.C...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?BEEP?IRLCD
+Program Size: data=53.0 xdata=0 code=703
+creating hex file from "IRlcd"...
+"IRlcd" - 0 Error(s), 1 Warning(s).

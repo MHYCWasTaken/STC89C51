@@ -1,0 +1,1033 @@
+C51 COMPILER V7.50   GUI_BASIC                                                             07/13/2010 12:52:01 PAGE 1   
+
+
+C51 COMPILER V7.50, COMPILATION OF MODULE GUI_BASIC
+OBJECT MODULE PLACED IN GUI_Basic.obj
+COMPILER INVOKED BY: D:\Program Files\KEIL\C51\BIN\C51.EXE Source\LYGUI\GUI_Basic.c LARGE BROWSE DEBUG OBJECTEXTEND PRIN
+                    -T(.\GUI_Basic.lst) OBJECT(GUI_Basic.obj)
+
+line level    source
+
+   1          /*
+   2          ================================================================================
+   3          File Name : GUI_Basic.c
+   4          Author    : LiYOng
+   5          Date      : 2008-12-12 15:51
+   6          Version   : 1.0
+   7          Decription: This file contains some basic functions for GUI, It need the LCD
+   8                      Drive functions
+   9          ================================================================================
+  10          */
+  11          #include "GUI_Basic.H"
+  12          #include "GUI_Type.H"
+  13          #include "fontlib.h"
+  14          /*
+  15          ================================================================================
+  16          Function     : GUI_DrawRectangle( )
+  17          Description  : Draw a rectangle
+  18          Input        : -pRect, point to a rectangle structure
+  19          output       : None
+  20          ================================================================================
+  21          */
+  22          void GUI_DrawRectangle( RECT* pRect )
+  23          {
+  24   1              LINE line;
+  25   1      
+  26   1              line.xs = pRect->xs;
+  27   1              line.xe = pRect->xe;
+  28   1              line.ys = pRect->ys;
+  29   1              line.ye = pRect->ys;
+  30   1              line.Color = pRect->Color;
+  31   1              LCDDrawHRLine( &line );
+  32   1      
+  33   1              line.xe = pRect->xs;
+  34   1              line.ye = pRect->ye;
+  35   1              LCDDrawHRLine( &line );
+  36   1      
+  37   1              line.xs = pRect->xe;
+  38   1              line.ys = pRect->ye;
+  39   1              LCDDrawHRLine( &line );
+  40   1      
+  41   1              line.xe = pRect->xe;
+  42   1              line.ye = pRect->ys;
+  43   1              LCDDrawHRLine( &line );
+  44   1      }
+  45          /*
+  46          ================================================================================
+  47          Function     : GUI_DrawLine( )
+  48          Description  : Draw a line
+  49          Input        : -pLine, point to a line structure
+  50          output       : None
+  51          ================================================================================
+  52          */
+  53          void GUI_DrawLine( LINE* pLine )
+  54          {
+C51 COMPILER V7.50   GUI_BASIC                                                             07/13/2010 12:52:01 PAGE 2   
+
+  55   1              INT32S   dx;                                            // 直线x轴差值变量
+  56   1              INT32S   dy;            // 直线y轴差值变量
+  57   1              INT32S    dx_sym;                               // x轴增长方向，为-1时减值方向，为1时增值方向
+  58   1              INT32S    dy_sym;                               // y轴增长方向，为-1时减值方向，为1时增值方向
+  59   1              INT32S   dx_x2;                                 // dx*2值变量，用于加快运算速度
+  60   1              INT32S   dy_x2;                                 // dy*2值变量，用于加快运算速度
+  61   1              INT32S   di;                                            // 决策变量
+  62   1      
+  63   1              POINT    point;
+  64   1              LINE     line;
+  65   1      
+  66   1              line.xs = pLine->xs;
+  67   1              line.ys = pLine->ys;
+  68   1              line.xe = pLine->xe;
+  69   1              line.ye = pLine->ye;
+  70   1              line.Color = pLine->Color;
+  71   1      
+  72   1        point.Color = pLine->Color;
+  73   1      
+  74   1              dx = line.xe - line.xs;
+  75   1        dy = line.ye - line.ys;
+  76   1      
+  77   1       /* 判断增长方向，或是否为水平线、垂直线、点 */
+  78   1              if( dx > 0 )                                    // 判断x轴方向
+  79   1              {
+  80   2                      dx_sym = 1;                                     // dx>0，设置dx_sym=1
+  81   2              }
+  82   1              else
+  83   1              {
+  84   2                      if( dx < 0 )
+  85   2                      {
+  86   3                              dx_sym = -1;              // dx<0，设置dx_sym=-1
+  87   3                      }
+  88   2                      else
+  89   2                      {
+  90   3                              LCDDrawHRLine( &line );
+  91   3                              return;
+  92   3                      }
+  93   2              }
+  94   1      
+  95   1              if( dy > 0 )                                                    // 判断y轴方向
+  96   1              {
+  97   2                      dy_sym = 1;                                     // dy>0，设置dy_sym=1
+  98   2              }
+  99   1              else
+ 100   1              {
+ 101   2                      if( dy < 0 )
+ 102   2                      {
+ 103   3                              dy_sym = -1;                            // dy<0，设置dy_sym=-1
+ 104   3                      }
+ 105   2                      else
+ 106   2                      {  // dy==0，画水平线，或一点
+ 107   3                              LCDDrawHRLine( &line );
+ 108   3                              return;
+ 109   3                      }
+ 110   2              }
+ 111   1      
+ 112   1              /* 将dx、dy取绝对值 */
+ 113   1              dx = dx_sym * dx;
+ 114   1              dy = dy_sym * dy;
+ 115   1      
+ 116   1              /* 计算2倍的dx及dy值 */
+C51 COMPILER V7.50   GUI_BASIC                                                             07/13/2010 12:52:01 PAGE 3   
+
+ 117   1              dx_x2 = dx*2;
+ 118   1              dy_x2 = dy*2;
+ 119   1      
+ 120   1       /* 使用Bresenham法进行画直线 */
+ 121   1              if( dx >= dy )                                          // 对于dx>=dy，则使用x轴为基准
+ 122   1              {
+ 123   2                      di = dy_x2 - dx;
+ 124   2          while( line.xs != line.xe )
+ 125   2          {
+ 126   3                              point.x = line.xs;
+ 127   3                              point.y = line.ys;
+ 128   3                              LCDDrawPoint( &point );
+ 129   3                              line.xs += dx_sym;
+ 130   3                              if( di < 0 )
+ 131   3                              {
+ 132   4                                      di += dy_x2;                    // 计算出下一步的决策值
+ 133   4                              }
+ 134   3                              else
+ 135   3                              {
+ 136   4                                      di += dy_x2 - dx_x2;
+ 137   4                                      line.ys += dy_sym;
+ 138   4                              }
+ 139   3          }
+ 140   2                      LCDDrawPoint( &point );         // 显示最后一点
+ 141   2              }
+ 142   1              else                                                            // 对于dx<dy，则使用y轴为基准
+ 143   1              {
+ 144   2                      di = dx_x2 - dy;
+ 145   2          while( line.ys != line.ye )
+ 146   2          {
+ 147   3                              point.x = line.xs;
+ 148   3                              point.y = line.ys;
+ 149   3                              LCDDrawPoint( &point );
+ 150   3                              line.ys += dy_sym;
+ 151   3                              if(di<0)
+ 152   3                              {
+ 153   4                                      di += dx_x2;
+ 154   4                              }
+ 155   3                              else
+ 156   3                              {
+ 157   4                                      di += dx_x2 - dy_x2;
+ 158   4                                      line.xs += dx_sym;
+ 159   4                              }
+ 160   3          }
+ 161   2                      LCDDrawPoint( &point );         // 显示最后一点
+ 162   2              }
+ 163   1      }
+ 164          /*
+ 165          ================================================================================
+ 166          Name: PrintFont
+ 167          Function: Display a character at a special area
+ 168          Input:  1.Xs : Start position X
+ 169                          2.Ys : Start position Y
+ 170                          3.pFont : A pointer of a font structure
+ 171                          4.Character : The ASCII code of the character.
+ 172          Output: None
+ 173          Note: The start position is inputted as a parameter, And the end position is calculated by the FONT
+ 174                          structure.
+ 175          Author: LiYong
+ 176          Date  : 2008.08.09
+ 177          ================================================================================
+ 178          */
+C51 COMPILER V7.50   GUI_BASIC                                                             07/13/2010 12:52:01 PAGE 4   
+
+ 179          void    GUI_DisplayFont( INT8U  Xs, INT8U Ys, FONT* pFont, char Character )
+ 180          {
+ 181   1              BitBlock        Block;
+ 182   1              INT32U  Bytes;
+ 183   1              INT8U DataBuffer[64];
+ 184   1              INT8U i;
+ 185   1              const unsigned char *offset;
+ 186   1      
+ 187   1              Block.Height = pFont->Height;
+ 188   1              Block.Width = pFont->Width;
+ 189   1              Block.Color = pFont->Color;
+ 190   1              Block.BackColor = pFont->BackColor;
+ 191   1              Block.xs = Xs;
+ 192   1              Block.ys = Ys;
+ 193   1      
+ 194   1              Bytes = pFont->Width >> 3;
+ 195   1              if( pFont->Width & 0x07 )
+ 196   1              {
+ 197   2                      Bytes ++;
+ 198   2              }
+ 199   1              Bytes *= pFont->Height;
+ 200   1              Bytes *= Character - ' ';
+ 201   1      offset = (const unsigned char*)&FontLib_14;
+ 202   1      /*
+ 203   1              if( pFont->Height == 18 )
+ 204   1              {
+ 205   1                      offset = (const unsigned char*)&FontLib_18;
+ 206   1              }
+ 207   1              else if( pFont->Height == 14 )
+ 208   1              {
+ 209   1                      offset = (const unsigned char*)&FontLib_14;
+ 210   1              }
+ 211   1              else
+ 212   1              {
+ 213   1                      return;
+ 214   1              }
+ 215   1              */
+ 216   1              offset += Bytes;
+ 217   1              for( i = 0; i < 36; i ++ )
+ 218   1              {
+ 219   2                      DataBuffer[i] = *( offset + i );        
+ 220   2              }
+ 221   1      
+ 222   1              
+ 223   1              Block.pData = DataBuffer;
+ 224   1      
+ 225   1              PrintBitBlock( &Block );
+ 226   1      }
+ 227          /*
+ 228          ========================================================================================================
+ 229          Name: DisplayStr
+ 230          Function: Display a character at a special area
+ 231          Input:
+ 232              1.Xs : Start position X
+ 233                          2.Ys : Start position Y
+ 234                          3.pFont : A pointer of a font structure
+ 235                          4.Str : The start address of a string
+ 236          Output: None
+ 237          Note: The start position is inputted as a parameter, And the end position is calculated by the FONT
+ 238                          structure.
+ 239          Author: LiYong
+ 240          Date  : 2008.08.09
+C51 COMPILER V7.50   GUI_BASIC                                                             07/13/2010 12:52:01 PAGE 5   
+
+ 241          ========================================================================================================
+ 242          */
+ 243          void    GUI_DisplayStr( INT8U xs, INT8U ys, FONT* pFont, char* Str )
+ 244          {
+ 245   1              while( *Str )
+ 246   1              {
+ 247   2                      GUI_DisplayFont( xs, ys, pFont, *Str );
+ 248   2                      Str ++;
+ 249   2                      xs += pFont->Width;
+ 250   2              }
+ 251   1      }
+ 252          /*
+ 253          ================================================================================
+ 254          Name: GUI_DrawCircle( )
+ 255          Function: Display a cycle at a special area
+ 256          Input:  -pCycle, A pinter point to a cycle structure
+ 257          Output: None
+ 258          Author: LiYong
+ 259          Date  : 2008.08.09
+ 260          ================================================================================
+ 261          */
+ 262          void  GUI_DrawCircle( CIRCLE* pCircle )
+ 263          {
+ 264   1         INT8S  draw_x0, draw_y0;                     // 刽图点坐标变量
+ 265   1         INT8S  draw_x1, draw_y1;
+ 266   1         INT8S  draw_x2, draw_y2;
+ 267   1         INT8S  draw_x3, draw_y3;
+ 268   1         INT8S  draw_x4, draw_y4;
+ 269   1         INT8S  draw_x5, draw_y5;
+ 270   1         INT8S  draw_x6, draw_y6;
+ 271   1         INT8S  draw_x7, draw_y7;
+ 272   1         INT8S  xx, yy;                                       // 画圆控制变量
+ 273   1      
+ 274   1         INT8S  di;                                           // 决策变量
+ 275   1         POINT point;
+ 276   1      
+ 277   1         point.Color = pCircle->Color;
+ 278   1      
+ 279   1         /* 参数过滤 */
+ 280   1         if(0 == pCircle->r ) return;
+ 281   1      
+ 282   1         /* 计算出8个特殊点(0、45、90、135、180、225、270度)，进行显示 */
+ 283   1         point.x = draw_x0 = draw_x1 = pCircle->x;
+ 284   1         point.y = draw_y0 = draw_y1 = pCircle->y + pCircle->r;
+ 285   1      
+ 286   1         if( draw_y0 < GUI_LCM_YMAX ) LCDDrawPoint( &point ); // 90度
+ 287   1      
+ 288   1         point.x = draw_x2 = draw_x3 = pCircle->x;
+ 289   1         point.y = draw_y2 = draw_y3 = pCircle->y - pCircle->r;
+ 290   1         if( draw_y2 >= 0 ) LCDDrawPoint( &point );                   // 270度
+ 291   1      
+ 292   1      
+ 293   1         point.x = draw_x4 = draw_x6 = pCircle->x + pCircle->r;
+ 294   1         point.y = draw_y4 = draw_y6 = pCircle->y;
+ 295   1         if(draw_x4<GUI_LCM_XMAX) LCDDrawPoint( &point );     // 0度
+ 296   1      
+ 297   1         point.x = draw_x5 = draw_x7 = pCircle->x - pCircle->r;
+ 298   1         point.y = draw_y5 = draw_y7 = pCircle->y;
+ 299   1         if(draw_x5>=0) LCDDrawPoint( &point );                       // 180度
+ 300   1         if(1==pCircle->r) return;                                    // 若半径为1，则已圆画完
+ 301   1      
+ 302   1      
+C51 COMPILER V7.50   GUI_BASIC                                                             07/13/2010 12:52:01 PAGE 6   
+
+ 303   1         /* 使用Bresenham法进行画圆 */
+ 304   1         di = 3 - 2*pCircle->r;                                       // 初始化决策变量
+ 305   1      
+ 306   1         xx = 0;
+ 307   1         yy = pCircle->r;
+ 308   1         while(xx<yy)
+ 309   1         {  if(di<0)
+ 310   2                {  di += 4*xx + 6;
+ 311   3                }
+ 312   2                else
+ 313   2                {  di += 4*(xx - yy) + 10;
+ 314   3      
+ 315   3                   yy--;
+ 316   3                       draw_y0--;
+ 317   3                       draw_y1--;
+ 318   3                       draw_y2++;
+ 319   3                       draw_y3++;
+ 320   3                       draw_x4--;
+ 321   3                       draw_x5++;
+ 322   3                       draw_x6--;
+ 323   3                       draw_x7++;
+ 324   3                }
+ 325   2      
+ 326   2                xx++;
+ 327   2                draw_x0++;
+ 328   2                draw_x1--;
+ 329   2                draw_x2++;
+ 330   2                draw_x3--;
+ 331   2                draw_y4++;
+ 332   2                draw_y5++;
+ 333   2                draw_y6--;
+ 334   2                draw_y7--;
+ 335   2      
+ 336   2      
+ 337   2                /* 要判断当前点是否在有效范围内 */
+ 338   2                if( (draw_x0<=GUI_LCM_XMAX)&&(draw_y0>=0) )
+ 339   2                {
+ 340   3                      point.x = draw_x0;
+ 341   3                      point.y = draw_y0;
+ 342   3                      LCDDrawPoint( &point );
+ 343   3                }
+ 344   2                if( (draw_x1>=0)&&(draw_y1>=0) )
+ 345   2                {
+ 346   3                      point.x = draw_x1;
+ 347   3                      point.y = draw_y1;
+ 348   3                      LCDDrawPoint( &point );
+ 349   3                }
+ 350   2                if( (draw_x2<=GUI_LCM_XMAX)&&(draw_y2<=GUI_LCM_YMAX) )
+ 351   2                {
+ 352   3                      point.x = draw_x2;
+ 353   3                      point.y = draw_y2;
+ 354   3                      LCDDrawPoint( &point );
+ 355   3                }
+ 356   2                if( (draw_x3>=0)&&(draw_y3<=GUI_LCM_YMAX) )
+ 357   2                {
+ 358   3                      point.x = draw_x3;
+ 359   3                      point.y = draw_y3;
+ 360   3                      LCDDrawPoint( &point );
+ 361   3                }
+ 362   2                if( (draw_x4<=GUI_LCM_XMAX)&&(draw_y4>=0) )
+ 363   2                {
+ 364   3                      point.x = draw_x4;
+C51 COMPILER V7.50   GUI_BASIC                                                             07/13/2010 12:52:01 PAGE 7   
+
+ 365   3                      point.y = draw_y4;
+ 366   3                      LCDDrawPoint( &point );
+ 367   3                }
+ 368   2                if( (draw_x5>=0)&&(draw_y5>=0) )
+ 369   2                {
+ 370   3                      point.x = draw_x5;
+ 371   3                      point.y = draw_y5;
+ 372   3                      LCDDrawPoint( &point );
+ 373   3                }
+ 374   2                if( (draw_x6<=GUI_LCM_XMAX)&&(draw_y6<=GUI_LCM_YMAX) )
+ 375   2                {
+ 376   3                      point.x = draw_x6;
+ 377   3                      point.y = draw_y6;
+ 378   3                      LCDDrawPoint( &point );
+ 379   3                }
+ 380   2                if( (draw_x7>=0)&&(draw_y7<=GUI_LCM_YMAX) )
+ 381   2                {
+ 382   3                      point.x = draw_x7;
+ 383   3                      point.y = draw_y7;
+ 384   3                      LCDDrawPoint( &point );
+ 385   3                }
+ 386   2              }
+ 387   1      }
+ 388          /*
+ 389          ================================================================================
+ 390          Name: GUI_DrawCircleFill( )
+ 391          Function: Display a cycle at a special area and fill its area
+ 392          Input:  -pCycle, A pinter point to a cycle structure
+ 393          Output: None
+ 394          Author: LiYong
+ 395          Date  : 2008.08.09
+ 396          ================================================================================
+ 397          */
+ 398          void  GUI_DrawCircleFill( CIRCLE* pCircle )
+ 399          {
+ 400   1         INT8S  draw_x0, draw_y0;                     // 刽图点坐标变量
+ 401   1         INT8S  draw_x1, draw_y1;
+ 402   1         INT8S  draw_x2, draw_y2;
+ 403   1         INT8S  draw_x3, draw_y3;
+ 404   1         INT8S  draw_x4, draw_y4;
+ 405   1         INT8S  draw_x5, draw_y5;
+ 406   1         INT8S  draw_x6, draw_y6;
+ 407   1         INT8S  draw_x7, draw_y7;
+ 408   1         INT8S  fill_x0, fill_y0;                     // 填充所需的变量，使用垂直线填充
+ 409   1         INT8S  fill_x1;
+ 410   1         INT8S  xx, yy;                                       // 画圆控制变量
+ 411   1      
+ 412   1         INT8S  di;                                           // 决策变量
+ 413   1         POINT   point;
+ 414   1         LINE    line;
+ 415   1      
+ 416   1         point.Color = pCircle->Color;
+ 417   1         line.Color = pCircle->Color;
+ 418   1      
+ 419   1      
+ 420   1      
+ 421   1         /* 参数过滤 */
+ 422   1         if(0==pCircle->r) return;
+ 423   1      
+ 424   1         /* 计算出4个特殊点(0、90、180、270度)，进行显示 */
+ 425   1         point.x = draw_x0 = draw_x1 = pCircle->x;
+ 426   1         point.y = draw_y0 = draw_y1 = pCircle->y + pCircle->r;
+C51 COMPILER V7.50   GUI_BASIC                                                             07/13/2010 12:52:01 PAGE 8   
+
+ 427   1         if(draw_y0<GUI_LCM_YMAX)
+ 428   1         {
+ 429   2            LCDDrawPoint( &point );
+ 430   2         }
+ 431   1      
+ 432   1         point.x = draw_x2 = draw_x3 = pCircle->x;
+ 433   1         point.y = draw_y2 = draw_y3 = pCircle->y - pCircle->r;
+ 434   1         if(draw_y2>=0)
+ 435   1         {
+ 436   2                      LCDDrawPoint( &point );
+ 437   2         }
+ 438   1      
+ 439   1         point.x = draw_x4 = draw_x6 = pCircle->x + pCircle->r;
+ 440   1         point.y = draw_y4 = draw_y6 = pCircle->y;
+ 441   1         if(draw_x4<GUI_LCM_XMAX)
+ 442   1         {
+ 443   2                      LCDDrawPoint( &point ); // 0度
+ 444   2            fill_x1 = draw_x4;
+ 445   2         }
+ 446   1         else
+ 447   1         {
+ 448   2                      fill_x1 = GUI_LCM_XMAX;
+ 449   2         }
+ 450   1         fill_y0 = pCircle->y;                                                        // 设置填充线条起始点fill_x0
+ 451   1         fill_x0 = pCircle->x - pCircle->r;                                           // 设置填充线条结束点fill_y1
+ 452   1         if(fill_x0<0) fill_x0 = 0;
+ 453   1               line.xs = fill_x0;
+ 454   1               line.ys = fill_y0;
+ 455   1               line.ye = fill_y0;
+ 456   1               line.xe = fill_x1;
+ 457   1         LCDDrawHRLine( &line );
+ 458   1      
+ 459   1         point.x = draw_x5 = draw_x7 = pCircle->x - pCircle->r;
+ 460   1         point.y = draw_y5 = draw_y7 = pCircle->y;
+ 461   1         if(draw_x5>=0)
+ 462   1         {
+ 463   2                      LCDDrawPoint( &point ); // 180度
+ 464   2         }
+ 465   1         if(1==pCircle->r) return;
+ 466   1      
+ 467   1      
+ 468   1         /* 使用Bresenham法进行画圆 */
+ 469   1         di = 3 - 2*pCircle->r;                                                       // 初始化决策变量
+ 470   1      
+ 471   1         xx = 0;
+ 472   1         yy = pCircle->r;
+ 473   1         while(xx<yy)
+ 474   1         {  if(di<0)
+ 475   2                {  di += 4*xx + 6;
+ 476   3                }
+ 477   2                else
+ 478   2                {  di += 4*(xx - yy) + 10;
+ 479   3      
+ 480   3                   yy--;
+ 481   3                       draw_y0--;
+ 482   3                       draw_y1--;
+ 483   3                       draw_y2++;
+ 484   3                       draw_y3++;
+ 485   3                       draw_x4--;
+ 486   3                       draw_x5++;
+ 487   3                       draw_x6--;
+ 488   3                       draw_x7++;
+C51 COMPILER V7.50   GUI_BASIC                                                             07/13/2010 12:52:01 PAGE 9   
+
+ 489   3                }
+ 490   2      
+ 491   2                xx++;
+ 492   2                draw_x0++;
+ 493   2                draw_x1--;
+ 494   2                draw_x2++;
+ 495   2                draw_x3--;
+ 496   2                draw_y4++;
+ 497   2                draw_y5++;
+ 498   2                draw_y6--;
+ 499   2                draw_y7--;
+ 500   2      
+ 501   2      
+ 502   2                /* 要判断当前点是否在有效范围内 */
+ 503   2                if( (draw_x0<=GUI_LCM_XMAX)&&(draw_y0>=0) )
+ 504   2                {
+ 505   3                      point.x = draw_x0;
+ 506   3                      point.y = draw_y0;
+ 507   3                      LCDDrawPoint( &point );
+ 508   3                }
+ 509   2                if( (draw_x1>=0)&&(draw_y1>=0) )
+ 510   2                {
+ 511   3                      point.x = draw_x1;
+ 512   3                      point.y = draw_y1;
+ 513   3                      LCDDrawPoint( &point );
+ 514   3                }
+ 515   2      
+ 516   2                /* 第二点水直线填充(下半圆的点) */
+ 517   2                if(draw_x1>=0)
+ 518   2                {  /* 设置填充线条起始点fill_x0 */
+ 519   3                   fill_x0 = draw_x1;
+ 520   3                   /* 设置填充线条起始点fill_y0 */
+ 521   3                   fill_y0 = draw_y1;
+ 522   3               if(fill_y0>GUI_LCM_YMAX) fill_y0 = GUI_LCM_YMAX;
+ 523   3               if(fill_y0<0) fill_y0 = 0;
+ 524   3               /* 设置填充线条结束点fill_x1 */
+ 525   3               fill_x1 = pCircle->x*2 - draw_x1;
+ 526   3               if(fill_x1>GUI_LCM_XMAX) fill_x1 = GUI_LCM_XMAX;
+ 527   3      
+ 528   3                      line.xs = fill_x0;
+ 529   3                      line.xe = fill_x1;
+ 530   3                      line.ys = line.ye = fill_y0;
+ 531   3                      LCDDrawHRLine( &line );
+ 532   3            }
+ 533   2      
+ 534   2      
+ 535   2                if( (draw_x2<=GUI_LCM_XMAX)&&(draw_y2<=GUI_LCM_YMAX) )
+ 536   2                {
+ 537   3                      point.x = draw_x2;
+ 538   3                      point.y = draw_y2;
+ 539   3                      LCDDrawPoint( &point );
+ 540   3                }
+ 541   2      
+ 542   2                if( (draw_x3>=0)&&(draw_y3<=GUI_LCM_YMAX) )
+ 543   2                {
+ 544   3                      point.x = draw_x3;
+ 545   3                      point.y = draw_y3;
+ 546   3                      LCDDrawPoint( &point );
+ 547   3                }
+ 548   2      
+ 549   2                /* 第四点垂直线填充(上半圆的点) */
+ 550   2                if(draw_x3>=0)
+C51 COMPILER V7.50   GUI_BASIC                                                             07/13/2010 12:52:01 PAGE 10  
+
+ 551   2                {  /* 设置填充线条起始点fill_x0 */
+ 552   3                   fill_x0 = draw_x3;
+ 553   3                   /* 设置填充线条起始点fill_y0 */
+ 554   3                   fill_y0 = draw_y3;
+ 555   3               if(fill_y0>GUI_LCM_YMAX) fill_y0 = GUI_LCM_YMAX;
+ 556   3               if(fill_y0<0) fill_y0 = 0;
+ 557   3               /* 设置填充线条结束点fill_x1 */
+ 558   3               fill_x1 = pCircle->x*2 - draw_x3;
+ 559   3               if(fill_x1>GUI_LCM_XMAX) fill_x1 = GUI_LCM_XMAX;
+ 560   3      
+ 561   3                      line.xs = fill_x0;
+ 562   3                      line.xe = fill_x1;
+ 563   3                      line.ys = line.ye = fill_y0;
+ 564   3                      LCDDrawHRLine( &line );
+ 565   3            }
+ 566   2      
+ 567   2      
+ 568   2                if( (draw_x4<=GUI_LCM_XMAX)&&(draw_y4>=0) )
+ 569   2                {
+ 570   3                      point.x = draw_x4;
+ 571   3                      point.y = draw_y4;
+ 572   3                      LCDDrawPoint( &point );
+ 573   3                }
+ 574   2                if( (draw_x5>=0)&&(draw_y5>=0) )
+ 575   2                {
+ 576   3                      point.x = draw_x5;
+ 577   3                      point.y = draw_y5;
+ 578   3                      LCDDrawPoint( &point );
+ 579   3                }
+ 580   2      
+ 581   2                /* 第六点垂直线填充(上半圆的点) */
+ 582   2                if(draw_x5>=0)
+ 583   2                {  /* 设置填充线条起始点fill_x0 */
+ 584   3                   fill_x0 = draw_x5;
+ 585   3                   /* 设置填充线条起始点fill_y0 */
+ 586   3                   fill_y0 = draw_y5;
+ 587   3               if(fill_y0>GUI_LCM_YMAX) fill_y0 = GUI_LCM_YMAX;
+ 588   3               if(fill_y0<0) fill_y0 = 0;
+ 589   3               /* 设置填充线条结束点fill_x1 */
+ 590   3               fill_x1 = pCircle->x*2 - draw_x5;
+ 591   3               if(fill_x1>GUI_LCM_XMAX) fill_x1 = GUI_LCM_XMAX;
+ 592   3                      line.xs = fill_x0;
+ 593   3                      line.xe = fill_x1;
+ 594   3                      line.ys = line.ye = fill_y0;
+ 595   3                      LCDDrawHRLine( &line );
+ 596   3            }
+ 597   2      
+ 598   2      
+ 599   2                if( (draw_x6<=GUI_LCM_XMAX)&&(draw_y6<=GUI_LCM_YMAX) )
+ 600   2                {
+ 601   3                      point.x = draw_x6;
+ 602   3                      point.y = draw_y6;
+ 603   3                      LCDDrawPoint( &point );
+ 604   3                }
+ 605   2      
+ 606   2                if( (draw_x7>=0)&&(draw_y7<=GUI_LCM_YMAX) )
+ 607   2                {
+ 608   3                      point.x = draw_x7;
+ 609   3                      point.y = draw_y7;
+ 610   3                      LCDDrawPoint( &point );
+ 611   3                }
+ 612   2      
+C51 COMPILER V7.50   GUI_BASIC                                                             07/13/2010 12:52:01 PAGE 11  
+
+ 613   2                /* 第八点垂直线填充(上半圆的点) */
+ 614   2                if(draw_x7>=0)
+ 615   2                {  /* 设置填充线条起始点fill_x0 */
+ 616   3                   fill_x0 = draw_x7;
+ 617   3                   /* 设置填充线条起始点fill_y0 */
+ 618   3                   fill_y0 = draw_y7;
+ 619   3               if(fill_y0>GUI_LCM_YMAX) fill_y0 = GUI_LCM_YMAX;
+ 620   3               if(fill_y0<0) fill_y0 = 0;
+ 621   3               /* 设置填充线条结束点fill_x1 */
+ 622   3               fill_x1 = pCircle->x*2 - draw_x7;
+ 623   3               if(fill_x1>GUI_LCM_XMAX) fill_x1 = GUI_LCM_XMAX;
+ 624   3                      line.xs = fill_x0;
+ 625   3                      line.xe = fill_x1;
+ 626   3                      line.ys = line.ye = fill_y0;
+ 627   3                      LCDDrawHRLine( &line );
+ 628   3            }
+ 629   2      
+ 630   2         }
+ 631   1      }
+ 632          /*
+ 633          ================================================================================
+ 634          Name: GUI_DrawEllipse( )
+ 635          Function: Display a ellipse at a special area
+ 636          Input:  -pCycle, A pinter point to a ellipse structure
+ 637          Output: None
+ 638          Author: LiYong
+ 639          Date  : 2008.08.09
+ 640          ================================================================================
+ 641          */
+ 642          void  GUI_DrawEllipse( ELLIPSE* pEllipse )
+ 643          {
+ 644   1         INT32S  draw_x0, draw_y0;                    // 刽图点坐标变量
+ 645   1         INT32S  draw_x1, draw_y1;
+ 646   1         INT32S  draw_x2, draw_y2;
+ 647   1         INT32S  draw_x3, draw_y3;
+ 648   1         INT32S  xx, yy;                                      // 画图控制变量
+ 649   1      
+ 650   1         INT32S  center_x, center_y;          // 椭圆中心点坐标变量
+ 651   1         INT32S  radius_x, radius_y;          // 椭圆的半径，x轴半径和y轴半径
+ 652   1         INT32S  radius_xx, radius_yy;                // 半径乘平方值
+ 653   1         INT32S  radius_xx2, radius_yy2;      // 半径乘平方值的两倍
+ 654   1         INT32S  di;                                          // 定义决策变量
+ 655   1      
+ 656   1         POINT   point;
+ 657   1      
+ 658   1         point.Color = pEllipse->Color;
+ 659   1      
+ 660   1         /* 参数过滤 */
+ 661   1         if( (pEllipse->xs == pEllipse->xe ) ||
+ 662   1                 (pEllipse->ys == pEllipse->ye ) ) return;
+ 663   1      
+ 664   1         /* 计算出椭圆中心点坐标 */
+ 665   1         center_x = (pEllipse->xs + pEllipse->xe) >> 1;
+ 666   1         center_y = (pEllipse->ys + pEllipse->ye) >> 1;
+ 667   1      
+ 668   1         /* 计算出椭圆的半径，x轴半径和y轴半径 */
+ 669   1         if(pEllipse->xs > pEllipse->xe)
+ 670   1         {  radius_x = (pEllipse->xs - pEllipse->xe) >> 1;
+ 671   2         }
+ 672   1         else
+ 673   1         {  radius_x = (pEllipse->xe - pEllipse->xs) >> 1;
+ 674   2         }
+C51 COMPILER V7.50   GUI_BASIC                                                             07/13/2010 12:52:01 PAGE 12  
+
+ 675   1         if(pEllipse->ys > pEllipse->ye)
+ 676   1         {  radius_y = (pEllipse->ys - pEllipse->ye) >> 1;
+ 677   2         }
+ 678   1         else
+ 679   1         {  radius_y = (pEllipse->ye - pEllipse->ys) >> 1;
+ 680   2         }
+ 681   1      
+ 682   1         /* 计算半径平方值 */
+ 683   1         radius_xx = radius_x * radius_x;
+ 684   1         radius_yy = radius_y * radius_y;
+ 685   1      
+ 686   1         /* 计算半径平方值乘2值 */
+ 687   1         radius_xx2 = radius_xx<<1;
+ 688   1         radius_yy2 = radius_yy<<1;
+ 689   1      
+ 690   1         /* 初始化画图变量 */
+ 691   1         xx = 0;
+ 692   1         yy = radius_y;
+ 693   1      
+ 694   1         di = radius_yy2 + radius_xx - radius_xx2*radius_y ;  // 初始化决策变量
+ 695   1      
+ 696   1         /* 计算出椭圆y轴上的两个端点坐标，作为作图起点 */
+ 697   1         draw_x0 = draw_x1 = draw_x2 = draw_x3 = center_x;
+ 698   1         draw_y0 = draw_y1 = center_y + radius_y;
+ 699   1         draw_y2 = draw_y3 = center_y - radius_y;
+ 700   1      
+ 701   1               point.x = draw_x0;
+ 702   1               point.y = draw_y0;
+ 703   1               LCDDrawPoint( &point );
+ 704   1               point.x = draw_x2;
+ 705   1               point.y = draw_y2;
+ 706   1               LCDDrawPoint( &point );        // 画y轴上的两个端点
+ 707   1      
+ 708   1         while( (radius_yy*xx) < (radius_xx*yy) )
+ 709   1         {  if(di<0)
+ 710   2                {  di+= radius_yy2*(2*xx+3);
+ 711   3                }
+ 712   2                else
+ 713   2                {  di += radius_yy2*(2*xx+3) + 4*radius_xx - 4*radius_xx*yy;
+ 714   3      
+ 715   3                   yy--;
+ 716   3                       draw_y0--;
+ 717   3                       draw_y1--;
+ 718   3                       draw_y2++;
+ 719   3                       draw_y3++;
+ 720   3                }
+ 721   2      
+ 722   2                xx ++;                                                // x轴加1
+ 723   2      
+ 724   2                draw_x0++;
+ 725   2                draw_x1--;
+ 726   2                draw_x2++;
+ 727   2                draw_x3--;
+ 728   2      
+ 729   2                      point.x = draw_x0;
+ 730   2                      point.y = draw_y0;
+ 731   2                      LCDDrawPoint( &point );
+ 732   2                      point.x = draw_x1;
+ 733   2                      point.y = draw_y1;
+ 734   2                      LCDDrawPoint( &point );
+ 735   2                      point.x = draw_x2;
+ 736   2                      point.y = draw_y2;
+C51 COMPILER V7.50   GUI_BASIC                                                             07/13/2010 12:52:01 PAGE 13  
+
+ 737   2                      LCDDrawPoint( &point );
+ 738   2                      point.x = draw_x3;
+ 739   2                      point.y = draw_y3;
+ 740   2                      LCDDrawPoint( &point );
+ 741   2         }
+ 742   1      
+ 743   1         di = radius_xx2*(yy-1)*(yy-1) + radius_yy2*xx*xx + radius_yy + radius_yy2*xx - radius_xx2*radius_yy;
+ 744   1         while(yy>=0)
+ 745   1         {  if(di<0)
+ 746   2                {  di+= radius_xx2*3 + 4*radius_yy*xx + 4*radius_yy - 2*radius_xx2*yy;
+ 747   3      
+ 748   3                   xx ++;                                             // x轴加1
+ 749   3                   draw_x0++;
+ 750   3                   draw_x1--;
+ 751   3                   draw_x2++;
+ 752   3                   draw_x3--;
+ 753   3                }
+ 754   2                else
+ 755   2                {  di += radius_xx2*3 - 2*radius_xx2*yy;
+ 756   3                }
+ 757   2      
+ 758   2                yy--;
+ 759   2                draw_y0--;
+ 760   2                draw_y1--;
+ 761   2                draw_y2++;
+ 762   2                draw_y3++;
+ 763   2      
+ 764   2                      point.x = draw_x0;
+ 765   2                      point.y = draw_y0;
+ 766   2                      LCDDrawPoint( &point );
+ 767   2                      point.x = draw_x1;
+ 768   2                      point.y = draw_y1;
+ 769   2                      LCDDrawPoint( &point );
+ 770   2                      point.x = draw_x2;
+ 771   2                      point.y = draw_y2;
+ 772   2                      LCDDrawPoint( &point );
+ 773   2                      point.x = draw_x3;
+ 774   2                      point.y = draw_y3;
+ 775   2                      LCDDrawPoint( &point );
+ 776   2         }
+ 777   1      }
+ 778          /*
+ 779          ================================================================================
+ 780          Name: GUI_DrawEllipseFill( )
+ 781          Function: Display a ellipse at a special area and fill its area
+ 782          Input:  -pCycle, A pinter point to a ellipse structure
+ 783          Output: None
+ 784          Author: LiYong
+ 785          Date  : 2008.08.09
+ 786          ================================================================================
+ 787          */
+ 788          void  GUI_DrawEllipseFill( ELLIPSE* pEllipse )
+ 789          {
+ 790   1              INT32S  draw_x0, draw_y0;                       // 刽图点坐标变量
+ 791   1              INT32S  draw_x1, draw_y1;
+ 792   1              INT32S  draw_x2, draw_y2;
+ 793   1              INT32S  draw_x3, draw_y3;
+ 794   1              INT32S  xx, yy;                                       // 画图控制变量
+ 795   1      
+ 796   1              INT32S  center_x, center_y;             // 椭圆中心点坐标变量
+ 797   1              INT32S  radius_x, radius_y;             // 椭圆的半径，x轴半径和y轴半径
+ 798   1              INT32S  radius_xx, radius_yy;           // 半径乘平方值
+C51 COMPILER V7.50   GUI_BASIC                                                             07/13/2010 12:52:01 PAGE 14  
+
+ 799   1              INT32S  radius_xx2, radius_yy2; // 半径乘平方值的两倍
+ 800   1              INT32S  di;                                             // 定义决策变量
+ 801   1      
+ 802   1              POINT point;
+ 803   1              LINE  line;
+ 804   1      
+ 805   1              point.Color = pEllipse->Color;
+ 806   1              line.Color = pEllipse->Color;
+ 807   1      
+ 808   1              /* 参数过滤 */
+ 809   1              if( (pEllipse->xs==pEllipse->xe) ||
+ 810   1                  (pEllipse->ys==pEllipse->ye) ) return;
+ 811   1      
+ 812   1              /* 计算出椭圆中心点坐标 */
+ 813   1              center_x = (pEllipse->xs + pEllipse->xe) >> 1;
+ 814   1              center_y = (pEllipse->ys + pEllipse->ye) >> 1;
+ 815   1      
+ 816   1              /* 计算出椭圆的半径，x轴半径和y轴半径 */
+ 817   1              if(pEllipse->xs > pEllipse->xe)
+ 818   1              {
+ 819   2                      radius_x = (pEllipse->xs - pEllipse->xe) >> 1;
+ 820   2              }
+ 821   1              else
+ 822   1              {
+ 823   2                      radius_x = (pEllipse->xe - pEllipse->xs) >> 1;
+ 824   2              }
+ 825   1              if(pEllipse->ys > pEllipse->ye)
+ 826   1              {
+ 827   2                      radius_y = (pEllipse->ys - pEllipse->ye) >> 1;
+ 828   2              }
+ 829   1              else
+ 830   1              {
+ 831   2                      radius_y = (pEllipse->ye - pEllipse->ys) >> 1;
+ 832   2              }
+ 833   1      
+ 834   1              /* 计算半径乘平方值 */
+ 835   1              radius_xx = radius_x * radius_x;
+ 836   1              radius_yy = radius_y * radius_y;
+ 837   1      
+ 838   1              /* 计算半径乘4值 */
+ 839   1              radius_xx2 = radius_xx<<1;
+ 840   1              radius_yy2 = radius_yy<<1;
+ 841   1      
+ 842   1              /* 初始化画图变量 */
+ 843   1              xx = 0;
+ 844   1              yy = radius_y;
+ 845   1      
+ 846   1              di = radius_yy2 + radius_xx - radius_xx2*radius_y ;     // 初始化决策变量
+ 847   1      
+ 848   1              /* 计算出椭圆y轴上的两个端点坐标，作为作图起点 */
+ 849   1              draw_x0 = draw_x1 = draw_x2 = draw_x3 = center_x;
+ 850   1              draw_y0 = draw_y1 = center_y + radius_y;
+ 851   1              draw_y2 = draw_y3 = center_y - radius_y;
+ 852   1      
+ 853   1              point.x = draw_x0;
+ 854   1              point.y = draw_y0;
+ 855   1              LCDDrawPoint( &point );
+ 856   1              point.x = draw_x2;
+ 857   1              point.y = draw_y2;
+ 858   1              LCDDrawPoint( &point );// 画y轴上的两个端点
+ 859   1      
+ 860   1         while( (radius_yy*xx) < (radius_xx*yy) )
+C51 COMPILER V7.50   GUI_BASIC                                                             07/13/2010 12:52:01 PAGE 15  
+
+ 861   1         {  if(di<0)
+ 862   2                {  di+= radius_yy2*(2*xx+3);
+ 863   3                }
+ 864   2                else
+ 865   2                {  di += radius_yy2*(2*xx+3) + 4*radius_xx - 4*radius_xx*yy;
+ 866   3      
+ 867   3                   yy--;
+ 868   3                       draw_y0--;
+ 869   3                       draw_y1--;
+ 870   3                       draw_y2++;
+ 871   3                       draw_y3++;
+ 872   3                }
+ 873   2      
+ 874   2                xx ++;                                                // x轴加1
+ 875   2      
+ 876   2                draw_x0++;
+ 877   2                draw_x1--;
+ 878   2                draw_x2++;
+ 879   2                draw_x3--;
+ 880   2      
+ 881   2                      point.x = draw_x0;
+ 882   2                      point.y = draw_y0;
+ 883   2                      LCDDrawPoint( &point );
+ 884   2                      point.x = draw_x1;
+ 885   2                      point.y = draw_y1;
+ 886   2                      LCDDrawPoint( &point );
+ 887   2                      point.x = draw_x2;
+ 888   2                      point.y = draw_y2;
+ 889   2                      LCDDrawPoint( &point );
+ 890   2                      point.x = draw_x3;
+ 891   2                      point.y = draw_y3;
+ 892   2                      LCDDrawPoint( &point );
+ 893   2      
+ 894   2                /* 若y轴已变化，进行填充 */
+ 895   2                if(di>=0)
+ 896   2                {
+ 897   3                      line.xs = draw_x0;
+ 898   3                      line.xe = draw_x1;
+ 899   3                      line.ys = line.ye = draw_y0;
+ 900   3                      LCDDrawHRLine( &line );
+ 901   3                      line.xs = draw_x2;
+ 902   3                      line.xe = draw_x3;
+ 903   3                      line.ys = line.ye = draw_y2;
+ 904   3                      LCDDrawHRLine( &line );
+ 905   3      
+ 906   3                }
+ 907   2         }
+ 908   1      
+ 909   1         di = radius_xx2*(yy-1)*(yy-1) + radius_yy2*xx*xx + radius_yy +
+ 910   1              radius_yy2*xx - radius_xx2*radius_yy;
+ 911   1         while(yy>=0)
+ 912   1         {  if(di<0)
+ 913   2                {  di+= radius_xx2*3 + 4*radius_yy*xx + 4*radius_yy - 2*radius_xx2*yy;
+ 914   3      
+ 915   3                   xx ++;                                             // x轴加1
+ 916   3                   draw_x0++;
+ 917   3                   draw_x1--;
+ 918   3                   draw_x2++;
+ 919   3                   draw_x3--;
+ 920   3                }
+ 921   2                      else
+ 922   2                      {  di += radius_xx2*3 - 2*radius_xx2*yy;
+C51 COMPILER V7.50   GUI_BASIC                                                             07/13/2010 12:52:01 PAGE 16  
+
+ 923   3                      }
+ 924   2      
+ 925   2                      yy--;
+ 926   2                      draw_y0--;
+ 927   2                      draw_y1--;
+ 928   2                      draw_y2++;
+ 929   2                      draw_y3++;
+ 930   2      
+ 931   2                      point.x = draw_x0;
+ 932   2                      point.y = draw_y0;
+ 933   2                      LCDDrawPoint( &point );
+ 934   2                      point.x = draw_x1;
+ 935   2                      point.y = draw_y1;
+ 936   2                      LCDDrawPoint( &point );
+ 937   2                      point.x = draw_x2;
+ 938   2                      point.y = draw_y2;
+ 939   2                      LCDDrawPoint( &point );
+ 940   2                      point.x = draw_x3;
+ 941   2                      point.y = draw_y3;
+ 942   2                      LCDDrawPoint( &point );
+ 943   2      
+ 944   2                /* y轴已变化，进行填充 */
+ 945   2                      line.xs = draw_x0;
+ 946   2                      line.xe = draw_x1;
+ 947   2                      line.ys = line.ye = draw_y0;
+ 948   2                      LCDDrawHRLine( &line );
+ 949   2                      line.xs = draw_x2;
+ 950   2                      line.xe = draw_x3;
+ 951   2                      line.ys = line.ye = draw_y2;
+ 952   2                      LCDDrawHRLine( &line );
+ 953   2         }
+ 954   1      }
+ 955          /*
+ 956          ================================================================================
+ 957          Name: GUI_Inital( )
+ 958          Function: Initialize GUI with single color
+ 959          Input:  -Color, Initialize color
+ 960          Output: None
+ 961          Author: LiYong
+ 962          Date  : 2008.08.09
+ 963          ================================================================================
+ 964          */
+ 965          void GUI_Inital( TCOLOR Color )
+ 966          {
+ 967   1              DOLLOP dollop;
+ 968   1      
+ 969   1              dollop.xs = 0;
+ 970   1              dollop.xe = GUI_LCM_XMAX;
+ 971   1              dollop.ys = 0;
+ 972   1              dollop.ye = GUI_LCM_YMAX;
+ 973   1              dollop.Color = Color;
+ 974   1      
+ 975   1              LCDDrawDollop( &dollop );
+ 976   1      }       
+ 977          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   9791    ----
+   CONSTANT SIZE    =   1330    ----
+   XDATA SIZE       =   ----     376
+   PDATA SIZE       =   ----    ----
+C51 COMPILER V7.50   GUI_BASIC                                                             07/13/2010 12:52:01 PAGE 17  
+
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

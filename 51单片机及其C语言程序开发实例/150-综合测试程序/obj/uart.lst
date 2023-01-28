@@ -1,0 +1,82 @@
+C51 COMPILER V7.06   UART                                                                  07/19/2010 11:10:51 PAGE 1   
+
+
+C51 COMPILER V7.06, COMPILATION OF MODULE UART
+OBJECT MODULE PLACED IN .\obj\uart.obj
+COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE uart.c BROWSE DEBUG OBJECTEXTEND PRINT(.\obj\uart.lst) OBJECT(.\obj\uart.ob
+                    -j)
+
+stmt level    source
+
+   1           
+   2          /*-----------------------------------------------
+   3            Ãû³Æ£º´®¿ÚÍ¨ÐÅ
+   4            ÍøÕ¾£ºwww.doflye.net
+   5            ±àÐ´£ºshifang
+   6            ÈÕÆÚ£º2009.5
+   7            ÐÞ¸Ä£ºÎÞ
+   8            ÄÚÈÝ£ºÁ¬½ÓºÃ´®¿Ú»òÕßusb×ª´®¿ÚÖÁµçÄÔ£¬ÏÂÔØ¸Ã³ÌÐò£¬´ò¿ªµçÔ´
+   9                  ´ò¿ª´®¿Úµ÷ÊÔ³ÌÐò£¬½«²¨ÌØÂÊÉèÖÃÎª9600£¬ÎÞÆæÅ¼Ð£Ñé
+  10                  ¾§Õñ11.0592MHz£¬·¢ËÍºÍ½ÓÊÕÊ¹ÓÃµÄ¸ñÊ½ÏàÍ¬£¬Èç¶¼Ê¹ÓÃ
+  11                  ×Ö·ûÐÍ¸ñÊ½£¬°´¸´Î»ÖØÆô³ÌÐò£¬¿ÉÒÔ¿´µ½½ÓÊÕµ½ UART test£¬¼¼ÊõÂÛÌ³£ºwww.doflye.net ÇëÔÚ·¢ËÍÇøÊäÈëÈÎÒâÐ
+             -Å
+  12                          È»ºóÔÚ·¢ËÍÇø·¢ËÍÈÎÒâÐÅÏ¢£¬½ÓÊÕÇø·µ»ØÍ¬ÑùÐÅÏ¢£¬±íÃ÷´®¿ÚÊÕ·¢ÎÞÎó
+  13          ------------------------------------------------*/
+  14          
+  15          #include<reg52.h> //°üº¬Í·ÎÄ¼þ£¬Ò»°ãÇé¿ö²»ÐèÒª¸Ä¶¯£¬Í·ÎÄ¼þ°üº¬ÌØÊâ¹¦ÄÜ¼Ä´æÆ÷µÄ¶¨Òå                        
+  16          #include"uart.h"
+  17          #include <stdio.h> 
+  18          /*------------------------------------------------
+  19                             º¯ÊýÉùÃ÷
+  20          ------------------------------------------------*/
+  21          void UartSendStr(unsigned char *s);
+  22          
+  23          /*------------------------------------------------
+  24                              ´®¿Ú³õÊ¼»¯
+  25          ------------------------------------------------*/
+  26          void InitUART  (void)
+  27          {
+  28   1      
+  29   1          SCON  = 0x50;                       // SCON: Ä£Ê½ 1, 8-bit UART, Ê¹ÄÜ½ÓÊÕ  
+  30   1          TMOD |= 0x20;               // TMOD: timer 1, mode 2, 8-bit ÖØ×°
+  31   1          TH1   = 0xFD;               // TH1:  ÖØ×°Öµ 9600 ²¨ÌØÂÊ ¾§Õñ 11.0592MHz  
+  32   1          TR1   = 1;                  // TR1:  timer 1 ´ò¿ª                         
+  33   1          //EA    = 1;                  //´ò¿ª×ÜÖÐ¶Ï
+  34   1          //ES    = 1;                  //´ò¿ª´®¿ÚÖÐ¶Ï
+  35   1              TI    = 1;                  //·¢ËÍÔÊÐí
+  36   1      }                            
+  37          
+  38          /*------------------------------------------------
+  39                               ´®¿ÚÖÐ¶Ï³ÌÐò
+  40          ------------------------------------------------*/
+  41          void UART_SER (void) interrupt 4 //´®ÐÐÖÐ¶Ï·þÎñ³ÌÐò
+  42          {
+  43   1          unsigned char Temp;          //¶¨ÒåÁÙÊ±±äÁ¿ 
+  44   1         
+  45   1         if(RI)                        //ÅÐ¶ÏÊÇ½ÓÊÕÖÐ¶Ï²úÉú
+  46   1           {
+  47   2                RI=0;                      //±êÖ¾Î»ÇåÁã
+  48   2                Temp=SBUF;                 //¶ÁÈë»º³åÇøµÄÖµ
+  49   2                P1=Temp;                   //°ÑÖµÊä³öµ½P1¿Ú£¬ÓÃÓÚ¹Û²ì
+  50   2            SBUF=Temp;                 //°Ñ½ÓÊÕµ½µÄÖµÔÙ·¢»ØµçÄÔ¶Ë
+  51   2               }
+  52   1         if(TI)                        //Èç¹ûÊÇ·¢ËÍ±êÖ¾Î»£¬ÇåÁã
+  53   1           TI=0;
+C51 COMPILER V7.06   UART                                                                  07/19/2010 11:10:51 PAGE 2   
+
+  54   1      } 
+  55          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     42    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

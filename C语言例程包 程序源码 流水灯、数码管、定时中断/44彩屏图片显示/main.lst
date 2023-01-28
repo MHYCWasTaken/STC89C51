@@ -1,0 +1,72 @@
+C51 COMPILER V7.50   MAIN                                                                  09/13/2011 19:37:12 PAGE 1   
+
+
+C51 COMPILER V7.50, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN main.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Source\main.c LARGE BROWSE DEBUG OBJECTEXTEND PRINT(.\main.lst) OBJECT(main
+                    -.obj)
+
+line level    source
+
+   1          /*
+   2          ================================================================================
+   3          Copytight      : Yihetech Co,.Ltd, All rightd reserved. 版权归属亿和电子工作室
+   4          Store          : http://shop57165217.taobao.com/
+   5          
+   6          File Name      : main.c
+   7          Description    :  
+   8          Date           : 2009-7-19 21:17:45
+   9          Version        : V1.0
+  10          Author         : LiYong(李勇), yihe_liyong@126.com
+  11          Target device  : ATmega32L
+  12          Compiler       : AVRStudio + GCCAVR
+  13          Note           : 转载时务必保留此信息，否则无权以任何形式传播本文件
+  14          ================================================================================
+  15          */
+  16          
+  17          #include <reg51.h>
+  18          #include "MyTypedef.h"
+  19          #include "GUI_Basic.h"
+  20          #include "LCD.H"
+  21          #include "image.h"                       
+  22          
+  23              RECT rect  ;
+  24              CIRCLE circle ;
+  25              LINE line;
+  26              FONT font ;
+  27              ELLIPSE ellipse;
+  28          IMAGE image_girl;
+  29          int main( void )
+  30          {       
+  31   1          LCD_Init( );
+  32   1      
+  33   1          image_girl.ys = 0;
+  34   1              image_girl.xs = 0;
+  35   1              image_girl.height = 128;
+  36   1              image_girl.length = 128;
+  37   1              image_girl.pData = &gImage_image[0];
+  38   1              GUI_Image( &image_girl );
+  39   1              while( 1 );
+  40   1      }
+  41          
+  42          /*
+  43          ================================================================================
+  44          -----------------------------------End of file----------------------------------
+  45          ================================================================================
+  46          */
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     43    ----
+   CONSTANT SIZE    =  32768    ----
+   XDATA SIZE       =     36    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+C51 COMPILER V7.50   MAIN                                                                  09/13/2011 19:37:12 PAGE 2   
+
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

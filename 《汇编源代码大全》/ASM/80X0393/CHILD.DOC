@@ -1,0 +1,80 @@
+By: Dave Walker
+----------------------------------------------------------------------
+
+Here's a simple model for invoking a child process. For simplicity, it
+uses the parent's PSP and environment.  This is written in TASM format
+using ideal mode,  but it shouldn't be too hard to convert if desired.
+There are a couple of things that might need explanation:
+
+  - On starting an EXE program,  DS and ES point to the PSP.  In other
+    words, DS:0 = ES:0 = PSP:0.
+
+  - The environment segment is stored  at  PSP:002Ch.  If you want the
+    child to inherit the parent's environment,  just fetch [PSP:002Ch]
+    and store it in the first word of the parameter block.
+
+To  invoke  a second  copy  of the command  processor (not necessarily
+COMMAND.COM, ie. 4DOS, etc) try replacing the childname with something
+similar to this:
+
+dosfunc     db      '/C dir *.exe',0    ;Do DIR for EXE files
+
+The /C option tells the command processor  to execute the  command and
+return to it's caller.  By not using  the /C option,  you can invoke a
+shell like so:
+
+shell       db      'prompt SHELL$g',0  ;Invoke DOS shell
+
+Dave 1:396/1
+
+
+;;
+;;  Note from Uwe E. Schirm
+;;  Some remarks on that I got from Mitch Ames:
+;;
+
+Tue 8 Dec 92 11:28
+By: Mitch Ames
+Re: CHILD.TXT from 80XXX
+------------------------------------------------------------------------
+
+US> CHILD.TXT
+
+US> uses the parent's PSP and environment.  This is written in TASM format
+US> using ideal mode, but it shouldn't be too hard to convert if desired.
+US> There are a couple of things that might need explanation:
+
+US>   - The environment segment is stored at PSP:002Ch.  If you want the
+US>     child to inherit the parent's environment, just fetch [PSP:002Ch]
+US>     and store it in the first word of the parameter block.
+
+Better still, just store (or initialize to) zero.  If the environment
+block pointer is zero, DOS will use the parent's environment
+automatically.
+
+US> To invoke a second copy of the command processor (not necessarily
+US> COMMAND.COM, ie. 4DOS, etc.) try replacing the childname with something
+US> similar to this:
+
+US> dosfunc     db      '/C dir *.exe',0    ;Do DIR for EXE files
+
+This is the command tail, not the child process's name (which is
+copied from COMSPEC, eg "C:\COMMAND.COM").
+
+US> The /C option tells the command processor to execute the command and
+US> return to it's caller.  By not using the /C option, you can invoke a
+US> shell like so:
+
+US> shell       db      'prompt SHELL$g',0  ;Invoke DOS shell
+
+This doesn't make a great deal of sense.  If you wanted to invoke a
+DOS shell, you'd have to invoke comspec as the child process, with a
+null tail (tail db 0,cr), or with appropriate parameters (tail db
+length,"/e:1024").
+
+To change the child shell's prompt you'd have to set up a copy of the
+current environment, modify "PROMPT=$p$g" (for example) to
+"PROMPT=SHELL$p$g", point the parameter block to the new environment
+and then call Exec.
+
+Mitch

@@ -1,0 +1,4 @@
+"STARTUP.obj",
+"串口接收试验.obj" 
+TO "串口接收试验" 
+RAMSIZE(256) 

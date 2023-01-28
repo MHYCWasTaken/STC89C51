@@ -1,0 +1,52 @@
+Fri 29 Jan 93  8:34
+By: Yousuf Khan
+To: All
+Re: FAQ: How to Reboot
+------------------------------------------------------------------------
+
+Q3) How do I reboot my computer in software?
+
+                                  ***
+
+A3) Although there are many variations to this program, they all
+do basically the same thing. There are two forms of rebooting.
+First one is a "warm boot", which is like what happens when you
+hit the ctlr-alt-del keyboard combination, this bypasses the
+memory counter. Second form is a "cold boot", which is like what
+happens when you hit the reset button or turn the power off and
+on, this does not bypass the memory counter. Let's demonstrate
+through a sample program.
+
+BDSeg   segment at 40h          ;-this is the location of the
+                                ;Bios Data Segment (BDSeg).
+        org     72h             ;-take us to an offset 72h
+                                ;from the beginning of BDSeg
+FLAG    dw      ?               ;-we set this memory location
+                                ;to 1234h if we want a warm
+                                ;boot. Any other value for a
+                                ;cold boot.
+BDSeg   ends                    ;-signifies end of this segment
+
+BOOTSeg segment at 0FFFFh       ;-segment close to end of physical
+                                ;memory
+BOOTLOC:                        ;-this is where to jump to
+BOOTSeg ends
+
+CSeg    segment 'code'          ;-beginning of our code segment
+        org     100h            ;-required for *.com file
+start:
+        mov     ax, BDSeg
+        mov     ds, ax          ;-set DS to segment of BDSeg
+        assume CS:CSeg, DS:BDSeg
+        mov     [FLAG], 1234h   ;-put the value of 1234h into
+                                ;memory location occupied by
+                                ;FLAG for a warm boot. For
+                                ;cold boot put any other value in
+                                ;suggested value is 0000h
+        jmp far ptr BOOTLOC     ;-now jump to this memory location
+CSeg    ends
+        end     start
+
+Note this program is only guaranteed to work while in plain Dos.
+It may or may not work in Dos multitaskers and other operating
+systems.

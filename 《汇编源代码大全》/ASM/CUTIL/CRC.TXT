@@ -1,0 +1,105 @@
+PC-SIG Disk No. #216, version v1 
+
+The following is a list of the file checksums which should be produced by
+the CRCK4 program on disk #9 (and others).  If the CRC numbers do not match
+you may have a bad file.  To use type:  CRCK4 <filespec>
+
+CRCK4 output for this disk:
+
+
+CRCK ver 4.2B (MS DOS VERSION )
+CTL-S pauses, CTL-C aborts
+
+--> FILE:  WEEKDAY .C           CRC = EC 17
+
+--> FILE:  READS   .C           CRC = 24 C4
+
+--> FILE:  SCONTROL.H           CRC = 8A 9E
+
+--> FILE:  CHOSIT  .C           CRC = 8B E9
+
+--> FILE:  ELINE   .C           CRC = 0B 89
+
+--> FILE:  JTOG    .C           CRC = 8E D1
+
+--> FILE:  DOSDATE .ASM         CRC = D4 1D
+
+--> FILE:  JTOJ    .C           CRC = 34 6E
+
+--> FILE:  SCRINIT .C           CRC = C9 69
+
+--> FILE:  SCRATT  .C           CRC = 6E 19
+
+--> FILE:  FRAME   .C           CRC = 55 01
+
+--> FILE:  CURSOR  .C           CRC = CF 9B
+
+--> FILE:  CURDOWN .C           CRC = 34 EA
+
+--> FILE:  GETLINE .C           CRC = A3 53
+
+--> FILE:  CVTDATE .C           CRC = 92 61
+
+--> FILE:  GTOJ    .C           CRC = A2 9E
+
+--> FILE:  CURFOR  .C           CRC = 11 6A
+
+--> FILE:  CURBACK .C           CRC = B4 25
+
+--> FILE:  PAUSE   .C           CRC = A6 62
+
+--> FILE:  CURUP   .C           CRC = 0E C6
+
+--> FILE:  ESCREEN .C           CRC = 78 9D
+
+--> FILE:  DOSTIME .ASM         CRC = B8 A3
+
+--> FILE:  README  .DOC         CRC = 16 F9
+
+--> FILE:  GETTIME .C           CRC = 46 8B
+
+--> FILE:  GETDATE .C           CRC = 3F 58
+
+--> FILE:  BIOSIO  .ASM         CRC = 0A 35
+
+--> FILE:  READC   .C           CRC = A5 58
+
+--> FILE:  WRITES  .C           CRC = 76 E5
+
+--> FILE:  WRITEC  .C           CRC = D7 F6
+
+--> FILE:  MENCON  .C           CRC = 72 FC
+
+--> FILE:  COMM    .MNU         CRC = EB 9D
+
+--> FILE:  IBMTTY  .C           CRC = 17 86
+
+--> FILE:  VI      .BAT         CRC = 00 00
+
+--> FILE:  LS      .BAT         CRC = 00 00
+
+--> FILE:  RM      .BAT         CRC = 00 00
+
+--> FILE:  CL      .BAT         CRC = 00 00
+
+--> FILE:  CAT     .BAT         CRC = 00 00
+
+--> FILE:  MV      .BAT         CRC = 00 00
+
+--> FILE:  LD      .BAT         CRC = 00 00
+
+--> FILE:  L       .BAT         CRC = 00 00
+
+--> FILE:  CC      .BAT         CRC = 78 FA
+
+ ---------------------> SUM OF CRCS = 69 F5
+
+DONE
+
+These and other Public Domain and user-supported programs from:
+
+PC Software Interest Group
+1556 Halford Ave  Suite #130D
+Santa Clara, CA 95051
+(408) 730-9291
+

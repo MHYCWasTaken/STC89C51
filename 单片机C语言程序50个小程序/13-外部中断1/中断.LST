@@ -1,0 +1,54 @@
+C51 COMPILER V7.06   謃__                                                                  05/13/2009 09:38:18 PAGE 1   
+
+
+C51 COMPILER V7.06, COMPILATION OF MODULE 謃__
+OBJECT MODULE PLACED IN 中断.OBJ
+COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE 中断.c BROWSE DEBUG OBJECTEXTEND
+
+stmt level    source
+
+   1          /*-----------------------------------------------
+   2            名称：外部中断1
+   3            公司：上海浩豚电子科技有限公司
+   4            编写：师访
+   5            日期：2009.5
+   6            修改：无
+   7            内容：通过中断接口P3.3连接的独立按键测试，按一次P1口的LED灯反向，
+   8                  作用效果和中断0相同
+   9          ------------------------------------------------*/
+  10          #include<reg52.h> //包含头文件，一般情况不需要改动，头文件包含特殊功能寄存器的定义
+  11          /*------------------------------------------------
+  12                              主程序
+  13          ------------------------------------------------*/
+  14          main()
+  15          {
+  16   1        P1=0x55;       //P1口初始值
+  17   1        EA=1;          //全局中断开
+  18   1        EX1=1;         //外部中断0开
+  19   1        IT1=1;         //边沿触发，IT1=0表示电平触发
+  20   1        while(1)
+  21   1        {
+  22   2                       //在此添加其他程序
+  23   2        }
+  24   1      }
+  25          /*------------------------------------------------
+  26                           外部中断程序
+  27          ------------------------------------------------*/
+  28          void ISR_Key(void) interrupt 2 using 1
+  29          {
+  30   1       P1=~P1;         
+  31   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     15    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,16 @@
+<html>
+<body>
+<pre>
+<h1>礦ision2 Build Log</h1>
+<h2>Project:</h2>
+E:\计划\开发\SmartM开发板\书籍光盘\书籍代码\基础入门篇\LCD12864\文字显示\LCD12864.uv2
+Project File Date:  01/31/2010
+
+<h2>Output:</h2>
+Build target 'LCD12864'
+assembling STARTUP.A51...
+compiling Main.c...
+linking...
+Program Size: data=13.0 xdata=0 code=392
+creating hex file from "LCD12864"...
+"LCD12864" - 0 Error(s), 0 Warning(s).

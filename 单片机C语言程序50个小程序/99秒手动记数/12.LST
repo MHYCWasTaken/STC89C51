@@ -1,0 +1,117 @@
+C51 COMPILER V7.06   12                                                                    12/09/2010 18:10:09 PAGE 1   
+
+
+C51 COMPILER V7.06, COMPILATION OF MODULE 12
+OBJECT MODULE PLACED IN 12.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE 12.c BROWSE DEBUG OBJECTEXTEND
+
+stmt level    source
+
+   1          #include<reg52.h> //包含头文件，一般情况不需要改动，头文件包含特殊功能寄存器的定义
+   2          
+   3          
+   4          unsigned char const dofly[]={0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f};// 显示段码值01234567
+   5          unsigned char code  seg[]={0,1};//分别对应相应的数码管点亮,即位码
+   6          
+   7          unsigned char datal[2];
+   8          unsigned char key,del;
+   9          void delay(unsigned int i)
+  10          {while(i--);
+  11   1      }
+  12          /*------------------------------------------------延时子程序----------------------------------------------
+             ---*/
+  13          
+  14          /*------------------------------------------------
+  15                        键盘扫描程序
+  16          ------------------------------------------------*/
+  17          unsigned char keyscan(void)  //键盘扫描函数，使用行列反转扫描法
+  18          {
+  19   1       unsigned char cord_h,cord_l;//行列值中间变量
+  20   1       P3=0x0f;            //行线输出全为0
+  21   1       cord_h=P3&0x0f;     //读入列线值
+  22   1       if(cord_h!=0x0f)    //先检测有无按键按下
+  23   1       {
+  24   2        delay(100);        //去抖
+  25   2        cord_h=P3&0x0f;     //读入列线值
+  26   2        if(cord_h!=0x0f)
+  27   2        {
+  28   3          cord_h=P3&0x0f;  //读入列线值00001101
+  29   3          P3=0xf0;  //输出当前列线值
+  30   3          cord_l=P3&0xf0;  //读入行线值11010000
+  31   3          while(P3!=0xf0);
+  32   3          return(cord_h+cord_l);//键盘最后组合码值
+  33   3         }
+  34   2        }return(0xff);     //返回该值
+  35   1      }
+  36          
+  37          
+  38          /*------------------------------------------------ 主函数------------------------------------------------*
+             -/
+  39          
+  40          
+  41          /*------------------------------------------------
+  42                           定时器中断子程序
+  43          ------------------------------------------------*/
+  44          void Timer1_isr(void) interrupt 3
+  45          {int i;
+  46   1       TH1=0xf8;//TH1=0x00;            //重新赋值
+  47   1       TL1=0x00;//TL1=0x00;
+  48   1       P0=dofly[datal[i]];//取显示数据，段码
+  49   1       P2=seg[i];  //取位码
+  50   1       i++;
+  51   1       if(2==i)    //检测8位扫描完全？
+  52   1        i=0;
+  53   1      }
+C51 COMPILER V7.06   12                                                                    12/09/2010 18:10:09 PAGE 2   
+
+  54          
+  55          void Init_Timer1(void)
+  56          {
+  57   1       TMOD|=0x10;
+  58   1       TH1=0x00;
+  59   1       TL1=0x00;
+  60   1       EA=1;
+  61   1       ET1=1;
+  62   1       TR1=1;
+  63   1       }
+  64          
+  65          
+  66          main()
+  67          {
+  68   1      Init_Timer1();
+  69   1      
+  70   1       while(1)
+  71   1            {
+  72   2      
+  73   2      key=keyscan();
+  74   2      if(key==0x7e)
+  75   2      {
+  76   3      del++;
+  77   3      if(del==100)
+  78   3      del=0;
+  79   3      }
+  80   2      if(key==0x7d)
+  81   2      {
+  82   3      if(del==0)
+  83   3      del=100;
+  84   3      del--;
+  85   3      }
+  86   2      
+  87   2      datal[1]=del%10;
+  88   2      datal[0]=del/10;
+  89   2            }
+  90   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    205    ----
+   CONSTANT SIZE    =      2    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     14       2
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

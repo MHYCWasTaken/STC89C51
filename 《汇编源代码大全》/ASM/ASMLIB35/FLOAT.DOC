@@ -1,0 +1,777 @@
+
+***********************  FLOATING-POINT DATA  *******************************
+
+ASMLIB floating-point data subroutines (c) copyright 1991 Douglas Herr
+all rights reserved
+
+ASMLIB recognizes two floating point formats: IEEE-standard single-
+precision, and IEEE-standard double-precision.  Single-precision
+floating point numbers are 4 bytes long, and are referred to as float4
+or simply f4, while double-precision floating point numbers are 8 bytes
+long, which I describe as float8 or f8.
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+ADDF4:     add two float4 values
+Source:    addf4.asm
+
+80x87 not required
+
+Call with: DS:[SI] pointing to value0, ES:[DI] pointing to value1
+           both values must be float4 values in IEEE format
+Returns:   if CF = 0, value0 is replaced by the sum
+           if CF = 1, the sum would result in an overflow; neither
+           value is changed
+Uses:      CF
+
+Example:
+
+include asm.inc
+
+extrn addf4:proc
+
+.data
+value0  dd 123.456
+value1  dd -67.4
+
+.code
+; program fragment assumes DS:@data
+         .
+         .
+         .
+        push    ds
+        pop     es           ; ES = DS
+        assume  es:@data
+        lea     si,value0
+        lea     di,value1
+        call    addf4
+
+; note that this can be used for subtraction by changing the sign
+; of one of the values
+;
+; changing the sign is trivial: if DS:[SI] points to a float4 value,
+; the sign is changed with
+;
+;      xor    byte ptr 3[si],10000000b
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+ADDF8:     add two float8 values
+Source:    addf8.asm
+
+80x87 not required
+
+Call with: DS:[SI] pointing to value0, ES:[DI] pointing to value1
+           both values must be float8 values in IEEE format
+Returns:   if CF = 0, value0 is replaced by the sum
+           if CF = 1, the sum would result in an overflow; neither
+           value is changed
+Uses:      CF
+
+Example:
+
+include asm.inc
+
+extrn addf8:proc
+
+.data
+
+value0  dq 123.456
+value1  dq -67.4
+
+.code
+; program fragment assumes DS:@data
+         .
+         .
+         .
+        push    ds
+        pop     es           ; ES = DS
+        assume  es:@data
+        lea     si,value0
+        lea     di,value1
+        call    addf8
+
+; note that this can be used for subtraction by changing the sign
+; of one of the values
+;
+; changing the sign is trivial: if DS:[SI] points to a float8 value,
+; the sign is changed with
+;
+;      xor    byte ptr 7[si],10000000b
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+CMPF4:      compare two float4 values
+Source:     cmpf4.asm
+
+CMPF8:      compare two float8 values
+Source:     cmpf8.asm
+
+80x87 NOT required
+
+Call with:  DS:[SI] pointing to value 0
+            ES:[DI] pointing to value 1
+Returns:    if ZF = 1, values are equal
+            if SF = 1, value 1 is larger
+Uses:       zero flag (ZF), sign flag (SF)
+Example:
+
+include  asm.inc
+
+extrn    cmpf4:proc
+
+.data
+v0       dd 12.345
+v1       dd 17.04
+
+.code
+; program fragment assumes DS:@data
+         .
+         .
+         .
+         push   ds
+         pop    es               ; in this example, both values are in DGROUP
+         assume es:@data
+         lea    si,v0            ; point DS:[SI] to value 0
+         lea    di,v1            ; point ES:[DI] to value 1
+         call   cmpf4            ; compare
+         js     value1           ; value 1 is larger if SF = 1
+         je     equal            ; both float4 values are identical if ZF = 1
+                                 ; otherwise value 0 is larger
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+DIVI2:      divides integer in AX by integer in DX, returning float4 quotient
+Source:     divi2.asm (i2tof4.asm, invf4.asm, mulf4.asm)
+
+80x87 not required
+
+Call with:  AX, DX = I2 values; DX <> 0
+            DS:[BX] pointing to 4-byte buffer for quotient
+            DivI2 does not check for divide-by-zero errors
+            make sure DX <> 0 and you'll be OK
+Returns:    quotient at DS:[BX], f4 format
+Uses:       nothing; all flags and registers are saved
+Example:
+
+include asm.inc
+
+extrn   divi2:proc
+
+.data
+f4data  dd ?                     ; 4 bytes for resulting quotient
+
+.code
+; program fragment assumes DS:@data
+        .
+        .
+        .
+        mov    ax,17             ; I want to calculate 17/47
+        mov    dx,47             ; don't ask me why
+        lea    bx,f4data         ; point to 4-byte data area
+        call   divi2
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+F4TOF8:     converts a float4 value to float8 format
+Source:     f4tof8.asm
+
+80x87 not required
+
+Call with:  DS:[SI] pointing to float4 value
+            ES:[DI] pointing to 8-byte buffer for float8 value
+Returns:    CF = 0 if successful
+            CF = 1 if the float4 value is invalid
+Uses:       CF; all other flags and registers are saved
+Example:
+
+include asm.inc
+
+extrn  f4tof8:proc
+
+.data
+float4      dd 123.456
+float8      dq ?
+
+.code
+; program fragment assumes DS:@data
+             .
+             .
+             .
+            push    ds
+            pop     es           ; ES = DS
+            assume  es:@data
+            lea     si,float4           ; DS:[SI] points to float4 value
+            lea     di,float8           ; ES:[DI] points to float8 buffer
+            call    f4tof8
+            jc      oops                ; go to error handler if problem
+
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+F4TOI2:     copies the integer portion of a float4 value to AX
+Source:     f4toi2.asm
+
+80x87 not required
+
+Note:       only the integer portion of the value is converted; decimals
+            are truncated
+Call with:  DS:[SI] pointing to a float4 value
+Returns:    if CF = 0, AX = integer value
+            if CF = 1, float4 value is too large (if positive)
+                       or is too small (if negtive)
+Uses:       AX, CF; all other flags and registers are saved
+Example:
+
+include asm.inc
+
+extrn   f4toi2:proc
+
+.data
+float4  dd  1234.567
+
+.code
+; program fragment assumes DS:@data
+        .
+        .
+        .
+        lea  si,float4
+        call f4toi2
+        jc   oops                     ; gotta fix something if error
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+F4TOI4:     copies the long integer portion of a float4 value to DX:AX
+Source:     f4toi4.asm
+
+80x87 not required
+
+Note:       only the integer portion of the value is converted; decimals
+            are truncated
+Call with:  DS:[SI] pointing to a float4 value
+Returns:    if CF = 0, DX:AX = long integer value
+            if CF = 1, float4 value is too large (if positive)
+                       or is too small (if negtive)
+Uses:       AX, DX, CF; all other flags and registers are saved
+Example:
+
+include asm.inc
+
+extrn   f4toi4:proc
+
+.data
+float4  dd  1234.567
+
+.code
+; program fragment assumes DS:@data
+        .
+        .
+        .
+        lea    si,float4
+        call   f4toi4
+        jc     oops                   ; gotta fix something if error
+
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+F8TOF4:     converts a float8 value to float4 format
+Source:     f8tof4.asm
+
+80x87 not required
+
+Call with:  DS:[SI] pointing to float8 value
+            ES:[DI] pointing to 4-byte buffer for float4 value
+Returns:    CF = 0 if no error
+            CF = 1 float8 number overflowed to infinity
+                   or underflowed to zero
+Uses:       CF; all other flags and registers are saved
+Example:
+
+include asm.inc
+
+extrn  f8tof4:proc
+
+.data
+float8      dq 123.456
+float4      dd ?
+
+.code
+; program fragment assumes DS:@data
+             .
+             .
+             .
+            push    ds
+            pop     es           ; ES = DS
+            assume  es:@data
+            lea     si,float8           ; DS:[SI] points to float8 value
+            lea     di,float4           ; ES:[DI] points to float4 buffer
+            call    f8tof4
+            jc      oops                ; go to error handler if problem
+
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+I2TOF4:     convert integer value to float4 IEEE format
+Source:     i2tof4.asm
+
+80x87 not required
+
+Call with:  DS:[BX] pointing to 4-byte buffer for float4 value
+            AX = signed integer value to convert
+Returns:    converted value in float4 IEEE format at DS:[BX]
+Uses:       nothing; all registers and flags are saved
+Example:
+
+include asm.inc
+
+extrn   i2tof4:proc
+
+.data
+float4  dd ?                   ; initial value undefined
+
+.code
+; program fragment assumes DS:@data
+        .
+        .
+        .
+        mov    ax,12345        ; signed integer value in AX
+        lea    bx,float4       ; this is where I want the resulting value
+        call   i2tof4
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+I4TOF4:     convert long integer value to float4 IEEE format
+Source:     i4tof4.asm
+
+80x87 not required
+
+Call with:  DS:[BX] pointing to 4-byte buffer for float4 value
+            DX:AX = signed long integer value to convert
+                    (high word in DX)
+Returns:    converted value in float4 IEEE format at DS:[BX]
+Uses:       nothing; all registers and flags are saved
+Example:
+
+include asm.inc
+
+extrn   i4tof4:proc
+
+.data
+float4  dd ?                          ; initial value undefined
+longint dd -123456789
+
+.code
+; program fragment assumes DS:@data
+        .
+        .
+        .
+        mov    ax,word ptr longint    ; low word of signed long integer
+        mov    dx,word ptr longint+2  ; high word of signed long integer
+        lea    bx,float4              ; point to buffer for converted value
+        call   i4tof4
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+INVF4:      calculate the inverse of a float4 value
+Source:     invf4.asm
+
+80x87 not required
+
+Call with:  DS:[SI] = address of float4 value
+Returns:    DS:[SI] = address of 1/value
+            previous value is overwritten
+Uses:       nothing
+Example:
+
+include asm.inc
+
+extrn   invf4:proc
+
+.code
+; program fragment assumes DS:@data
+        .
+        .
+        .
+        lea   si,float4          ; point to float4 value
+        call  invf4              ; original value replaced with inverse
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+MAXF4, MAXF4b: find maximum value in single-precision real-number array
+Source:        small & medium models: maxf4.asm
+               huge model: maxf4.asm (lowDS2hi.asm)
+
+MINF4, MINF4b: find minimum value in single-precision real-number array
+Source:        small & medium models: minf4.asm
+               huge model: minf4.asm (lowDS2hi.asm)
+
+80x87 not required
+
+Call with:  ES:[DI] pointing to array element at start of search
+            CX = number of array elements to search
+            For maxf4b or minf4b, call with BX = byte increment between
+            array elements.  Maxf4 and minf4 assume byte increment = 4.
+Returns:    AX = array element number with maximum or minimum value
+            note that the offset of that value is DI + (AX shl 2).
+            With maxf4b and minf4b, the offset of the value is
+            DI + (AX * BX).
+            AX = -1 if maxf4 was called with CX = 0
+Uses:       AX
+Example:
+
+include asm.inc
+
+extrn  maxf4:proc
+
+.data
+floatdata   dd 1500 dup(0)
+
+.code
+; program fragment assumes DS:@data
+; program provides values for the array
+       .
+       .
+       .
+       push   ds
+       pop    es
+       assume es:@data
+       lea    di,floatdata      ; ES:[DI] points to the data array
+       mov    cx,1500           ; search entire array
+       call   maxf4             ; returns with AX = array element
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+MAXF8, MAXF8b: find maximum value in double-precision real-number array
+Source:        maxf8.asm
+
+MINF8, MINF8b: find minimum value in double-precision real-number array
+Source:        minf8.asm
+
+80x87 not required
+
+Call with:  ES:[DI] pointing to array element at start of search
+            CX = number of array elements to search
+            For maxf8b or minf8b, call with BX = byte increment between
+            array elements.  Maxf8 and minf8 assume byte increment = 8.
+Returns:    AX = array element number with maximum or minimum value
+            note that the offset of that value is DI + (AX shl 3)
+            With maxf8b and minf8b, the offset of the value is
+            DI + (AX * BX).
+            AX = -1 if maxf8 was called with CX = 0
+Uses:       AX
+Example:
+
+include asm.inc
+
+extrn  maxf8:proc
+
+.data
+floatdata   dq 1500 dup(0)
+
+.code
+; program fragment assumes DS:@data
+; program provides values for the array
+       .
+       .
+       .
+       push   ds
+       pop    es
+       assume es:@data
+       lea    di,floatdata      ; ES:[DI] points to the data array
+       mov    cx,1500           ; search entire array
+       call   maxf8             ; returns with AX = array element
+       mov    cl,3
+       shl    ax,cl
+       add    di,ax             ; ES:[DI] points to maximum value
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+MULF4:      multiplies two float4 values
+Source:     mulf4.asm
+
+80x87 not required
+
+Call with:  DS:[SI] pointing to value0, ES:[DI] pointing to value1
+Returns:    if CF = 0, no error; product replaces value0 at DS:[SI]
+            if CF = 1, the product is either zero or infinity (value0 is lost)
+Uses:       CF; all other flags and registers are saved
+Example:
+
+include asm.inc
+
+extrn  mulf4:proc
+
+.data
+value0   dd 1.234
+value1   dd 0.5
+
+.code
+; program fragment assumes DS:@data
+         .
+         .
+         .
+         push   ds
+         pop    es
+         assume es:@data
+         lea    si,value0
+         lea    di,value1
+         call   mulf4
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+MULF4TEN:   multiply a float4 value by 10
+Source:     mulf4ten.asm (mulf4.asm)
+
+80x87 not required
+
+Call with:  DS:[SI] pointing to float4 value
+            MulF4Ten is front-end code for MulF4, which saves ES and DI,
+            points ES:[DI] to f4 data equalling 10.0, calls MulF4, then
+            restores ES and DI.
+Returns:    if CF = 0, float4 value at DS:[SI] multiplied by 10.0
+            if CF = 1, the product is either 0 or infinity
+Uses:       CF; all other flags and registers are saved
+Example:
+
+include asm.inc
+
+extrn  mulf4ten:proc
+
+.data
+value0   dd 1.234
+
+.code
+; program fragment assumes DS:@data
+         .
+         .
+         .
+         lea    si,value0
+         call   mulf4ten
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+MULF8:      multiplies two float8 values
+Source:     mulf8.asm (mpmul.asm)
+
+80x87 not required
+
+Call with:  DS:[SI] pointing to value0, ES:[DI] pointing to value1
+Returns:    if CF = 0, no error; product replaces value0 at DS:[SI]
+            if CF = 1, the product is either zero or infinity (value0 is lost)
+Uses:       CF; all other flags and registers are saved
+Example:
+
+include asm.inc
+
+extrn  mulf8:proc
+
+.data
+value0   dq 1.2347349
+value1   dq 0.5
+
+.code
+; program fragment assumes DS:@data
+         .
+         .
+         .
+         push   ds
+         pop    es
+         assume es:@data
+         lea    si,value0
+         lea    di,value1
+         call   mulf8
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+MULF8TEN:   multiply a float8 value by 10
+Source:     mulf8ten.asm (mulf8.asm, mpmul.asm)
+
+80x87 not required
+
+Call with:  DS:[SI] pointing to float8 value
+            MulF8Ten is front-end code for MulF8, which saves ES and DI,
+            points ES:[DI] to f8 data equalling 10.0, calls MulF8, then
+            restores ES and DI.
+Returns:    if CF = 0, float8 value at DS:[SI] multiplied by 10.0
+            if CF = 1, the product is either 0 or infinity
+Uses:       CF; all other flags and registers are saved
+Example:
+
+include asm.inc
+
+extrn  mulf8ten:proc
+
+.data
+value0   dq 1.234
+
+.code
+; program fragment assumes DS:@data
+         .
+         .
+         .
+         lea    si,value0
+         call   mulf8ten
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+SCALEF4:    scale a float4 value by an integer power of 2
+Source:     scalef4.asm
+
+80x87 not required
+
+Call with:  DS:[SI] pointing to the float4 data
+            AL = scale factor (may be positive or negative)
+Returns:    CF = 0 if success: float4 value was properly scaled
+            CF = 1 if error: resulting float4 value would have overflowed
+                   float4 value unchanged in this case
+Uses:       CF; all other flags and all registers saved
+Example:
+
+include asm.inc
+
+.code
+; program fragment assumes DS:@data
+        .
+        .
+        .
+        lea   si,float4data
+        mov   al,3             ; scale by (2^3) effectively multiplies by 8
+        call  scalef4
+        jc    oops             ; take remedial action if error
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+SCALEF8:    scale a float8 value by an integer power of 2
+Source:     scalef8.asm
+
+80x87 not required
+
+Call with:  DS:[SI] pointing to the float8 data
+            AL = scale factor (may be positive or negative)
+Returns:    CF = 0 if success: float8 value was properly scaled
+            CF = 1 if error: resulting float8 value would have overflowed
+                   float8 value unchanged in this case
+Uses:       CF; all other flags and all registers saved
+Example:
+
+include asm.inc
+
+.code
+; program fragment assumes DS:@data
+        .
+        .
+        .
+        lea   si,float8data
+        mov   al,3             ; scale by (2^3) effectively multiplies by 8
+        call  scalef8
+        jc    oops             ; take remedial action if error
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+SORTF4HI:    sort an array of single-precision real numbers, highest first
+Source:      sortf4hi.asm
+
+SORTF4LO:    sort an array of single-precision real numbers, lowest first
+Source:      sortf4lo.asm
+
+80x87 not required
+
+Call with:  ES:[DI] pointing to the first of the array elements to be
+            sorted, CX = number of array elements
+Returns:    nothing
+Uses:       nothing; all registers and flags are saved
+Example:
+
+include asm.inc
+
+extrn  sortf4hi:proc
+
+.data
+floatdata   dd 1500 dup(0)
+
+.code
+; program fragment assumes DS:@data
+; program provides values for the array
+        .
+        .
+        push    ds
+        pop     es
+        assume  es:@data
+        lea     di,floatdata
+        mov     cx,1500           ; sort entire array
+        call    sortf4hi          ; highest value first
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+SUBF4:       subtract one float4 value from another
+Source:      subf4.asm (addf4.asm)
+
+SUBF8:       subtract one float8 value from another
+Source:      subf8.asm (addf8.asm)
+
+80x87 not required
+
+Call with:   DS:[SI] pointing to value0
+             ES:[DI] pointing to value1
+             the number at ES:[DI] is subtracted from the number at DS:[SI]
+             with the result replacing the number at DS:[SI]
+Returns:     if CF = 0, DS:[SI] points to value0 - value1
+             if CF = 1, the operation would result in an overflow;
+                neither value is changed
+Uses:        nothing; all registers and flags are saved
+Example:
+
+include asm.inc
+
+extrn subf4:proc
+
+.data
+value0  dd 123.456
+value1  dd -67.4
+
+.code
+; program fragment assumes DS:@data
+         .
+         .
+         .
+        push    ds
+        pop     es           ; ES = DS
+        assume  es:@data
+        lea     si,value0
+        lea     di,value1
+        call    subf4
+

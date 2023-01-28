@@ -1,0 +1,735 @@
+
+********************************  INPUT  ************************************
+
+ASMLIB Input subroutines Copyright (C) 1991 - 1993 Douglas Herr
+all rights reserved
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+A$EDIT:      editor module used by TEdit and GEdit.
+             Must be called by GEdit or TEdit
+Source:      a$edit.asm (getkey.asm, isdigit.asm, toupper.asm, tolower.asm)
+
+             TEdit and GEdit edit a string on a single row of the screen
+             (without word wrap).  Strings longer than the column width of
+             the screen are scrolled left or right as required.  A public
+             byte in A$EDIT's data area, EWIDTH, establishes the effective
+             screen width limit.  EWIDTH is a not-to-exceed limit; if the
+             actual screen width is less than EWIDTH, EWIDTH is ignored
+             and the actual screen width is used instead.  ASMLIB's default
+             EWIDTH is 132.
+
+             A$EDIT commands for both TEdit and GEdit are:
+
+             Ctrl+left arrow = word left
+             Ctrl+right arrow = word right
+             Ctrl+end = clear to end of string
+             Home = go to start of string
+             End = go to end of string
+
+
+             Option bits, passed to GEdit or TEdit in register AL, are:
+
+             Option 1 = upper case input
+             Option 2 = lower case input
+             Option 1 OR 2 = digits only input
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+CLEARKEY:    clears the keyboard's 'type-ahead' buffer
+             Uses BIOS functions to remove all keys in the buffer.
+Source:      clearkey.asm
+
+Call with:   no parameters
+Returns:     nothing
+Uses:        nothing
+Supports:    standard and enhanced keyboards
+Example:     call   clearkey
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+GEDIT:       string editor for graphics modes
+             See also TEdit for text modes, A$EDIT for general information
+Source:      gedit.asm (a$edit.asm, gprint.asm, a$graph.asm, gcursor.asm,
+                        strspace.asm, heap.asm)
+
+Call with:   DS:[SI] pointing to string buffer; may include a default string
+             DS:[DX] pointing to x- & y-coordinates
+             assumes DS:@data
+             CX = byte size of buffer
+             AL = option bits (see A$EDIT)
+             You must initialize the near heap before calling GEdit.
+             GEdit only works with DrawMode 1 or -1 (see DrawMode in
+             GRAPHICS.DOC).  GEdit forces drawmode to 1 or -1 and restores
+             the previous drawmode on exit.
+Returns:     AX = last key pressed (see getkey for key codes)
+             CX = new string length
+Uses:        AX, CX, flags
+Supports:    all ASMLIB graphics modes
+Example:
+
+.data
+x       dw 8                      ; x-coordinate (pixels from left edge)
+y       dw 100                    ; y-coordinate (pixels from top of screen)
+extrn   ewidth:byte               ; byte in A$EDIT used to limit columns
+                                  ; displayed
+.code
+; program fragment assumes DS:@data
+        .
+        .
+        .
+        mov   ewidth,40           ; there's stuff on the right side of
+                                  ; the screen that should be left alone
+
+        lea   si,string_buffer    ; near address of string buffer
+        mov   cx,len_buffer       ; byte length of buffer for the string
+        mov   al,0                ; nothing tricky
+        lea   dx,x                ; point to x & y coordinates
+                                  ; see GPrint for explanation of x and y
+        call  gedit
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+GETKEY:      returns next key pressed
+Source:      getkey.asm
+
+Call with:   no parameters
+Returns:     AL = ASCII key code
+             AH = 0 if normal key
+             AH = 1 if extended key code (such as function keys)
+Uses:        AX
+             Uses BIOS functions; supports enhanced keyboard if present
+Supports:    standard and enhanced keyboards
+Example:     call  getkey
+             shr   ah,1            ; a function key?
+             jc    function_key    ; jump if so
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+GPICKF:      pick a file from a list of filenames
+             GPickF pops a window on the screen and displays filenames
+             matching an input filespec mask.  One filename may be selected
+             with cursor keys or with hotkeys.  When Esc, Enter or ^C is
+             pressed, GPickF restores the screen and returns the selected
+             filename to the calling program.
+             Unused memory must be released by STARTUP (see STARTUP.ASM or
+             TINY.ASM).  Also requires near heap (see HINIT).
+             See also MenuOption.
+Source:      gpickf.asm (filelist.asm, $gpick.asm, a$menu.asm, $graph.asm)
+
+Call with:   DS:[SI] pointing to filespec mask
+             BX = initial selection (0 = first filename)
+             CX = file attribute mask
+             DS:[DX] pointing to upper left corner of menu box
+             assumes DS:DGROUP
+Returns:     AX = last key pressed
+             ES:[BX] points to filename selected
+             CX = maximum length of filename
+Uses:        AX, BX, CX, ES
+Supports:    all ASMLIB graphics modes
+Example:     see PICKF
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+GPICKSTR:    pick a string from a list of ASCIIZ strings
+Source:      gpickstr.asm ($gpick.asm, $strlist.asm, a$menu.asm, $graph.asm)
+
+Call with:   DS:[SI] pointing to list of ASCIIZ strings
+             BX = initial cursor position
+             DS:[DX] pointing to (x,y) coordinates of upper left corner
+               of selection box
+
+             GPickStr pops a window on the screen and displays the list
+             of strings.  One string may be selected with cursor keys
+             or with hotkeys.  When Esc, Enter or ^C is pressed, GPickStr
+             restores the screen and returns a string index number.
+             Unused memory must be released by STARTUP (see STARTUP.ASM and
+             TINY.ASM), and the near heap must be initialized (see HINIT).
+             See also MenuOption.  Maximum number of choices: 255
+
+Returns:     AX = last key pressed
+             BX = string number selected (first string = 0)
+Uses:        AX, BX
+Supports:    all ASMLIB graphics modes
+Example:     see PICKSTR
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+ISALPHA:     determines if a keycode returned by GetKey is a letter from
+             A-Z or a-z.
+Source:      isalpha.asm
+
+Call with:   AX = keycode returned by GetKey.
+Returns:     if CF = 0, keycode is a character from A-Z or a-z
+             if CF = 1, keycode is not a character from A-Z or a-z
+             AX is not changed
+Uses:        CF
+Example:     call   getkey       ; get next keystroke
+             call   isalpha
+             jc     not_alpha
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+ISDIGIT:     determines if a keycode returned by GetKey is the ASCII code
+             for the numeric characters 0-9
+Source:      isdigit.asm
+
+Call with:   AX = keycode returned by GetKey.
+Returns:     if CF = 0, keycode is a character from 0-9
+             if CF = 1, keycode is not a character from 0-9
+             AX is not changed
+Uses:        CF
+Example:     call   getkey       ; get next keystroke
+             call   isdigit      ; I want numbers only
+             jc     not_a_number
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+ISLOWER:     determine if a keycode returned by GetKey is lower case
+Source:      islower.asm
+
+ISUPPER:     determine if a keycode returned by GetKey is upper case
+Source:      isupper.asm
+
+Call with:   AX = keycode returned by GetKey.
+Returns:     if CF = 0, keycode is a character from A-Z or a-z
+             if CF = 1, keycode is not a character from A-Z or a-z
+             AX is not changed
+Uses:        CF
+Example:     call   getkey       ; get next keystroke
+             call   isupper      ; is it upper case?
+             jc     not_upper    ; no; could be lower case
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+JANEIN:      German language version of YesNo
+             waits for 'J' or 'N' key to be pressed
+Source:      janein.asm
+
+Call with:   no parameters
+             Key pressed may be upper or lower case.  Upper case is
+             returned.  Uses BIOS functions
+Returns:     AX = 'J' or AX = 'N'
+             future versions will also return ^C
+Uses:        AX
+Example:     call  JaNein
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+             
+KEYIFWAITING:Returns first key if one is waiting in the keyboard buffer,
+             or returns with no keycode if no keypress is waiting.
+Source:      kifwait.asm (getkey.asm)
+
+Call with:   no parameters
+Returns:     AX = 0 if no key waiting
+             AX = keycode if one is waiting in the buffer.  Uses BIOS.
+Uses:        AX
+Example:     call  keyifwaiting
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+KEYORBUTTON: waits for first keypress or mouse button click
+Source:      mouse.asm (getkey.asm)
+
+Call with:   no parameters
+             If a keypress is waiting in the keyboard buffer before
+             this subroutine is called, the keycode is returned to
+             the calling program without checking mouse button status.
+Returns:     AX = keycode, BX = mouse button code (see MouseStatus)
+Uses:        AX, BX
+Supports:    2- or 3-button mouse, standard or enhanced keyboard
+Example:     call   keyorbutton
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+KEYWAITING:  Determines if a key is waiting in the keyboard buffer.
+             Does not remove the key code from the buffer.  Uses BIOS.
+Source:      getkey.asm
+
+Call with:   no parameters
+Returns:     AX = 0 if no key waiting
+             AX = 1 if key waiting
+Uses:        AX
+Supports:    standard or enhanced keyboard
+Example:     call   keywaiting
+             or     ax,ax        ; has a key been pressed?
+             jz     no_key       ; nope, not yet
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+MENUOPTION:  options for PULLDOWN, PICKF, GPICKF, PICKSTR and GPICKSTR
+Source:      a$menu.asm
+
+Call with:   AX = option value
+             BX = option number
+
+             If you do not specify any options or if you call MenuOption
+             with AX = 0, default values are assumed.
+
+             options available are:           defaults:
+               0 = normal text color            07h
+               1 = current selection color      70h
+               2 = list box color               0Fh
+               3 = hotkey color                 0Fh         (1)
+               4 = optional quitkey             no quitkey  (2)
+               5 = exit when hotkey pressed     00h         (3)
+               6 = box frame type (see WFRAME)  -1          (4)
+
+NOTE: DEFAULT COLORS MAY NOT BE SUITABLE FOR SOME GRAPHICS MODES
+
+(1) the first upper-case letter in each string is that string's hotkey
+    no upper-case character = no hotkey
+(2) the quitkey value is a keycode returned by GetKey
+(3) use AX = -1 for exit when hotkey pressed, AX = 0 to disable
+(4) text modes only
+
+Returns:     nothing
+Uses:        nothing
+Supports:    GPickF, GPickStr, PullDown, PickF, PickStr menu systems
+Example:
+
+include   asm.inc
+extrn     menuoption:proc, pulldown:proc
+
+.code
+          .
+          .
+          .
+          mov   bx,0         ; text color
+          mov   ax,23        ; white w/ blue background
+                             ; in graph modes, this would be
+                             ; MOV  AX,0107h  (see GCOLOR in GRAPHICS.DOC)
+          call  menuoption
+
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+MOUSELIMIT:  limits mouse's range of motion
+Source:      mouse.asm
+
+Call with:   DS:[BX] pointing to pixel coordinates of minimum and maximum
+             x and y limits.  X-limits are the horizontal dimension and
+             y-limits are the vertical dimension.
+Returns:     nothing
+Uses:        nothing
+Example:
+
+.data
+
+x0    dw 30
+y0    dw 15
+x1    dw 620
+y1    dw 250
+
+.code
+; program gragment assumes DS:@data
+       .
+       .
+       .
+      lea    bx,x          ; DS:[BX] points to limits
+      call   mouselimit
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+MOUSEPOS:    sets the mouse's position
+Source:      mouse.asm
+
+Call with:   DS:[DX] pointing to desired x- and y-coordinates
+             Note that mouse coordinates are expressed as a pixel location
+             as with graphics mode, even if the system is in text mode
+Returns:     nothing
+Uses:        nothing
+Example:
+
+.data
+
+x     dw 100
+y     dw 25
+
+.code
+; program gragment assumes DS:@data
+      .
+      .
+      .
+      lea    dx,x          ; DS:[DX] points to desired position
+      call   mousepos
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+MOUSESTATUS: determine mouse position & buttons pressed
+Source:      mouse.asm
+
+Call with:   no parameters
+Returns:     if ZF = 1, no buttons are pressed
+             if ZF = 0, BX = button code
+              BX bit 0 if set = left button is down
+              BX bit 1 if set = right button is down
+              BX bit 2 if set = center button is down
+             CX = horizontal (x) coordinate
+             DX = vertical (y) coordinate
+             Note that mouse positions are expressed as a pixel location
+             as with graphics mode, even if the system is in text mode
+Uses:        BX, CX, DX, flags
+Example:     call  mousestatus
+             jz    no_buttons     ; no buttons pressed if ZF = 1
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+OUINON:      French language version of YesNo
+             waits for 'O' or 'N' key to be pressed
+Source:      ouinon.asm
+
+Call with:   no parameters
+             Key pressed may be upper or lower case.  Upper case is
+             returned.  Uses BIOS functions
+Returns:     AX = 'O' or AX = 'N'
+             future versions will also return ^C
+Uses:        AX
+Example:     call  OuiNon
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+PICKF:       pick a file from a list of filenames
+             PickF pops a window on the screen and displays filenames
+             matching an input filespec mask.  One filename may be selected
+             with cursor keys or with hotkeys.  When Esc, Enter or ^C is
+             pressed, PickF restores the screen and returns the selected
+             filename to the calling program.
+             Unused memory must be released by STARTUP (see STARTUP.ASM).
+             See also MenuOption.
+Source:      pickf.asm ($pick.asm, $listw.asm, m$putw.asm, filelist.asm,
+                          dosalloc.asm, wsave.asm, a$menu.asm)
+
+Call with:   DS:[SI] pointing to filespec mask
+             BX = initial cursor position
+             CX = file attribute mask
+             DH = top screen row for list
+             DL = left screen column for list
+Returns:     AX = last key pressed
+             ES:[BX] points to filename selected
+             CX = maximum length of filename
+Uses:        AX, BX, CX, ES
+Supports:    text mode
+Example:
+
+include   asm.inc
+
+public    myproc
+extrn     pickf:proc
+
+.data
+filespec db '*.asm',0            ; search for ASM source code
+
+.code
+; program fragment assumes DS:@data
+        .
+        .
+        .
+        lea     si,filespec
+        mov     bx,0             ; start at top of list
+        xor     dx,dx            ; upper left corner of screen
+        mov     cx,0             ; normal files only
+        call    pickf
+        cmp     ax,0Dh           ; was Enter the last key pressed?
+        jne     abort            ;  nope - someone wants out
+        call    strndup          ;  yup - copy filename to near heap
+        mov     ah,49h
+        int     21h              ; release the filename buffer
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+PICKSTR:     pick a string from a list of ASCIIZ strings
+Source:      pickstr.asm ($pick.asm, m$putw.asm, $strlist.asm,
+                          dosalloc.asm, wsave.asm, a$menu.asm)
+
+Call with:   DS:[SI] pointing to list of ASCIIZ strings
+             BX = initial cursor position
+             DH = top screen row for list
+             DL = left screen column for list
+
+             PickStr pops a window on the screen and displays the list
+             of strings.  One string may be selected with cursor keys
+             or with hotkeys.  When Esc, Enter or ^C is pressed, PickStr
+             restores the screen and returns a string index number.
+             Unused memory must be released by STARTUP (see STARTUP.ASM).
+             See also MenuOption.  Maximum number of choices: 255
+
+Returns:     AX = last key pressed
+             BX = string number selected (first string = 0)
+Uses:        AX, BX
+Supports:    text mode
+Example:
+
+include   asm.inc
+
+public    myproc
+extrn     pickstr:proc
+
+.data
+string1   db 'January',0
+          db 'February',0
+          db 'March',0
+          db 'April',0
+          db 'May',0
+          db 'June',0
+          db 'July',0
+          db 'August',0
+          db 'September',0
+          db 'October',0
+          db 'November',0
+          db 'December',0
+          db 0              ; mark end of menu strings
+
+.code
+; program fragment assumes DS:@data
+        .
+        .
+     lea  si,string1
+     mov  bx,1
+     xor  dx,dx
+     call pickstr
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+PULLDOWN:    pull-down menu system
+Source:      pulldown.asm (a$menu.asm, tprint.asm, tprintce.asm, tputchr.asm
+                           strlen.asm, wclear.asm, wframe.asm, wsize.asm
+                           wsave.asm, getkey.asm, pickstr.asm and others)
+
+Call with:   DS:[SI] pointing to menu labels
+             BH = initial main menu choice, BL = initial submenu choice
+             assumes DS:@data
+             Unused memory must be released (see STARTUP.ASM and ENDPROG)
+
+             If PullDown is called with BL < 0, only the main headings are
+             printed initally; the submenus are printed when ENTER is
+             pressed, a mouse button is pressed, or when either the down
+             arrow key is pressed or a "down" mouse movement is detected.
+
+             If PullDown is called with BL >= 0, it starts in the full main
+             headings plus submenus mode.  In this mode, a mouse button
+             click or the ENTER key will exit PullDown.  In either mode,
+             ESC, ^C or the user-defined quitkey (see MenuOption) causes
+             PullDown to return to the calling program.
+
+             If there are too many main headings to fit across the top of the
+             screen, the headings are scrolled left or right as required to
+             show the selected heading.  Use Left, Right, Home and End keys
+             to change selected headings.  Maximum number of headings: 20
+
+             If there are too many submenu choices under a heading to fit
+             on the screen, the selections are scrolled up or down as required
+             to show the selected item.  Use Up, Down, PgUp, PgDown keys
+             to change selection, or press highlighted letter of selection.
+             Maximum number of selections per heading: 255
+
+Returns:     BH = main menu choice, BL = submenu choice
+             if CF = 1, ^C or Ctrl-Break was pressed
+             if CF = 0
+                 AX = 13 if ENTER was pressed
+                 AX = user-defined quitkey if pressed (see MenuOption)
+                 AX = 0 if insufficient DOS memory is available
+                 AX = 27 if ESC was pressed
+                 AH = 1-7, AL = 0 if mouse button pressed
+Uses:        AX, BX
+Supports:    text mode; all row/column configurations supported by ASMLIB
+             Text subroutines
+Example:
+
+see next page
+
+;    this sample menu has 4 main menu headings:
+;                          Critters, Things, Food, Trees
+;    submenu choices for each main heading follow each main heading
+;    Note that each string is terminated with NUL, and that there's an
+;    extra NUL between the end of the submenu choices and the next main
+;    heading.
+;    The entire set of menu choices is terminated with 2 NUL bytes
+;
+;    PULLDOWN will return to the calling program when either ESCAPE or
+;    ENTER is pressed (AX = ASCII code of key pressed).  PULLDOWN returns
+;    AX = 0 if insufficient memory is available to save the underlying
+;    screen, or AX = 3 if breaktrap was enabled and Ctrl+Break was pressed.
+;
+;    On return, BH = the main heading and BL = the submenu choice in effect
+;    when the key was pressed.  The first main heading is number 0, and
+;    the first submenu choice for each main heading is also number 0.
+
+include asm.inc
+
+extrn     pulldown:proc
+
+.stack
+
+.data
+menu    db 'Critters',0
+        db 'Goats',0,'Chickens',0,'Turkeys',0,'Cows',0,'Snow dogs',0
+
+        db 0                   ; separate Things from Critters
+        db 'Things',0
+        db 'Computers',0,'Tractors',0,'CPU chips',0,'Barbie dolls',0
+
+        db 0                   ; separate Food from Things
+        db 'Food',0
+        db 'Hot dogs',0,'Wheat germ',0,'Lasagne',0,'Cheerios',0
+        db 'Potatoes',0,'chocolate chip cooKies',0
+
+        db 0                   ; separate Trees from Food
+        db 'Trees',0
+        db 'giant Sequoia',0,'black Spruce',0,'Willow',0,'live Oak',0
+        db 'Acacia',0,'digger Pine',0
+
+        db 2 dup(0)            ; end of menu choices
+
+.code
+; program fragment assumes DS:@data
+        .
+        .
+        .
+        lea   si,menu          ; point to menu labels
+        xor   bx,bx            ; initial selection is "goats"
+        call  pulldown
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+SINO:        Spanish language version of YesNo
+             waits for 'S' or 'N' key to be pressed
+Source:      sino.asm
+
+Call with:   no parameters
+             Key pressed may be upper or lower case.  Upper case is
+             returned.  Uses BIOS functions
+Returns:     AX = 'S' or AX = 'N'
+             future version will also return ^C
+Uses:        AX
+Example:     call  sino
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+TEDIT:       ASCIIZ string editor for text modes
+             See also GEdit for graphics modes, A$EDIT for general information.
+             TEdit turns the cursor off (with CursorOFF) on exit.
+Source:      tedit.asm (a$edit.asm, cursor.asm, a$clrw.asm, str2vbuf.asm,
+                        crtinfo.asm)
+
+Call with:   DS:[SI] pointing to string buffer; may include a default string
+             assumes DS:@data
+             CX = byte size of buffer (excluding terminating NUL)
+             AH = color attribute
+             AL = option bits (see A$EDIT)
+             DH = row (offset from top of screen)
+             DL = column (offset from left edge of screen)
+
+Returns:     AX = last key pressed (see GetKey for key codes)
+             CX = new string length
+Uses:        AX, CX, flags
+Supports:    text modes; all row/column configurations
+Example:     lea   si,string_buffer    ; near address of string buffer
+             mov   cx,len_buffer       ; byte length of buffer for the string
+             mov   dh,row
+             mov   dl,column
+             mov   ah,attr             ; color attribute
+             mov   al,2                ; force lower case
+             call  tedit
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+TMOUSELIMIT: limits mouse's range of motion on text mode screen
+Source:      tmlimit.asm
+
+Call with:   DS:[BX] pointing to character coordinates of minimum and maximum
+             rows and columns.  Columns are the horizontal dimension and
+             rows are the vertical dimension.
+Returns:     nothing
+Uses:        nothing
+Example:
+
+.data
+
+x0    dw 3          ; first row
+y0    dw 1          ; first column
+x1    dw 20         ; last row
+y1    dw 50         ; last column
+
+.code
+; program fragment assumes DS:@DATA
+       .
+       .
+       .
+      lea    bx,x          ; DS:[BX] points to limits
+      call   tmouselimit
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+TOLOWER:     converts keycode returned by getkey to lower case
+Source:      tolower.asm
+
+Call with:   AX = keycode
+Returns:     AX = lower case keycode
+             ToLower leaves the keycode alone if the keycode is not
+             upper case A-Z.
+Uses:        AX
+Example:     call   getkey
+             call   tolower
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+TOUPPER:     converts keycode returned by getkey to upper case
+Source:      toupper.asm
+
+Call with:   AX = keycode
+Returns:     AX = upper case keycode
+             ToUpper leaves the keycode alone if the keycode is not
+             lower case a-z.
+Uses:        AX
+Example:     call   getkey
+             call   toupper
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+YESNO:       waits for 'Y' or 'N' key to be pressed
+Source:      yesno.asm
+
+Call with:   no parameters
+             Key pressed may be upper or lower case.  Upper case is
+             returned.  Uses BIOS functions
+Returns:     AX = 'Y' or AX = 'N'
+             future version will also return ^C
+Uses:        AX
+Example:     call  yesno
+
+
+

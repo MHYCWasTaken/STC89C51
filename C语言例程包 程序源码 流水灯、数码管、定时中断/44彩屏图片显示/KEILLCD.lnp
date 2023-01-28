@@ -1,0 +1,6 @@
+"STARTUP.obj",
+"main.obj",
+"LCD.obj",
+"GUI_Basic.obj" 
+TO "KEILLCD" 
+RAMSIZE(256) 

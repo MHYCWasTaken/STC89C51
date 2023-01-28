@@ -1,0 +1,246 @@
+BL51 BANKED LINKER/LOCATER V6.22                                                        07/30/2014  09:42:40  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
+D:\KEIL\C51\BIN\BL51.EXE main.obj, XPT2046.obj TO AD
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  main.obj (MAIN)
+  XPT2046.obj (XPT2046)
+  D:\KEIL\C51\LIB\C51S.LIB (?C_STARTUP)
+  D:\KEIL\C51\LIB\C51S.LIB (?C?UIDIV)
+
+
+LINK MAP OF MODULE:  AD (MAIN)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     0008H     UNIT         ?DT?MAIN
+            DATA    0010H     0004H     UNIT         _DATA_GROUP_
+            IDATA   0014H     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     00BBH     UNIT         ?PR?MAIN?MAIN
+            CODE    00BEH     0074H     UNIT         ?PR?DIGDISPLAY?MAIN
+            CODE    0132H     0055H     UNIT         ?C?LIB_CODE
+            CODE    0187H     0024H     UNIT         ?PR?SPI_READ?XPT2046
+            CODE    01ABH     001CH     UNIT         ?PR?_SPI_WRITE?XPT2046
+            CODE    01C7H     0019H     UNIT         ?PR?_READ_AD_DATA?XPT2046
+            CODE    01E0H     0011H     UNIT         ?CO?MAIN
+            CODE    01F1H     000CH     UNIT         ?C_C51STARTUP
+            CODE    01FDH     000BH     UNIT         ?PR?SPI_START?XPT2046
+
+
+
+OVERLAY MAP OF MODULE:   AD (MAIN)
+
+
+SEGMENT                             DATA_GROUP 
+  +--> CALLED SEGMENT             START    LENGTH
+-------------------------------------------------
+?C_C51STARTUP                     -----    -----
+  +--> ?PR?MAIN?MAIN
+
+?PR?MAIN?MAIN                     0010H    0004H
+  +--> ?PR?_READ_AD_DATA?XPT2046
+  +--> ?CO?MAIN
+  +--> ?PR?DIGDISPLAY?MAIN
+
+?PR?_READ_AD_DATA?XPT2046         -----    -----
+  +--> ?PR?_SPI_WRITE?XPT2046
+  +--> ?PR?SPI_READ?XPT2046
+
+BL51 BANKED LINKER/LOCATER V6.22                                                      07/30/2014  09:42:40  PAGE 2
+
+
+
+
+SYMBOL TABLE OF MODULE:  AD (MAIN)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        MAIN
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  C:0003H         PUBLIC        main
+  C:01E0H         PUBLIC        DIG_CODE
+  D:0008H         PUBLIC        DisplayData
+  B:00A0H.2       PUBLIC        LSA
+  B:00A0H.3       PUBLIC        LSB
+  B:00A0H.4       PUBLIC        LSC
+  C:00BEH         PUBLIC        DigDisplay
+  -------         PROC          MAIN
+  -------         DO            
+  D:0010H         SYMBOL        temp
+  D:0012H         SYMBOL        count
+  -------         ENDDO         
+  C:0003H         LINE#         18
+  C:0003H         LINE#         19
+  C:0003H         LINE#         21
+  C:0003H         LINE#         22
+  C:0003H         LINE#         23
+  C:000BH         LINE#         24
+  C:000BH         LINE#         25
+  C:000FH         LINE#         29
+  C:0018H         LINE#         30
+  C:0018H         LINE#         31
+  C:0020H         LINE#         33
+  C:0027H         LINE#         34
+  C:0029H         LINE#         35
+  C:002BH         LINE#         36
+  C:002DH         LINE#         38
+  C:0053H         LINE#         39
+  C:0079H         LINE#         40
+  C:009FH         LINE#         41
+  C:00B8H         LINE#         43
+  C:00BBH         LINE#         44
+  -------         ENDPROC       MAIN
+  -------         PROC          DIGDISPLAY
+  -------         DO            
+  D:0007H         SYMBOL        i
+  D:0004H         SYMBOL        j
+  -------         ENDDO         
+  C:00BEH         LINE#         46
+  C:00BEH         LINE#         47
+  C:00BEH         LINE#         50
+  C:00C0H         LINE#         51
+  C:00C0H         LINE#         52
+  C:00E5H         LINE#         53
+  C:00E5H         LINE#         54
+BL51 BANKED LINKER/LOCATER V6.22                                                      07/30/2014  09:42:40  PAGE 3
+
+
+  C:00E5H         LINE#         55
+  C:00E9H         LINE#         56
+  C:00E9H         LINE#         57
+  C:00F1H         LINE#         58
+  C:00F1H         LINE#         59
+  C:00F5H         LINE#         60
+  C:00F5H         LINE#         61
+  C:00FDH         LINE#         62
+  C:00FDH         LINE#         63
+  C:0101H         LINE#         64
+  C:0101H         LINE#         65
+  C:0109H         LINE#         66
+  C:0109H         LINE#         67
+  C:010DH         LINE#         68
+  C:010DH         LINE#         69
+  C:0113H         LINE#         70
+  C:0113H         LINE#         71
+  C:011AH         LINE#         72
+  C:011EH         LINE#         73
+  C:0128H         LINE#         74
+  C:012BH         LINE#         75
+  C:0131H         LINE#         76
+  -------         ENDPROC       DIGDISPLAY
+  -------         ENDMOD        MAIN
+
+  -------         MODULE        XPT2046
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0090H         PUBLIC        P1
+  B:0090H.1       PUBLIC        CS
+  B:0090H.3       PUBLIC        DOUT
+  C:01C7H         PUBLIC        _Read_AD_Data
+  C:0187H         PUBLIC        SPI_Read
+  B:0090H.0       PUBLIC        CLK
+  C:01ABH         PUBLIC        _SPI_Write
+  B:0090H.2       PUBLIC        DIN
+  C:01FDH         PUBLIC        SPI_Start
+  -------         PROC          SPI_START
+  C:01FDH         LINE#         9
+  C:01FDH         LINE#         10
+  C:01FDH         LINE#         11
+  C:01FFH         LINE#         12
+  C:0201H         LINE#         13
+  C:0203H         LINE#         14
+  C:0205H         LINE#         15
+  C:0207H         LINE#         16
+  -------         ENDPROC       SPI_START
+  -------         PROC          _SPI_WRITE
+  D:0007H         SYMBOL        dat
+  -------         DO            
+  D:0006H         SYMBOL        i
+  -------         ENDDO         
+  C:01ABH         LINE#         24
+  C:01ABH         LINE#         25
+  C:01ABH         LINE#         27
+  C:01ADH         LINE#         28
+  C:01AFH         LINE#         29
+  C:01AFH         LINE#         30
+BL51 BANKED LINKER/LOCATER V6.22                                                      07/30/2014  09:42:40  PAGE 4
+
+
+  C:01BAH         LINE#         31
+  C:01BEH         LINE#         32
+  C:01C0H         LINE#         34
+  C:01C2H         LINE#         36
+  C:01C6H         LINE#         37
+  -------         ENDPROC       _SPI_WRITE
+  -------         PROC          SPI_READ
+  -------         DO            
+  D:0004H         SYMBOL        i
+  D:0006H         SYMBOL        dat
+  -------         ENDDO         
+  C:0187H         LINE#         45
+  C:0187H         LINE#         46
+  C:0187H         LINE#         47
+  C:018AH         LINE#         48
+  C:018CH         LINE#         49
+  C:018EH         LINE#         50
+  C:018EH         LINE#         51
+  C:0195H         LINE#         53
+  C:0197H         LINE#         54
+  C:0199H         LINE#         56
+  C:019FH         LINE#         58
+  C:01AAH         LINE#         59
+  C:01AAH         LINE#         60
+  -------         ENDPROC       SPI_READ
+  -------         PROC          _READ_AD_DATA
+  D:0007H         SYMBOL        cmd
+  -------         DO            
+  D:0007H         SYMBOL        i
+  D:0006H         SYMBOL        AD_Value
+  -------         ENDDO         
+  C:01C7H         LINE#         68
+  C:01C7H         LINE#         69
+  C:01C7H         LINE#         72
+  C:01C9H         LINE#         73
+  C:01CBH         LINE#         74
+  C:01CEH         LINE#         75
+  C:01D2H         LINE#         76
+  C:01D4H         LINE#         77
+  C:01D5H         LINE#         78
+  C:01D6H         LINE#         79
+  C:01D8H         LINE#         80
+  C:01D9H         LINE#         81
+  C:01DAH         LINE#         82
+  C:01DDH         LINE#         83
+  C:01DFH         LINE#         84
+  C:01DFH         LINE#         85
+  -------         ENDPROC       _READ_AD_DATA
+  -------         ENDMOD        XPT2046
+
+  -------         MODULE        ?C?UIDIV
+  C:0132H         PUBLIC        ?C?UIDIV
+  -------         ENDMOD        ?C?UIDIV
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?SPI_START?XPT2046
+
+BL51 BANKED LINKER/LOCATER V6.22                                                      07/30/2014  09:42:40  PAGE 5
+
+
+Program Size: data=21.0 xdata=0 code=520
+LINK/LOCATE RUN COMPLETE.  1 WARNING(S),  0 ERROR(S)

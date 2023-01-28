@@ -1,0 +1,124 @@
+4/2/93         =-=-=-=-PDN BBS List-=-=-=-=
+
+This list represents members of the Programmer's Distribution Network
+who have indicated to me that they will accept file requests for PDN files,
+or Downloads on the first call, or downloads after a validation program.
+This list is by no means all-inclusive, but represents only those who have
+let me know via netmail that they would like to be on the list.
+
+See *Note below for FTP access.
+
+KEY:
+Types: HST  = USRobotics Courier HST 14.4k    V32B = CCITT v.32bis compliant
+       HST+ = USRobotics Courier HST 16.8k    CSP  = Compucom CSP
+       V32  = CCITT v.32 compliant            ZYX  = ZyXEL 16.8k v.32bis
+
+FQ:   U=Unlisted OK,   L=only in nodelist
+DL:   Y=on first call, V=after validation, LDV=Long Distance Validation N=n/a
+
+PDN:  A=all areas,     N=Not all areas
+Hrs:  A=anytime but ZMH, or listed times
+Node: FidoNet Node Number or UL=not in nodelist
+
+= *USA* ================================================================
+St:     Phone:         Type:     Fq: DL:  PDN  Hrs:           Node:
+==========================================================================
+AL      1-205-666-0932 HST        L   LDV   A  17:00-24:00    1:3625/454
+AK      1-501-450-7010 ZYX   V32B U   Y     A  A              1:399/11
+AZ      1-602-944-0524       V32B U   V     A  A              1:114/161
+CA      1-916-334-4470 HST+  V32B U   Y     A  A              1:203/540
+CA      1-916-334-4478 HST        U   Y     A  A              1:203/541
+CA      1-714 939-6401 HST   V32B U   Y     A  A              1:103/208
+CA      1-310-419-0931       V32B U   Y     A  03:00-01:00    1:102/531
+CO      1-719-380-8813 HST+  V32B U   Y     A  A              1:128/60
+CT      1-203-879-7122       V32B U   Y     A  A              1:141/1135
+                                                              8:909/5(RBBS)
+DE      1-302-995-6910 2400       U   Y     N  A              1:150/170
+GA      1-912-329-8984       V32B L   LDV   N  A              1:3611/15
+IL      1-708-680-9420 HST   V32b Y   Y     A  A              1:115/858
+LA      1-504-386-8827       V32B U   Y     A  A              1:394/7
+MA      1-508-250-0187 HST+  V32B U   V     A  A              1:324/287
+MA      1-508-250-4672 HST+  V32B U   V     A  A              1:324/288
+MA      1-508-256-1222 HST+  V32B U   V     A  A              1:324/291
+MA      1-508-250-0135 HST+  V32B U   V     A  A              1:324/292
+MS      1-601-467-0801       V32  U   Y     A  A              1:3604/15
+NJ      1-908-271-5168 HST   V32B U   Y     A  A              1:107/302
+NJ      1-908-572-1202 HST   V32B U   Y     A  A              1:107/309
+NY      1-212-927-4980 HST+  V32B U   Y     A  A              1:278/707
+NY      1-315-564-5700    V32B    U   Y     A 03:00-04:00 EST 1:2608/15
+NY      1-716-381-8538 HST   V32B U   V     A  A              1:2613/210
+NY      1-716-898-4366 HST   V32B U   Y     A  A              1:260/1
+NY      1-914-344-0350 HST   V32B U   Y     A  A              1:272/38
+NY      1-914-343-7540       V32B U   Y     A  A              1:272/100
+NC      1-919-286-7738 HST   V32B U   V     A  A              1:3641/1
+NC      1-919-286-4542 ZYX   V32B U   V     A  A              1:3641/224
+NV      1-702-253-6527 HST+  V32B U   Y     A  A              1:209/710
+NV      1-702-253-6274       V32  U   Y     A  A              1:209/710
+OK      1-918-438-8260 HST+  V32b U   Y     A  A              1:170/403
+PA      1-412-244-9416 2400       U   N     N  M-F 23hrs      1:129/124
+TX      1-210-653-2115 ZYX   V32B U   Y     N  A              1:387/641
+TX      1-210-675-4787       V32  U   Y     A  05:00-02:30    1:387/666
+TX      1-512-573-0245 HST   V32B U   Y     A  A              1:3802/213
+TX      1-512-572-8378    CSP     N   Y     A  A              UL
+TX      1-817-483-2283       V32B U   Y     A  A              1:130/403
+TX      1-915-595-4914       V.32 U   Y     A  A              1:381/106
+WA      1-509-582-9493 HST+  V32B U   LDV   A  A              1:347/10
+WY      1-307-686-0940 HST   V32B L   Y     A  00:30-24:00    1:316/16
+
+= *Austria* ===============================================   ============
+Vienna   43-1-290-3658 ZYX   V32B   U   Y     A  A              2:310/24
+
+= *Belgium* ==============================================================
+Antwerp  32-3-2343790  V32B  V42B   U   Y     A  A              2:292/855
+
+= *Canada* ===============================================================
+Sask.   1-306-463-3117 HST+  V32B U   Y     A  A              1:140/53
+Sask.   1-306-463-4581       V32B N   Y     A  A              UL
+Sask.   1-306-585-0298 HST        Y   Y     A  A              1:140/40
+Quebec  1-418-648-9590 HST        L   V     A  6am-3am        1:240/507
+Quebec  1-418-648-0691       V32B L   V     A  6am-3am EDT    1:240/508
+
+=France ================================================================
+Wervicq-Sud 33-20392225 HST+ V32B L   V     A  A              2:322/2
+Wervicq-Sud 33-20399342 HST+ V32B L   V     A  A              2:322/3
+Wervicq-Sud 33-20392236 HST+ V32B L   V     A  A              2:322/4
+
+= Germany ==============================================================
+Kronberg  49-6173-2544 HST   V32B U   V     A  08:00-18:00    2:249/3
+                                               19:00-24:00    MET
+
+= Italy =================================================================
+Malgesso  39-332-706469 HST+ V32B U   Y     A  A               2:331/106
+Malgesso  39-332-706739 HST  V32B U   Y     A  A               2:331/117
+Malgesso  39-332-706009 ZYX  V32B U   Y     A  A               2:331/121
+Biandrnno 39-332-767277 HST  V32B U   Y     A  A               2:331/110
+Biandrnno 39-332-819044 ZYX  V32B U   Y     A  A               2:331/118
+Biandrnno 39-332-767329 ZYX  V32B U   Y     A  A               2:332/122
+
+= *Luxembourg* =========================================================
+Strassen  +352-316702   ZYX   V32B U  Y     A  A              2:270/17
+
+= *Netherlands* ========================================================
+Delden    31-5407-64701 HST   V32B U  Y     A 8am-12pm CET    2:283/309      
+                                          2:283/309
+Den Bosh   31-73-222164 HST   V32B U  Y     A 6am-3am  CET    2:512/152
+Eck & Wiel 31-3449-1909 V21   V22  U  Y     N 8am-2pm         2:500/137
+                        V32B  V42B
+Groningen  31-50-735035 HST   V32B U  Y     Y 8am-12pm CET    2:512/159
+
+= *Sweden* =============================================================
+Lerum     46-302-16565 HST        U   V     A 07:00-23:00     2:203/311
+========================================================================
+
+*Note:
+  PDN Files are available via Anonymous-FTP from ftp.ieee.org (and mirrored
+  to halcyon.com) in the pub/fidonet/pdn directories. IP Address 140.98.1.1
+
+  File Arrival Announcement messages are available on Internet via mailing
+  list. To be added to the mailing-list send e-mail to:
+  filebone-request@zeus.ieee.org
+
+If you carry the Programmer's Distribution Network and would like to
+be added to this list, please send netmail to Janis Kracht 1:272/38,
+<<PRISM BBS (914)344-0350 HST,V32B.  For information about the PDN,
+freq or D/L PDNINFO.ARJ from my system.

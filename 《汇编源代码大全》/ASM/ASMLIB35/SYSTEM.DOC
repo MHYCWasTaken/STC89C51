@@ -1,0 +1,785 @@
+
+*****************************  SYSTEM  *************************************
+
+ASMLIB system subroutines Copyright (C) 1991 - 1993 Douglas Herr
+all rights reserved
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+BREAKTRAP:   initialize Ctrl+Break trap
+BREAKRELEASE:restore previous Ctrl+Break handler
+Source:      break.asm
+
+BREAKFLAG:   public byte in DGROUP, indicating Ctrl+Break key press
+Source:      asmflags.asm
+
+Call with:   no parameters
+             BreakTrap uses well-behaved methods to trap Ctrl+Break,
+             Ctrl+C and Ctrl-Alt-Del key sequences.  When one of these
+             key combinations is pressed, ASMLIB's break trap sets the
+             public flag "breakflag" in the data area.  BreakRelease
+             de-activates ASMLIB's break trap, restoring the previous
+             Ctrl+Break handler.  BreakFlag = 0 until a monitored key
+             combination is pressed, at which time breakflag is set
+             equal to 1.  If you use BreakTrap, you MUST call BreakRelease
+             before the end of your program, or you will find yourself
+             reaching for the Big Red Switch.  See STARTUP.ASM.
+Returns:     nothing
+Uses:        nothing
+Example:     see STARTUP.ASM
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+COLOR16:     calculate color value for palette register
+Source:      color16.asm
+
+Call with:   DS:[BX] pointing to red value (0-3), green value (0-3)
+             and blue value (0-3)
+             Assumes DS:@data; see also Palette16
+Returns:     AH = color value for 16-color palette register
+Uses:        AH
+Supports:    VGA 16-color modes (text or graphics)
+             EGA 16-color modes, except with CGA monitor
+Example:
+
+.data
+c16     db 3                  ; brightest red
+        db 1                  ; dim green
+        db 0                  ; no blue
+
+.code
+; program fragment assumes DS:@data
+        .
+        .
+        .
+        lea   bx,c16
+        call  color16
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+DOSALLOC:    allocate memory block from unused DOS memory
+Source:      dosalloc.asm
+
+Call with:   DX:AX = number of bytes to allocate
+             DOSAlloc uses DOS function 48h to allocate memory from free
+             DOS memory.  See ENDPROG and STARTUP.ASM or TINY.ASM.
+Returns:     if CF = 0, AX = segment address of start of memory block
+                             offset of start of memory block = 0
+             if CF = 1, insufficient DOS memory space is available.
+Uses:        AX, CF; all other flags and registers are saved
+Example:
+
+.model huge
+
+extrn    bitblockbytes:proc, dosalloc:proc
+
+.code
+; this example uses bitblockbytes to calculate the memory required
+; to save a bit block on a graphics screen
+         .
+         .
+         .
+         lea   bx,corners      ; point to bit block corner coordinates
+         call  bitblockbytes   ; returns DX:AX = number of bytes required
+         call  dosalloc
+         jc    no_memory       ; do some error handling stuff
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+ENDPROG:     determines program's size
+             this is handy for dynamic memory allocation, or for TSR work
+Source:      endprog.asm
+
+Call with:   no parameters
+Returns:     (small, medium, huge models)
+             AX = segment address of end of program.  See STARTUP.ASM.
+             ENDPROG defines ZSEG as the last segment in the program.
+             If you add any object modules to ASMLIB.LIB, be certain any
+             segments in the added modules are defined before LINK
+             encounters ENDPROG.  Be sure to review the .MAP file after
+             linking.  ZSEG should be at the end of the program.
+             (tiny model)
+             AX = offset of end of the program's code and initialized data.
+             See TINY.ASM startup code.  If you add any object modules to
+             ASMTINY.LIB, be certain any segments in the added modules
+             are defined before LINK encounters ENDPROG, and that all
+             segments are grouped in DGROUP.  Be sure to review the .MAP
+             file after linking.  ZSEG should be at the end of the program.
+             With TINY model, program stack extends beyond the end of the
+             code and initialized data to the end of the 64k program
+             segment.
+Uses:        AX
+Example:     see STARTUP.ASM or TINY.ASM
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+EXENAME:     determine the full path and filename of the executing program
+Source:      exename.asm (strlen.asm)
+
+Call with:   ES = PSP segment (see STARTUP.ASM)
+Returns:     ES:[BX] pointing to the the name of the executing program,
+             including drive and full path, CX = length of the filename.
+             The filename returned is an ASCIIZ string, and may be mixed
+             upper- and lower-case characters.
+Uses:        ES, BX, CX; all other registers and flags are saved.
+Example:
+
+include asm.inc
+
+extrn   exename:proc
+
+.data
+extrn   pspseg:word
+
+.code
+; program fragment assumes DS:@data
+        .
+        .
+        .
+        mov   es,pspseg
+        call  exename         ; string returned at ES:[BX] can be
+                              ; copied to heap with STRNDUP
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+FARALLOC:    allocate memory from a far heap
+Source:      farheap.asm
+
+Call with:   ES = segment address of far heap
+             AX = requested block size
+Returns:     if CF = 1, insufficient memroy available in heap
+             if CF = 0, ES:[BX] = starting address of allocated memory
+Uses:        BX, flags
+Example:     see FarInit
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+FARFREE:     releases far heap memory previously allocated
+Source:      farheap.asm
+
+Call with:   ES:[BX] pointing to memory block to be released
+Returns:     nothing
+Uses:        AX, BX, flags
+Example:     mov   es,heap_seg
+             mov   bx,pointer
+             call  farfree
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+FARINIT:     initializes a far heap
+Source:      farheap.asm
+
+Call with:   ES = segment address of memory block to be managed by ASMLIB's
+             far heap manager
+             AX = size of memory block in bytes (2 < bytes < 32768)
+             FarInit assumes that the memory block begins at ES:[0].
+             Any number of far heaps may be used if memory is available.
+Returns:     if CF = 0, successful; if CF = 1, AX is out of range.
+Uses:        flags
+Example:
+
+include asm.inc
+
+extrn   dosalloc:proc, farinit:proc
+
+.data
+heap_seg        dw ?
+
+.code
+        .
+        .
+        .
+        mov     ax,32767
+        xor     dx,dx           ; allocate 32k from DOS memory
+        push    ax
+        call    dosalloc
+        mov     heap_seg,ax     ; segment address of allocated block
+        pop     ax              ; size of block
+        jc      not_enough_dos  ; insufficient memory available
+        mov     es,heap_seg
+        call    farinit         ; initialize this block
+        .
+        .
+        mov     ax,125          ; get 125 bytes from far heap
+        mov     es,heap_seg     ; heap address
+        call    faralloc        ; get far memory; returned at ES:[BX]
+        jc      not_enough_heap
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+FARREALLOC:  re-sizes a block of memory in a far heap
+Source:      farheap.asm
+
+Call with:   ES:[BX] = original pointer to memory block
+             AX = new byte size
+Returns:     if successful, CF = 0, ES:[BX] points to new block
+             if not successful, CF = 1
+Uses:        BX, flags
+Example:     mov    es,heap_seg
+             mov    bx,pointer
+             mov    ax,newsize
+             call   farrealloc
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+FINDMONO:    detects a monochrome-compatible video card
+             this is handy in 2-monitor systems.
+Source:      findmono.asm (a$herc.asm, isega.asm, find6845.asm)
+
+Call with:   no parameters
+Returns:     if CF = 1, no monochrome monitor
+             if CF = 0, AX = monitor code
+              0 = MDA
+              0101h = EGA monochrome
+              0301h = VGA monochrome
+              128 = Hercules or clone
+              144 = Hercules Graphics Card plus
+              208 = Hercules InColor
+Uses:        AX, CF
+Supports:    MDA, EGA & VGA MONO, HGC, HGC+, InColor
+Example:     call  findmono
+             jc    no_monochrome
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+FLOPPIES:    determine the number of floppy disk drives intalled
+Source:      floppies.asm
+
+Call with:   no parameters
+Returns:     AX = number of floppy drives
+Uses:        AX; all other registers and flags are saved
+Example:
+
+.model medium
+
+public  myproc
+extrn   floppies:proc
+
+.code
+myproc  proc
+        .
+        call   floppies
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+FLOPPYTYPE:  determine the number of floppy disk drives intalled
+Source:      floptype.asm
+
+Call with:   DL = drive number (0 = drive A:)
+Returns:     AX = floppy drive type
+              0 = invalid drive number
+              1 = 360k
+              2 = 1.2M
+              3 = 720k
+              4 = 1.44M
+Uses:        AX, flags
+Example:
+
+.model medium
+
+public  myproc
+extrn   floppytype:proc
+
+.data
+drive_number   db 0
+
+.code
+myproc  proc
+        .
+        mov    dl,drive_number
+        call   floppytype
+        or     ax,ax
+        jz     bad_drive_number
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+GETCPU:      detects cpu type
+Source:      getcpu.asm
+
+Call with:   no parameters
+Returns:     AX = 0 if 8086/8088
+             AX = 1 if 80186/80188
+             AX = 2 if 80286
+             AX = 3 if 386 (SX or DX)
+             AX = 4 if 486 (SX or DX)
+Uses:        AX
+Example:     call   getcpu
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+GETCRT:      determines active monitor type
+Source:      getcrt.asm (a$herc.asm, isevga.asm)
+
+Call with:   no parameters
+Returns:     AX = code for active video system
+             CGA = -1
+             MDA = 0
+             EGA mono = 0100h
+             VGA mono = 0300h
+             EGA color = 1
+             MCGA = 2
+             VGA color = 3
+             HGC = 128
+             HGC+ = 144
+             InColor = 208
+             Note: GetCRT may be re-assembled with the /DNOHERC switch
+             to eliminate code which detects Hercules equipment
+Uses:        AX
+Supports:    CGA, MCGA, MDA, HGC, HGC+, InColor, EGA, VGA
+Example:     call    getcrt
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+HALLOC:      allocates memory from near heap
+Source:      heap.asm
+
+Call with:   AX = bytes requested; assumes DS:@data
+             heap must be initialized with hinit
+Returns:     if space available:
+             BX = near pointer for allocated data
+             if space not available:
+             CF = 1
+Uses:        AX, BX, flags
+Example:     mov   ax,bytes
+             call  halloc
+             jc    no_memory       ; check to see if there was enough space
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+HFREE:       releases heap memory previously allocated
+Source:      heap.asm
+
+Call with:   BX = near pointer to memory block; assumes DS:@data
+Returns:     nothing
+Uses:        flags
+Example:     mov   bx,pointer
+             call  hfree
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+HINIT:       initializes heap manager
+Source:      heap.asm
+
+Call with:   AX = number of bytes to be managed by heap manager
+             2 <=bytes<= 32767
+             BX = near pointer to memory block to be managed
+             assumes  DS:@data
+Returns:     CF = 0 if ok, CF = 1 if bad parameter (bytes too
+             small or too large)
+Uses:        flags
+Example:
+
+.data
+heap   db  32767 dup(0)
+
+.code
+       mov    ax,@data
+       mov    ds,ax
+       assume ds:@data
+       mov    ax,32767
+       lea    bx,heap
+       call   hinit
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+HMAX:        determines largest free block in asmlib's near heap
+Source:      heap.asm
+
+Call with:   no parameters
+Returns:     AX = block size in bytes
+             AX = -1 if the heap has not been initialized
+Uses:        AX
+Example:     call   hmax
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+HREALLOC:    re-sizes a block of memory in the near heap
+Source:      heap.asm
+
+Call with:   BX = original pointer to memory block
+             AX = new byte size
+Returns:     if successful, CF = 0, BX = new block pointer
+             if not successful, CF = 1
+Uses:        BX, flags
+Example:     mov    bx,pointer
+             mov    ax,newsize
+             call   hrealloc
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+ISANSI:      determines if ANSI or compatible is loaded and active
+Source:      isansi.asm
+
+Parameters:  none
+Returns:     CF = 1 if no ANSI device driver loaded and active
+             CF = 0 if ANSI loaded and active
+Uses:        CF
+Example:     call   isansi         ; let's see if ansi.sys is loaded
+             jc     no_ansi        ; jump if not
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+ISATT:       determines if an ATT 6300-type display card is installed
+             this equipment is like a CGA except that it has an additional
+             640 x 400 2-color graphics mode (mode 40h)
+Source:      isatt.asm ($6845.asm, isevga.asm)
+
+Call with:   no parameters
+Returns:     if CF = 1, ATT 6300 display not present
+             if CF = 0, ATT 6300 display is installed
+Uses:        flags
+Example:
+
+include asm.inc
+
+public  cgamode
+
+extrn   isatt:proc
+
+.code
+cgamode proc
+        mov     ax,06h             ; default: set CGA mode
+        call    isatt              ; see if mode 40h is available
+        jc      set_mode           ; nope
+        mov     ax,40h             ;  use ATT 6300 mode 40h
+set_mode:
+        push    bp                 ; required by old PC BIOS
+        int     10h                ; use BIOS to set mode
+        pop     bp
+        ret
+cgamode endp
+        end
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+ISEVGA:      determines if an EGA or VGA is installed
+Source:      isevga.asm
+
+Call with:   no parameters
+Returns:     if CF = 1, no EGA or VGA
+             if CF = 0
+               DX = video memory in kbytes
+               AL = monitor type
+                AL = -1 if monitor is CGA
+                AL = 0 if monitor is monochrome
+                AL = 1 if monitor is EGA or better
+
+               AH = EGA/VGA flag
+                AH = 1 if EGA
+                AH = 3 if VGA
+
+Uses:        AX, DX, CF
+Example:     call   isevga
+             jc     no_evga
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+ISHERC:      determines if a Hercules card or compatible is installed
+             and if so, determines if it is the active video system.
+Source:      isherc.asm (a$herc.asm)
+
+Call with:   no parameters
+Returns:     if CF = 1, no Hercules or compatible installed
+             if CF = 0, AX = Hercules model
+             128 = Hercules Graphics Card or compatible; active
+             144 = Hercules Graphics Card Plus; active
+             208 = Hercules InColor card; active
+             -128 = Hercules Graphics Card or compatible; not active
+             -144 = Hercules Graphics Card Plus; not active
+             -208 = Hercules InColor card; not active
+Uses:        AX, CF; all other flags and registers are saved
+Example:     call  isherc
+             jc    no_herc
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+ISMOUSE:     determines if a mouse is installed
+Source:      ismouse.asm (asmflags.asm)
+
+Parameters:  none
+Returns:     AX = number of mouse buttons
+             AX = 0 if no mouse or mouse driver installed
+Uses:        AX
+Example:
+
+include  asm.inc
+
+.code
+       .
+       .
+       .
+       call    ismouse
+       or      ax,ax
+       jz      no_mouse
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+ISSEVGA:     determines if a Super EGA or Super VGA is installed
+Source:      issevga.asm
+
+Parameters:  none
+Returns:     if CF = 1, no Super EGA or Super VGA recognized by ASMLIB
+
+             if CF = 0
+
+              if AH = 1: (Super EGA)
+               AL = 1 if Paradise EGA 480
+               AL = 2 if Everex EGA
+
+              if AH = 3: (Super VGA)
+               AL = 1 if Paradise VGA
+               AL = 3 if Tseng VGA chipset
+               AL = 4 if Oak VGA
+               AL = 5 if Western Digital VGA chipset
+
+             See also IsEVGA
+Uses:        AX, CF
+Example:     call   issevga
+             jc     no_superevga
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+MATHCHIP:    determines if 80x87 math coprocessor is installed
+Source:      mathchip.asm
+
+Parameters:  none
+Returns:     AX = code for 80x87 model
+             0 = not installed
+             1 = 8087
+             2 = 287
+             3 = 387 (DX or SX)
+             4 = 487 (486DX or 487SX)
+             If the coprocessor is present, it is initilaized by MathChip.
+Uses:        AX, all 80x87 registers
+Example:     call  mathchip
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+MOUSEINIT:   initializes mouse driver if mouse present
+Source:      mouseini.asm
+
+MOUSEFLAG:   public byte in DGROUP indicating mouse buttons
+Source:      asmflags.asm
+
+Parameters:  assumes DS:@data
+Returns:     if mouse installed, ZF = 0 and AX = number of mouse buttons
+             also updates mouseflag
+             if no mouse, ZF = 1 and AX = 0
+Uses:        AX, flags
+Example:
+
+include asm.inc
+
+extrn   mouseinit:proc
+
+.code
+; program fragment assumes DS:@data
+        .
+        .
+        .
+        call    mouseinit
+        jz      no_mouse
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+MSAVE:       save mouse state
+Source:      msave.asm (dosalloc.asm)
+
+MRESTORE:    restore previously saved mouse state
+Source:      msave.asm (dosalloc.asm)
+
+             MSave and MRestore are handy when you have installed a
+             mouse event handler and you will be using the SYSTEM command,
+             where some other program may reset or otherwise change the
+             mouse event trapping.
+
+             MSave allocates a buffer, saves the mouse state in the
+             buffer, resets the mouse driver and returns the buffer address.
+
+             MRestore restores a specified mouse state and releases the
+             buffer.  Both MSave and MRestore assume that you already
+             know there is a mouse in the system.
+
+Call with:   MSAve: no paramerters
+             MRestore: AX = buffer address returned by prior MSave call
+Returns:     if CF = 1, AH = MS-DOS error code
+             if CF = 0, no error; MSave returns buffer address in AX
+Uses:        AX, flags
+Example:
+
+include asm.inc
+extrn   msave:proc, mrestore:proc
+
+.data
+save_mouse dw 0
+
+.code
+; program fragment assumes DS:@data
+        .
+        .
+        .
+
+; save the mouse driver state
+; I've already checked to see if there's a mouse
+        call    msave
+        jc      dos_error
+        mov     save_mouse,ax
+        .
+        .
+; some other subroutine has messed with the mouse
+        mov     ax,save_mouse   ; buffer address from previous MSave
+        call    mrestore
+        jc      dos_error
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+PALETTE16:   change palette in EGA, VGA or SVGA 16-color mode
+             changing the palette changes the actual color associated
+             with a color attribute
+Source:      palet16.asm
+
+Call with:   BH = color value (see Color16 in SYSTEM.DOC)
+             BL = color attribute to map color to (0-0Fh)
+             restore default palette with BH = BL = 0FFh
+Returns:     nothing
+Uses:        nothing
+Example:
+
+.data
+c16     db 3                  ; brightest red
+        db 1                  ; dim green
+        db 0                  ; no blue
+
+.code
+; program fragment assumes DS:@data
+        .
+        .
+        .
+        lea   bx,c16
+        call  color16
+        mov   bh,ah           ; color value in BH
+        mov   bl,15           ; color attribute 0Fh
+        call  palette16
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+SYSTEM:      execute a second copy of COMMAND.COM;  optionally runs another
+             program.
+Source:      system.asm (strlen.asm)
+
+Parameters:  ES = PSP segment
+             DS:[BX] points to command tail
+             if DS:[BX] points to a nul byte, control is transfered
+             to the second copy of COMMAND.COM and you get a DOS prompt.
+             control is passed back to the calling program when EXIT is
+             entered at the DOS prompt.
+
+             if DS:[BX] points to an ASCIIZ string with the name of a
+             program (and optional command line parameters), the program
+             will be executed, and control will pass back to the calling
+             program at the termination of the second program.
+Returns:     nothing
+Uses:        AX
+Example:
+
+include asm.inc
+
+; I want to go to DOS temporarily to format a 720k disk
+extrn   system:proc
+
+.data
+; PSP segment is saved here by my startup code
+pspseg  dw ?
+cmdtail db 'format a: /n:9 /t:80',0
+
+.code
+; program fragment assumes DS:@data
+        .
+        .
+        lea     bx,cmdtail    ; DS:[BX] points to command tail
+        mov     es,pspseg
+        call    system
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+USE32K:      limit Hercules equipment to 32k memory (128k on InColor)
+USE64K:      allow full 64k on HGC and HGC+ (256k on InColor)
+Source:      a$herc.asm
+
+Requires Hercules or compatible
+
+Call with:   no parameters
+             Use32k is equivalent to the Hercules "half" configuration
+             Use64k is equivalent to the Hercules "full" configuration
+             ASMLIB's default is "half".  Use this configuration if you
+             have a 2-monitor system, unless you are using the Hercules
+             CGA card. 
+Returns:     nothing
+Uses:        nothing
+Example:     ; in this example I'm determining if a Hercules is installed
+             ; and setting the configuration to "full"
+extrn  IsHerc:proc
+extrn  Use64k:proc
+.code
+       .
+       .
+       .
+       call  IsHerc
+       jc    no_herc
+       or    ax,ax
+       js    use_only_half   ; use_only_half if HGC is not default monitor
+       call  use64k          ; else use all Hercules memory
+use_only_half:
+
+
+

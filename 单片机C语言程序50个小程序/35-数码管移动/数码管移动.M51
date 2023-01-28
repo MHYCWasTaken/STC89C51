@@ -1,0 +1,113 @@
+BL51 BANKED LINKER/LOCATER V5.03                                                        05/13/2009  14:43:25  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V5.03, INVOKED BY:
+D:\KEIL\C51\BIN\BL51.EXE 数码管移动.obj TO 数码管移动 RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  数码管移动.obj (数码_芤芲_)
+  D:\KEIL\C51\LIB\C51S.LIB (?C_STARTUP)
+  D:\KEIL\C51\LIB\C51S.LIB (?C_INIT)
+
+
+LINK MAP OF MODULE:  数码管移动 (数码_芤芲_)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     0015H     UNIT         ?DT?数码_芤芲_
+            IDATA   001DH     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     008CH     UNIT         ?C_C51STARTUP
+            CODE    008FH     003FH     UNIT         ?PR?MAIN?数码_芤芲_
+            CODE    00CEH     0018H     UNIT         ?C_INITSEG
+            CODE    00E6H     000AH     UNIT         ?PR?_DELAY?数码_芤芲_
+            CODE    00F0H     0008H     UNIT         ?CO?数码_芤芲_
+
+
+
+OVERLAY MAP OF MODULE:   数码管移动 (数码_芤芲_)
+
+
+SEGMENT
+  +--> CALLED SEGMENT
+---------------------
+?C_C51STARTUP
+  +--> ?PR?MAIN?数码_芤芲_
+  +--> ?C_INITSEG
+
+?PR?MAIN?数码_芤芲_
+  +--> ?CO?数码_芤芲_
+  +--> ?PR?_DELAY?数码_芤芲_
+
+
+
+SYMBOL TABLE OF MODULE:  数码管移动 (数码_芤芲_)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        数码_芤芲_
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+BL51 BANKED LINKER/LOCATER V5.03                                                      05/13/2009  14:43:25  PAGE 2
+
+
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  D:00B0H         PUBLIC        P3
+  C:00F0H         PUBLIC        table
+  D:00A8H         PUBLIC        IE
+  D:00B8H         PUBLIC        IP
+  D:0008H         PUBLIC        dofly
+  C:008FH         PUBLIC        main
+  D:0098H         PUBLIC        SCON
+  D:0088H         PUBLIC        TCON
+  D:00C8H         PUBLIC        T2CON
+  C:00E6H         PUBLIC        _delay
+  D:00D0H         PUBLIC        PSW
+  -------         PROC          _DELAY
+  D:0006H         SYMBOL        cnt
+  C:00E6H         LINE#         20
+  C:00E6H         LINE#         21
+  C:00E6H         LINE#         22
+  C:00EFH         LINE#         23
+  -------         ENDPROC       _DELAY
+  -------         PROC          MAIN
+  -------         DO            
+  D:0003H         SYMBOL        i
+  D:0004H         SYMBOL        j
+  D:0005H         SYMBOL        a
+  -------         ENDDO         
+  C:008FH         LINE#         27
+  C:008FH         LINE#         28
+  C:008FH         LINE#         31
+  C:0091H         LINE#         32
+  C:0091H         LINE#         33
+  C:0091H         LINE#         34
+  C:0093H         LINE#         35
+  C:0093H         LINE#         36
+  C:0095H         LINE#         37
+  C:0095H         LINE#         38
+  C:009DH         LINE#         39
+  C:00B6H         LINE#         40
+  C:00BDH         LINE#         41
+  C:00C1H         LINE#         42
+  C:00C4H         LINE#         43
+  C:00C8H         LINE#         44
+  C:00CAH         LINE#         45
+  C:00CCH         LINE#         46
+  -------         ENDPROC       MAIN
+  -------         ENDMOD        数码_芤芲_
+
+Program Size: data=30.0 xdata=0 code=248
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,495 @@
+A51 MACRO ASSEMBLER  IR_12864LCD                                                          04/20/2007 21:58:22 PAGE     1
+
+
+MACRO ASSEMBLER A51 V6.12
+OBJECT MODULE PLACED IN .\IR-12864LCD.OBJ
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE .\IR-12864LCD.asm SET(SMALL) DEBUG EP
+
+LOC  OBJ            LINE     SOURCE
+
+                       1     
+                       2     
+                       3     
+  0020                 4             IRCOM  EQU  20H       ;20H-23H IRÊ¹ÓÃ
+  0026                 5             X     EQU  26H        ;LCD µØÖ·±äÁ¿
+                       6     
+  00B2                 7             IRIN   EQU  P3.2
+  00B7                 8             BEEP   EQU  P3.7
+  0093                 9             RELAY  EQU  P1.3
+                      10     
+  00A0                11             RS      EQU     P2.0
+  00A1                12             RW      EQU     P2.1
+  00A2                13             EN      EQU     P2.2
+  00A3                14             PSB     EQU     P2.3
+  00A5                15             RST     EQU     P2.5
+                      16     ;------------------------------------------------
+0000                  17              ORG 0000H
+0000 8003             18              JMP  MAIN
+                      19     
+0003                  20              ORG 0003H         ;Íâ²¿ÖÐ¶ÏINT0Èë¿ÚµØÖ·
+0003 213B             21              JMP  IR_IN        ;ÖÐ¶Ï·þÎñ³ÌÐò
+                      22     ;------------------------------------------------
+0005                  23     MAIN:
+0005 758140           24               MOV   SP,#40H
+0008 7400             25               MOV   A,#00H
+000A 7820             26               MOV   R0,#20H
+000C F6               27     LOOP0:    MOV   @R0,A          ;20H-26HÇåÁã
+000D 08               28               INC   R0
+000E B827FB           29               CJNE  R0,#27H,LOOP0
+0011 75A881           30               MOV  IE,#81H       ;ÔÊÐí×ÜÖÐ¶ÏÖÐ¶Ï,Ê¹ÄÜ INT0 Íâ²¿ÖÐ¶Ï
+0014 758801           31               MOV  TCON,#01H     ;´¥·¢·½Ê½ÎªÂö³å¸º±ßÑØ´¥·¢
+0017 D2B2             32               SETB  IRIN
+0019 D2A5             33               SETB  RST
+001B 00               34               NOP
+001C D2A3             35               SETB  PSB            ;8Î»Ê¾Ý£¬²¢¿Ú
+                      36     
+001E 1136             37               CALL  SET_LCD        ;³õÊ¼»¯TS12864A-3
+0020 11A0             38               CALL  MENU1
+0022 11B9             39               CALL  MENU2
+0024 11D2             40               CALL  MENU3
+0026 11EA             41               CALL  MENU4
+0028                  42     LOOP1:
+0028 E522             43               MOV  A,22H
+002A B44002           44               CJNE  A,#40H,LOOP2    ;K17¼ü°´ÏÂ
+002D C293             45               CLR   RELAY           ;¼ÌµçÆ÷ÎüºÏ
+002F B40402           46     LOOP2:    CJNE  A,#04H,LOOP3    ;K19¼ü°´ÏÂ
+0032 D293             47               SETB  RELAY           ;¼ÌµçÆ÷¹Ø±Õ
+0034 80F2             48     LOOP3:    JMP   LOOP1
+                      49     
+                      50     ;=============================================
+                      51     ;  LCD ³õÊ¼»¯ÉèÖÃ
+                      52     ;=============================================-
+0036                  53     SET_LCD:
+0036 C2A2             54               CLR  EN
+0038 7434             55               MOV  A,#34H     ;34H--À©³äÖ¸Áî²Ù×÷
+003A 3102             56               CALL  WCOM
+003C 5134             57               CALL  DELAY1
+003E 7430             58               MOV  A,#30H     ;30H--»ù±¾Ö¸Áî²Ù×÷
+A51 MACRO ASSEMBLER  IR_12864LCD                                                          04/20/2007 21:58:22 PAGE     2
+
+0040 3102             59               CALL  WCOM
+0042 5134             60               CALL  DELAY1
+                      61     
+0044 740C             62               MOV  A,#0CH     ;¿ªÏÔÊ¾£¬¹Ø¹â±ê£¬
+0046 3102             63               CALL  WCOM
+0048 5134             64               CALL  DELAY1
+004A 7401             65               MOV  A,#01H     ;Çå³ LCM ÏÔÊ¾ÆÁ
+004C 3102             66               CALL  WCOM
+004E 5134             67               CALL  DELAY1
+0050 22               68               RET
+                      69     ;===================================================
+                      70     ;ÔÚ LCM ¸÷ÐÐÏÔÊ¾ÐÅÏ¢×Ö·û
+                      71     ;===================================================
+0051                  72     LCD_SHOW:
+                      73     
+0051 B4010C           74               CJNE  A,#1,LINE2  ;ÅÐ¶ÏÊÇ·ñÎªµÚÒ»ÐÐ
+0054 7480             75       LINE1:  MOV  A,#80H       ;ÉèÖÃ LCD µÄµÚÒ»ÐÐµØÖ·
+0056 3102             76               CALL  WCOM        ;Ð´ÈëÃüÁî
+0058 1197             77               CALL  CLR_LINE    ;Çå³¸ÃÐÐ×Ö·ûÊ¾Ý
+005A 7480             78               MOV  A,#80H       ;ÉèÖÃ LCD µÄµÚÒ»ÐÐµØÖ·
+005C 3102             79               CALL  WCOM        ;Ð´ÈëÃüÁî
+005E 802B             80               JMP  FILL
+                      81     
+0060 B4020C           82       LINE2:  CJNE  A,#2,LINE3  ;ÅÐ¶ÏÊÇ·ñÎªµÚÈÐÐ
+0063 7490             83               MOV  A,#090H      ;ÉèÖÃ LCD µÄµÚÈÐÐµØÖ·
+0065 3102             84               CALL  WCOM        ;Ð´ÈëÃüÁî
+0067 1197             85               CALL  CLR_LINE    ;Çå³¸ÃÐÐ×Ö·ûÊ¾Ý
+0069 7490             86               MOV  A,#090H      ;ÉèÖÃ LCD µÄµÚÈÐÐµØÖ·
+006B 3102             87               CALL  WCOM
+006D 801C             88               JMP  FILL
+                      89     
+006F B4030C           90       LINE3:  CJNE  A,#3,LINE4  ;ÅÐ¶ÏÊÇ·ñÎªµÚÈÐÐ
+0072 7488             91               MOV  A,#088H      ;ÉèÖÃ LCD µÄµÚÈÐÐµØÖ·
+0074 3102             92               CALL  WCOM        ;Ð´ÈëÃüÁî
+0076 1197             93               CALL  CLR_LINE    ;Çå³¸ÃÐÐ×Ö·ûÊ¾Ý
+0078 7488             94               MOV  A,#088H      ;ÉèÖÃ LCD µÄµÚÈÐÐµØÖ·
+007A 3102             95               CALL  WCOM
+007C 800D             96               JMP  FILL
+                      97     
+007E B4040F           98       LINE4:  CJNE  A,#4,LINE5  ;ÅÐ¶ÏÊÇ·ñÎªµÚÈÐÐ
+0081 7498             99               MOV  A,#098H      ;ÉèÖÃ LCD µÄµÚÈÐÐµØÖ·
+0083 3102            100               CALL  WCOM        ;Ð´ÈëÃüÁî
+0085 1197            101               CALL  CLR_LINE    ;Çå³¸ÃÐÐ×Ö·ûÊ¾Ý
+0087 7498            102               MOV  A,#098H      ;ÉèÖÃ LCD µÄµÚÈÐÐµØÖ·
+0089 3102            103               CALL  WCOM
+                     104     
+008B E4              105       FILL:   CLR  A            ;ÌîÈë×Ö·û
+008C 93              106               MOVC  A,@A+DPTR   ;ÓÉÏûÏ¢ÇøÈ¡³ö×Ö·û
+008D B40001          107               CJNE  A,#0,LC1    ;ÅÐ¶ÏÊÇ·ñÎª½áÊøÂë
+0090 22              108       LINE5:  RET
+0091 310F            109       LC1:    CALL  WDATA       ;Ð´ÈëÊ¾Ý
+0093 A3              110               INC  DPTR         ;Ö¸Õë¼Ó1
+0094 80F5            111               JMP  FILL         ;¼ÌÐøÌîÈë×Ö·û
+0096 22              112               RET
+                     113     ;=================================================
+                     114     ;Çå³¸ÃÐÐ LCM µÄ×Ö·û
+                     115     ;=================================================
+0097                 116     CLR_LINE:
+0097 7810            117               MOV  R0,#16      ;
+0099 7420            118        CL1:   MOV  A,#' '
+009B 310F            119               CALL  WDATA
+009D D8FA            120               DJNZ  R0,CL1
+009F 22              121               RET
+                     122     ;==================================================
+                     123     ;LCM ÏÔÊ¾¹¤×÷²Ëµ¥ÐÅÏ¢
+                     124     ;==================================================
+A51 MACRO ASSEMBLER  IR_12864LCD                                                          04/20/2007 21:58:22 PAGE     3
+
+00A0                 125     MENU1:
+00A0 9000A8          126              MOV   DPTR,#MENU1A
+00A3 7401            127              MOV   A,#1         ;ÔÚµÚÒ»ÐÐÏÔÊ¾ÐÅÏ¢
+00A5 1151            128              CALL  LCD_SHOW
+00A7 22              129              RET
+00A8 BAECCDE2        130     MENU1A:  DB  "ºìÍâÒ£¿ØÂë¶ÁÈ¡Æ÷",0
+00AC D2A3BFD8                
+00B0 C2EBB6C1                
+00B4 C8A1C6F7                
+00B8 00                      
+                     131     
+00B9                 132     MENU2:
+00B9 9000C1          133              MOV   DPTR,#MENU2A
+00BC 7402            134              MOV   A,#2         ;ÔÚµÚ¶þÐÐÏÔÊ¾ÐÅÏ¢
+00BE 1151            135              CALL  LCD_SHOW
+00C0 22              136              RET
+00C1 2D2D7777        137     MENU2A:  DB  "--www.saxmcu.com",0
+00C5 772E7361                
+00C9 786D6375                
+00CD 2E636F6D                
+00D1 00                      
+                     138     
+00D2                 139     MENU3:
+00D2 9000DA          140              MOV   DPTR,#MENU3A
+00D5 7403            141              MOV   A,#3         ;ÔÚµÚÈÐÐÏÔÊ¾ÐÅÏ¢
+00D7 1151            142              CALL  LCD_SHOW
+00D9 22              143              RET
+00DA BCFCD6B5        144     MENU3A:  DB  "¼üÖµ±àÂë£º- - H",0
+00DE B1E0C2EB                
+00E2 A3BA2D20                
+00E6 2D204800                
+                     145     
+00EA                 146     MENU4:
+00EA 9000F2          147              MOV   DPTR,#MENU4A
+00ED 7404            148              MOV   A,#4         ;ÔÚµÚËÄÐÐÏÔÊ¾ÐÅÏ¢
+00EF 1151            149              CALL  LCD_SHOW
+00F1 22              150              RET
+00F2 BCFCD6B5        151     MENU4A:  DB  "¼üÖµ·´Âë£º- - H",0
+00F6 B7B4C2EB                
+00FA A3BA2D20                
+00FE 2D204800                
+                     152     
+                     153     ;==============================================
+                     154     ; Ð´Ö¸ÁîÊ¹ÄÜ×Ó³ÌÐò
+                     155     ;RS=L,RW=L,D0-D7=Ö¸ÁîÂë£¬E=¸ßÂö³å
+                     156     ;==============================================
+0102                 157     WCOM:
+0102 F580            158               MOV  P0,A
+0104 C2A0            159               CLR RS
+0106 C2A1            160               CLR RW
+0108 D2A2            161               SETB EN
+010A 311C            162               CALL  DELAY0
+010C C2A2            163               CLR EN
+010E 22              164               RET
+                     165     ;=============================================
+                     166     ;Ð´Ê¾ÝÊ¹ÄÜ×Ó³ÌÐò
+                     167     ;RS=H,RW=L,D0-D7=Ê¾Ý£¬E=¸ßÂö³å
+                     168     ;=============================================
+010F                 169     WDATA:
+010F F580            170               MOV   P0,A
+0111 D2A0            171               SETB  RS
+0113 C2A1            172               CLR   RW
+0115 D2A2            173               SETB  EN
+0117 311C            174               CALL  DELAY0
+0119 C2A2            175               CLR   EN
+011B 22              176               RET
+A51 MACRO ASSEMBLER  IR_12864LCD                                                          04/20/2007 21:58:22 PAGE     4
+
+                     177     
+011C 7FFA            178     DELAY0:   MOV  R7,#250      ;ÑÓÊ±500Î¢Ãë
+011E DFFE            179               DJNZ  R7,$
+0120 22              180               RET
+                     181     ;===============================================
+                     182     ;ÔÚ LCM µÚÈÐÐ¡¢µÚËÄÐÐÏÔÊ¾×Ö·û
+                     183     ;A=ASC DATA, B=LINE X POS
+                     184     ;===============================================
+0121                 185     LCDP3:                    ;ÔÚLCDµÄµÚÈÐÐÏÔÊ¾×Ö·û
+0121 C0E0            186              PUSH  ACC        ;
+0123 E5F0            187              MOV  A,B         ;ÉèÖÃÏÔÊ¾µØÖ·
+0125 2488            188              ADD  A,#088H     ;ÉèÖÃLCDµÄµÚÈÐÐµØÖ·
+0127 3102            189              CALL  WCOM       ;Ð´ÈëÃüÁî
+0129 D0E0            190              POP  ACC         ;ÓÉ¶ÑÕ»È¡³öA
+012B 310F            191              CALL  WDATA      ;Ð´ÈëÊ¾Ý
+012D 22              192              RET
+                     193     
+012E                 194     LCDP4:                    ;ÔÚLCDµÄµÚËÄÐÐÏÔÊ¾×Ö·û
+012E C0E0            195              PUSH  ACC        ;
+0130 E5F0            196              MOV  A,B         ;ÉèÖÃÏÔÊ¾µØÖ·
+0132 2498            197              ADD  A,#098H     ;ÉèÖÃLCDµÄµÚËÄÐÐµØÖ·
+0134 3102            198              CALL  WCOM       ;Ð´ÈëÃüÁî
+0136 D0E0            199              POP  ACC         ;ÓÉ¶ÑÕ»È¡³öA
+0138 310F            200              CALL  WDATA      ;Ð´ÈëÊ¾Ý
+013A 22              201              RET
+                     202     ;=================================================
+                     203     ; IR ÒëÂë×Ó³ÌÐò
+                     204     ;ÖÐ¶Ï·þÎñ³ÌÐò
+                     205     ;=================================================
+013B                 206     IR_IN:
+013B C2AF            207               CLR EA         ;ÔÝÊ±¹Ø±ÕCPUµÄËùÓÐÖÐ¶ÏÇëÇó
+013D C0E0            208               PUSH  ACC
+013F C0D0            209               PUSH  PSW
+0141 D2D3            210               SETB  PSW.3     ;Ñ¡Ôñ¹¤×÷¼Ä´æÆ÷×é1
+0143 C2D4            211               CLR   PSW.4
+                     212     
+0145 7820            213               MOV   R0,#IRCOM
+0147 7904            214               MOV  R1,#04H
+0149 30B207          215     I1:       JNB  IRIN,I2       ;µÈ´ IR ÐÅºÅ³öÏÖ
+014C 1201A4          216               LCALL CONV
+014F D9F8            217               DJNZ  R1,I1
+0151 803E            218               JMP  IR_OUT
+0153 7C14            219      I2:      MOV  R4,#20
+0155 5127            220      I20:     CALL  DEL
+0157 DCFC            221               DJNZ  R4,I20
+0159 20B2ED          222               JB  IRIN,I1        ;È·ÈÏIRÐÅºÅ³öÏÖ
+015C 20B204          223      I21:     JB  IRIN,I3        ;µÈ IR ±äÎª¸ßµçÆ½
+015F 5127            224               CALL  DEL
+0161 80F9            225               JMP  I21
+0163 7B00            226      I3:      MOV  R3,#0         ;8Î»ÊÇåÎª0
+0165 30B204          227      LL:      JNB  IRIN,I4       ;µÈ IR ±äÎªµÍµçÆ½
+0168 5127            228               CALL  DEL
+016A 80F9            229               JMP  LL
+016C 20B204          230      I4:      JB  IRIN,I5        ;µÈ IR ±äÎª¸ßµçÆ½
+016F 5127            231               CALL  DEL
+0171 80F9            232               JMP  I4
+0173 7A00            233      I5:      MOV  R2,#0         ;0.14ms ¼ÆÊ
+0175 5127            234      L1:      CALL  DEL
+0177 20B213          235               JB  IRIN, N1       ;µÈ IR ±äÎª¸ßµçÆ½
+                     236                                  ;IR=0£¬¼ì²éR2ÖÐµÄ¼ÆÊÖµ
+017A 7408            237               MOV  A,#8
+017C C3              238               CLR  C
+017D 9A              239               SUBB  A,R2         ;ÅÐ¶Ï¸ßµÍÎ»
+                     240                                  ;IF C=0  BIT=0
+017E E6              241               MOV  A,@R0
+017F 13              242               RRC  A
+A51 MACRO ASSEMBLER  IR_12864LCD                                                          04/20/2007 21:58:22 PAGE     5
+
+0180 F6              243               MOV  @R0,A         ;´¦ÀíÍêÒ»Î»
+0181 0B              244               INC  R3
+0182 BB08E0          245               CJNE  R3,#8,LL     ;Ðè´¦ÀíÍê8Î»
+0185 7B00            246               MOV  R3,#0
+0187 08              247               INC  R0
+0188 B824DA          248               CJNE  R0,#24H,LL   ;ÊÕ¼¯µ½4×Ö½ÚÁË
+018B 800B            249               JMP   IR_SHOW
+018D 0A              250      N1:      INC  R2
+018E BA1EE4          251               CJNE  R2,#30,L1    ;0.14ms ¼ÆÊ¹³¤ÔòÊ±¼äµ½×Ô¶¯Àë¿ª
+                     252     
+0191 D0D0            253     IR_OUT:   POP  PSW
+0193 D0E0            254               POP  ACC
+0195 D2AF            255               SETB  EA
+0197 32              256               RETI
+                     257     
+                     258     ;------------------------------------------------------------------
+0198                 259     IR_SHOW:
+0198 E522            260               MOV A,22H
+019A F4              261               CPL A                ;½«22HÈ¡·´ºóºÍ23H±È½Ï
+019B B52304          262               CJNE A,23H,IR_SHOW1  ;Èç¹û²»µÈ±íÊ¾½ÓÊÕÊ¾Ý·¢Éú´íÎó,·ÅÆú¡£
+019E 31A4            263               CALL   CONV
+01A0 5109            264               CALL  BEEP_BL        ;·äÃùÆ÷ÃùÏì±íÊ¾½âÂë³É¹¦
+01A2                 265     IR_SHOW1:
+01A2 80ED            266               JMP  IR_OUT
+                     267     ;===============================================
+                     268     ;±àÂë×ª»»Îª ASCII Âë²¢ÏÔÊ¾
+                     269     ;===============================================
+01A4                 270     CONV:
+01A4 752605          271               MOV   X,#5        ;ÉèÖÃÏÔÊ¾ÆðÊ¼Î»ÖÃ
+01A7 E522            272               MOV   A,22H
+01A9 54F0            273               ANL   A,#0F0H      ;È¡³ö¸ßËÄÎ»¶þ½øÖÆÊ
+01AB C4              274               SWAP  A            ;¸ßËÄÎ»ÓëµÍËÄÎ»»¥»»
+01AC C0E0            275               PUSH  ACC          ;Ñ¹Èë¶ÑÕ»
+01AE C3              276               CLR   C            ;C=0
+01AF 940A            277               SUBB  A,#0AH       ;¼õ10
+01B1 D0E0            278               POP   ACC          ;µ¯³ö¶ÑÕ»
+01B3 4002            279               JC    ASCII0       ;¸ÃÊÐ¡ÓÚ10£¬×ªASCII0
+01B5 2407            280               ADD   A,#07H       ;´óÓÚ10µÄÊ¼ÓÉÏ37H
+01B7 2430            281     ASCII0:   ADD   A,#30H       ;Ð¡ÓÚ10µÄÊ¼ÓÉÏ30H
+01B9 8526F0          282               MOV   B,X
+01BC 3121            283               CALL  LCDP3
+                     284     
+01BE E522            285               MOV   A,22H
+01C0 540F            286               ANL   A,#0FH        ;È¡³öµÍËÄÎ»¶þ½øÖÆÊ
+01C2 C0E0            287               PUSH  ACC
+01C4 C3              288               CLR   C
+01C5 940A            289               SUBB  A,#0AH        ;¼õ10
+01C7 D0E0            290               POP   ACC
+01C9 4002            291               JC    ASCII1        ;¸ÃÊÐ¡ÓÚ10£¬×ªASCII0
+01CB 2407            292               ADD   A,#07H        ;´óÓÚ10µÄÊ¼ÓÉÏ37H
+01CD 2430            293     ASCII1:   ADD   A,#30H        ;Ð¡ÓÚ10µÄÊ¼ÓÉÏ30H
+01CF 0526            294               INC   X
+01D1 8526F0          295               MOV   B,X
+01D4 3121            296               CALL  LCDP3
+                     297     
+01D6 752605          298               MOV   X,#5         ;ÉèÖÃÏÔÊ¾ÆðÊ¼Î»ÖÃ
+01D9 E523            299               MOV   A,23H        ;·´Âë
+01DB 54F0            300               ANL   A,#0F0H      ;È¡³ö¸ßËÄÎ»¶þ½øÖÆÊ
+01DD C4              301               SWAP  A            ;¸ßËÄÎ»ÓëµÍËÄÎ»»¥»»
+01DE C0E0            302               PUSH  ACC          ;Ñ¹Èë¶ÑÕ»
+01E0 C3              303               CLR   C            ;C=0
+01E1 940A            304               SUBB  A,#0AH       ;¼õ10
+01E3 D0E0            305               POP   ACC          ;µ¯³ö¶ÑÕ»
+01E5 4002            306               JC    ASCII2       ;¸ÃÊÐ¡ÓÚ10£¬×ªASCII0
+01E7 2407            307               ADD   A,#07H       ;´óÓÚ10µÄÊ¼ÓÉÏ37H
+01E9 2430            308     ASCII2:   ADD   A,#30H       ;Ð¡ÓÚ10µÄÊ¼ÓÉÏ30H
+A51 MACRO ASSEMBLER  IR_12864LCD                                                          04/20/2007 21:58:22 PAGE     6
+
+01EB 8526F0          309               MOV   B,X
+01EE 312E            310               CALL  LCDP4
+                     311     
+01F0 E523            312               MOV   A,23H
+01F2 540F            313               ANL   A,#0FH        ;È¡³öµÍËÄÎ»¶þ½øÖÆÊ
+01F4 C0E0            314               PUSH  ACC
+01F6 C3              315               CLR   C
+01F7 940A            316               SUBB  A,#0AH        ;¼õ10
+01F9 D0E0            317               POP   ACC
+01FB 4002            318               JC    ASCII3        ;¸ÃÊÐ¡ÓÚ10£¬×ªASCII0
+01FD 2407            319               ADD   A,#07H        ;´óÓÚ10µÄÊ¼ÓÉÏ37H
+01FF 2430            320     ASCII3:   ADD   A,#30H        ;Ð¡ÓÚ10µÄÊ¼ÓÉÏ30H
+0201 0526            321               INC   X
+0203 8526F0          322               MOV   B,X
+0206 312E            323               CALL  LCDP4
+0208 22              324               RET
+                     325     ;===================================================
+                     326     ;·äÃùÆ÷ÏìÒ»Éù×Ó³ÌÐò
+                     327     ;===================================================
+0209                 328     BEEP_BL:
+0209 7E64            329              MOV  R6,#100
+020B 5116            330       BL1:   CALL  DEX1
+020D B2B7            331              CPL  BEEP
+020F DEFA            332              DJNZ  R6,BL1
+0211 7D19            333              MOV  R5,#25
+0213 511C            334              CALL  DELAY
+0215 22              335              RET
+0216 7FB4            336      DEX1:   MOV  R7,#180
+0218 00              337      DEX2:   NOP
+0219 DFFD            338              DJNZ  R7,DEX2
+021B 22              339              RET
+021C                 340      DELAY:                    ;ÑÓÊ±R5¡Á10MS
+021C 7E32            341              MOV  R6,#50
+021E 7F64            342       D1:    MOV  R7,#100
+0220 DFFE            343              DJNZ  R7,$
+0222 DEFA            344              DJNZ  R6,D1
+0224 DDF6            345              DJNZ  R5,DELAY
+0226 22              346              RET
+                     347     ;===============================================
+                     348     ; DELAY  R5*0.14MS
+0227                 349     DEL:
+0227 7D01            350               MOV  R5,#1       ;IR½âÂëÊ¹ÓÃ
+0229 7E02            351     DEL0:     MOV  R6,#2
+022B 7F20            352     DEL1:     MOV  R7,#32
+022D DFFE            353     DEL2:     DJNZ  R7,DEL2
+022F DEFA            354               DJNZ  R6,DEL1
+0231 DDF6            355               DJNZ  R5,DEL0
+0233 22              356               RET
+                     357     
+0234                 358     DELAY1:                    ;ÑÓÊ±5MS
+0234 7E19            359              MOV  R6,#25
+0236 7F64            360       DL2:   MOV  R7,#100
+0238 DFFE            361              DJNZ  R7,$
+023A DEFA            362              DJNZ  R6,DL2
+023C 22              363              RET
+                     364     ;================================================
+                     365             END
+A51 MACRO ASSEMBLER  IR_12864LCD                                                          04/20/2007 21:58:22 PAGE     7
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+ACC. . . . . . . .  D ADDR   00E0H   A   
+ASCII0 . . . . . .  C ADDR   01B7H   A   
+ASCII1 . . . . . .  C ADDR   01CDH   A   
+ASCII2 . . . . . .  C ADDR   01E9H   A   
+ASCII3 . . . . . .  C ADDR   01FFH   A   
+B. . . . . . . . .  D ADDR   00F0H   A   
+BEEP . . . . . . .  B ADDR   00B0H.7 A   
+BEEP_BL. . . . . .  C ADDR   0209H   A   
+BL1. . . . . . . .  C ADDR   020BH   A   
+CL1. . . . . . . .  C ADDR   0099H   A   
+CLR_LINE . . . . .  C ADDR   0097H   A   
+CONV . . . . . . .  C ADDR   01A4H   A   
+D1 . . . . . . . .  C ADDR   021EH   A   
+DEL. . . . . . . .  C ADDR   0227H   A   
+DEL0 . . . . . . .  C ADDR   0229H   A   
+DEL1 . . . . . . .  C ADDR   022BH   A   
+DEL2 . . . . . . .  C ADDR   022DH   A   
+DELAY. . . . . . .  C ADDR   021CH   A   
+DELAY0 . . . . . .  C ADDR   011CH   A   
+DELAY1 . . . . . .  C ADDR   0234H   A   
+DEX1 . . . . . . .  C ADDR   0216H   A   
+DEX2 . . . . . . .  C ADDR   0218H   A   
+DL2. . . . . . . .  C ADDR   0236H   A   
+EA . . . . . . . .  B ADDR   00A8H.7 A   
+EN . . . . . . . .  B ADDR   00A0H.2 A   
+FILL . . . . . . .  C ADDR   008BH   A   
+I1 . . . . . . . .  C ADDR   0149H   A   
+I2 . . . . . . . .  C ADDR   0153H   A   
+I20. . . . . . . .  C ADDR   0155H   A   
+I21. . . . . . . .  C ADDR   015CH   A   
+I3 . . . . . . . .  C ADDR   0163H   A   
+I4 . . . . . . . .  C ADDR   016CH   A   
+I5 . . . . . . . .  C ADDR   0173H   A   
+IE . . . . . . . .  D ADDR   00A8H   A   
+IRCOM. . . . . . .  N NUMB   0020H   A   
+IRIN . . . . . . .  B ADDR   00B0H.2 A   
+IR_IN. . . . . . .  C ADDR   013BH   A   
+IR_OUT . . . . . .  C ADDR   0191H   A   
+IR_SHOW. . . . . .  C ADDR   0198H   A   
+IR_SHOW1 . . . . .  C ADDR   01A2H   A   
+L1 . . . . . . . .  C ADDR   0175H   A   
+LC1. . . . . . . .  C ADDR   0091H   A   
+LCDP3. . . . . . .  C ADDR   0121H   A   
+LCDP4. . . . . . .  C ADDR   012EH   A   
+LCD_SHOW . . . . .  C ADDR   0051H   A   
+LINE1. . . . . . .  C ADDR   0054H   A   
+LINE2. . . . . . .  C ADDR   0060H   A   
+LINE3. . . . . . .  C ADDR   006FH   A   
+LINE4. . . . . . .  C ADDR   007EH   A   
+LINE5. . . . . . .  C ADDR   0090H   A   
+LL . . . . . . . .  C ADDR   0165H   A   
+LOOP0. . . . . . .  C ADDR   000CH   A   
+LOOP1. . . . . . .  C ADDR   0028H   A   
+LOOP2. . . . . . .  C ADDR   002FH   A   
+LOOP3. . . . . . .  C ADDR   0034H   A   
+MAIN . . . . . . .  C ADDR   0005H   A   
+MENU1. . . . . . .  C ADDR   00A0H   A   
+MENU1A . . . . . .  C ADDR   00A8H   A   
+MENU2. . . . . . .  C ADDR   00B9H   A   
+MENU2A . . . . . .  C ADDR   00C1H   A   
+A51 MACRO ASSEMBLER  IR_12864LCD                                                          04/20/2007 21:58:22 PAGE     8
+
+MENU3. . . . . . .  C ADDR   00D2H   A   
+MENU3A . . . . . .  C ADDR   00DAH   A   
+MENU4. . . . . . .  C ADDR   00EAH   A   
+MENU4A . . . . . .  C ADDR   00F2H   A   
+N1 . . . . . . . .  C ADDR   018DH   A   
+P0 . . . . . . . .  D ADDR   0080H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+P2 . . . . . . . .  D ADDR   00A0H   A   
+P3 . . . . . . . .  D ADDR   00B0H   A   
+PSB. . . . . . . .  B ADDR   00A0H.3 A   
+PSW. . . . . . . .  D ADDR   00D0H   A   
+RELAY. . . . . . .  B ADDR   0090H.3 A   
+RS . . . . . . . .  B ADDR   00A0H.0 A   
+RST. . . . . . . .  B ADDR   00A0H.5 A   
+RW . . . . . . . .  B ADDR   00A0H.1 A   
+SET_LCD. . . . . .  C ADDR   0036H   A   
+SP . . . . . . . .  D ADDR   0081H   A   
+TCON . . . . . . .  D ADDR   0088H   A   
+WCOM . . . . . . .  C ADDR   0102H   A   
+WDATA. . . . . . .  C ADDR   010FH   A   
+X. . . . . . . . .  N NUMB   0026H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

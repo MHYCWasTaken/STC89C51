@@ -1,0 +1,4 @@
+"STARTUP.obj",
+"宏晶看门狗.obj" 
+TO "宏晶看门狗" 
+RAMSIZE(256) 

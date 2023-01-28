@@ -1,0 +1,112 @@
+C51 COMPILER V7.06   PCF8591                                                               07/19/2010 11:10:51 PAGE 1   
+
+
+C51 COMPILER V7.06, COMPILATION OF MODULE PCF8591
+OBJECT MODULE PLACED IN .\obj\pcf8591.obj
+COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE pcf8591.c BROWSE DEBUG OBJECTEXTEND PRINT(.\obj\pcf8591.lst) OBJECT(.\obj\p
+                    -cf8591.obj)
+
+stmt level    source
+
+   1          /*-----------------------------------------------
+   2            名称：IIC协议 PCF8591 AD/DA转换
+   3            论坛：www.doflye.net
+   4            编写：shifang
+   5            修改：无
+   6            内容：使用4路AD中的4路检测外部模拟量输入
+   7          ------------------------------------------------*/  
+   8          #include <reg52.h>                
+   9          #include "i2c.h"
+  10          #include "delay.h"
+  11          #include "pcf8591.h"
+  12          
+  13          #define AddWr 0x90   //写数据地址 
+  14          #define AddRd 0x91   //读数据地址
+  15          
+  16          extern bit ack;
+  17          
+  18          
+  19          /*------------------------------------------------
+  20                             AD处理函数
+  21          ------------------------------------------------*/
+  22          unsigned char  ADCheck(void)
+  23          {
+  24   1       unsigned char num=0,i;
+  25   1       unsigned char Val=0;
+  26   1       for(i=0;i<5;i++)
+  27   1           WriteDAC(0);//写入固定值到DA输出，用于检测
+  28   1       for(i=0;i<5;i++)//连续读5次，输入通道后多读几次，去最后一次值，以便读出稳定值
+  29   1           num=ReadADC(0);
+  30   1       if((num>100)&&(num<150)) // 2.5V
+  31   1          Val++;
+  32   1      
+  33   1       for(i=0;i<5;i++)
+  34   1         num=ReadADC(1);
+  35   1      if((num>100)&&(num<150)) // 2.5V
+  36   1          Val++;  
+  37   1      
+  38   1       for(i=0;i<5;i++)
+  39   1          num=ReadADC(2);
+  40   1      if((num>100)&&(num<150)) // 2.5V
+  41   1          Val++;
+  42   1      
+  43   1       for(i=0;i<5;i++)
+  44   1           num=ReadADC(3);
+  45   1      if((num>100)&&(num<150)) // 2.5V
+  46   1          Val++;
+  47   1      return Val;
+  48   1      }
+  49          /*------------------------------------------------
+  50                       读AD转值程序
+  51          输入参数 Chl 表示需要转换的通道，范围从0-3
+  52          返回值范围0-255
+  53          ------------------------------------------------*/
+  54          unsigned char ReadADC(unsigned char Chl)
+C51 COMPILER V7.06   PCF8591                                                               07/19/2010 11:10:51 PAGE 2   
+
+  55           {
+  56   1        unsigned char Val;
+  57   1         Start_I2c();               //启动总线
+  58   1         SendByte(AddWr);             //发送器件地址
+  59   1           if(ack==0)return(0);
+  60   1         SendByte(0x40|Chl);            //发送器件子地址
+  61   1           if(ack==0)return(0);
+  62   1         Start_I2c();
+  63   1         SendByte(AddRd);
+  64   1            if(ack==0)return(0);
+  65   1         Val=RcvByte();
+  66   1         NoAck_I2c();                 //发送非应位
+  67   1         Stop_I2c();                  //结束总线
+  68   1        return(Val);
+  69   1       }
+  70          /*------------------------------------------------
+  71                         写入DA转换数值
+  72          输入参数：dat 表示需要转换的DA数值，范围是0-255
+  73          ------------------------------------------------*/
+  74          bit WriteDAC(unsigned char dat)
+  75          {
+  76   1         Start_I2c();               //启动总线
+  77   1         SendByte(AddWr);             //发送器件地址
+  78   1           if(ack==0)return(0);
+  79   1         SendByte(0x40);            //发送器件子地址
+  80   1           if(ack==0)return(0);
+  81   1         SendByte(dat);             //发送数据
+  82   1           if(ack==0)return(0);
+  83   1         Stop_I2c();  
+  84   1      }
+  85          
+  86          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    257    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       6
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

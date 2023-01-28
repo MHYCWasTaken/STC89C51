@@ -1,0 +1,297 @@
+SOURCE.DOC Copyright (C) 1992, 1993 Douglas Herr þ all rights reserved
+
+ASMLIB uses a number of subroutines which are not applicable to general
+programming.  These subroutines include "$" in their names.  All "$"
+subroutines require a near call, so the calling program must be in the same
+segment as the called subroutine.  The segment names used by ASMLIB are:
+
+asmtiny: _TEXT  (assumes CS:DGROUP, DS:DGROUP)
+asmsmall: _TEXT (assumes CS:_TEXT, DS:DGROUP)
+asmlib: _MEDIUM (assumes CS:_MEDIUM, DS:DGROUP)
+asmhuge: _HUGE  (assumes CS:_HUGE, DS:DGROUP)
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+$emspage:    position logical EMS page at page frame
+source:      $emspage.asm
+
+Call with:   DS:[BX] pointing to 4-byte offset into allocated EMS block
+             DX = EMS handle
+Returns:     if CF = 0, no error
+             if CF = 1, AH = error code
+Uses:        AX, flags
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+$fget:       read more data into file buffer
+Source:      $fget.asm
+
+Call with:   BX = file handle
+             ES = buffer segment address
+Returns:     if CF = 1, AX = DOS error code
+Uses:        AX, DX, SI, DS, flags
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+$handle:     verify handle for buffered file I/O
+Source:      fopen.asm
+
+Call with:   BX = file handle
+             ASSUMES DS:DGROUP
+Returns:     if CF = 0, SI points to file handle in ASMLIB buffer data area
+                        segment address of buffer associated with this handle
+                        at 2[SI]
+             if CF = 1, handle in BX not managed by ASMLIB buffer system
+Uses:        SI, flags
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+a$putw:      module used by several ASMLIB text subroutines to copy
+             a character/attribute pair to a window of the screen;
+             includes snow control logic for CGA systems.
+Source:      a$putw.asm
+
+Call with:   CX = column width of window
+             DX = 0 to disable snow control
+                = 3DAh to enable snow control
+             SI = row height of window
+             ES:[DI] points to video buffer
+             AL = character
+             AH = color attribute
+             BX = bytes per screen row (80-column screen has 160 bytes per row)
+             DF = 0 (clear direction flag with CLD)
+Uses:        DI, SI, flags
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+a$paint:     used to change color of the screen; used by Paint and
+             WPaint subroutines.  Includes snow control logic for CGA
+             systems.
+Source:      a$paint.asm
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+a$recolor:   used to change color of the screen; used by ReColor and
+             WReColor subroutines.  Includes snow control logic for CGA
+             systems.
+Source:      a$recolor.asm
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+a$wdata:     parameter manager for ASMLIB's Window subroutines.
+Source:      a$wdata.asm (crtinfo.asm)
+
+             Detailed parameter requirements and output listed in
+             source code; do not call this subroutine unless you know
+             what you're doing.
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+$gpick:      select string from fixed-field string block; graph mode
+source:      $gpick.asm (heap.asm, strncpy.asm, drawbox.asm, fillbox.asm,
+               gprint.asm, dosalloc.asm, bitblock.asm, bbbytes.asm,
+               strlen.asm, gcolor.asm, a$menu.asm, $graph.asm, m$input.asm,
+               v$extkey.asm, m$chrn.asm, m$nkey.asm)
+
+call with:   ES = segment address of string list
+             AX = number of strings
+             CX = field size
+             BX = initial choice
+             DS:[DX] pointing to initial coordinates
+             assumes DS:DGROUP
+returns:     AX = returning keycode
+             BX = returned selection number
+uses:        AX, BX, CX, DX, SI, DI, flags
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+$herc:       detects Hercules-compatible equipment; does not determine
+             if Hercules equipment is the default monitor (see IsHerc)
+Source:      $herc.asm
+
+Call with:   no parameters; NEAR CALL REQUIRED
+Returns:     if CF = 1, no Hercules-compatible equipment installed
+             if CF = 0, AX = Hercules model
+                       128 = Hercules Graphics Card or compatible
+                       144 = Hercules Graphics Card Plus
+                       208 = Hercules InColor card
+Uses:        AX, flags
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+$strstr:     string search module used by several ASMLIB subroutines
+Source:      $strstr.asm
+
+Call with:   ES:[DI] -> search string, DS:[SI] -> substring
+             BX = substring length, DX = search string length
+             NEAR CALL REQUIRED
+Returns:     CF = 1, AX = -1 if no match
+             AX = match offset
+Uses:        AX, BX, CX, DX, SI, DI, flags
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+$wcopy:      copies word data from one portion of memory to another;
+             includes snow control logic for CGA systems.
+Source:      $wcopy.asm
+
+Call with:   CX = words to copy
+             DS:[SI] -> source
+             ES:[DI] -> destination
+             DX = CRTC status port if CGA, else 0
+             DF = 0 or 1
+Returns:     ES:[DI] pointing past end of destination
+             DS:[SI] pointing past end of block
+             CX = 0
+Uses:        AX, CX, DI, SI, flags
+Called by:   WSave, WRestore, GetScreen, PutScreen, TCopy, VScroll, HScroll
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+m$putwindow:  save screen, clear window & print window frame
+Source:       m$putw.asm (wsize.asm, wsave.asm, dosalloc.asm, wframe.asm,
+                          wclear.asm)
+
+Call with:    DS:[BX] pointing to window corner data
+Returns:      ES = segment address of saved screen area
+Uses:         ES, flags
+Called by:    PICKSTR
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+$strlist:     copy group of ASCIIZ strings to block of fixed-length strings
+source:       $strlist.asm (dosalloc.asm, strlen.asm, m$count.asm)
+
+Call with:    DS:[SI] pointing to first string to copy
+              string group terminated with double NUL
+              requires sufficient free DOS memory
+
+Returns:      if CF = 1, insufficient DOS memory available
+              if CF = 0:
+               ES = base segment address of string block
+               AX = number of strings
+               CX = string field size
+Uses:         AX, CX, ES, flags
+Called by:    PICKSTR, GPICKSTR
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+m$count:      counts a group of ASCIIZ strings
+Source:       m$count.asm (strlen.asm)
+
+Call with:    DS:[BX] pointing to first string
+              string group terminated with double NUL
+Returns:      AX = number of strings
+              CX = length of longest string counted
+Uses:         AX, BX, CX, flags
+Called by:    PICKSTR, PULLDOWN
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+m$nkey:       process normal keystroke for menu subroutines
+Source:       m$nkey.asm (isupper.asm, m$chr.asm)
+
+Call with:    AL = key code
+              BX = initial cursor position
+              CX = field width
+              DX = number of menu choices
+              ES:[DI] pointing to first menu choice
+Returns:      BX = output position
+               if CF = 0, found matching character
+               if CF = 1, no match
+Uses:         AX, BX, CX, DX, DI, flags
+Called by:    $pick
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+m$chr:        determines if a keycode is the first uppercase character
+              in a string
+Source:       m$chr.asm (strlen.asm)
+
+Call with:    AX = keycode
+              DS:[BX] pointing to string
+Returns:      if CF = 1, string length = 0
+              if CF = 0:
+                CX = 0 if no upper case characters in the string
+                if CX <> 0, AH = first UCASE character
+                ZF = 1 if character is first ucase in string
+                DS:[BX] points to first ucase character
+Uses:         AX, BX, CX, flags
+Called by:    $pick, PULLDOWN
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+$listwindow:  calculates window dimensions for input list; adjusts
+              upper left corner coordinates if required to fit on screen
+Source:       $listw.asm (crtinfo.asm)
+
+Call with:    DS:[BX] pointing to 8-byte data area for window corner data
+              AX = number of choices in list
+              CX = list field width
+              DH = desired first screen row for list
+              DL = desired first column for list
+              $listwindow assumes that DH < total screen rows
+Returns:      DH = adjusted first row for $pick
+              DL = adjusted first column for $pick
+              8 bytes at DS:[BX] are updated with window corner coordinates
+              for WSave, WFrame, WRestore, etc.
+Uses:         DX; all other registers and flags are saved
+Called by:    PICKSTR, PICKFILE
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+$pick:        select one string from a list of fixed-length strings
+Source:       $pick.asm (crtinfo.asm, str2vbuf.asm, a$putw.asm, m$input.asm,
+                         m$chr.asm, m$nkey.asm, a$menu.asm, v$extkey.asm))
+
+Call with:    ES:[DI] pointing to list of choices
+              AX = number of menu choices
+              CX = field width
+              BX = initial cursor position
+              DH = top screen row
+              DL = left screen column
+              Returns to calling program when Esc, Enter or ^C pressed
+
+Returns:      if BreakTrap enabled:
+               if CF = 1, ^C or ^Break was pressed
+              AX = last key pressed (AX = 3 if ^C pressed)
+              BX = string number selected (first string = 0)
+Uses:         AX, BX, CF
+Called by:    PICKSTR, PICKFILE
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+v$extkey:     extended keycode processor for ASMLIB vertical list menus
+              (text and graph modes)
+Source:       v$extkey.asm
+
+Call with:    AL = low word of ASMLIB extended key code
+              [bp-2] = field width of string list
+              [bp-4] = number of choices
+              [bp-6] = current choice
+              [bp-8] = first string to print (for scrolling if required)
+              [bp-10] = number of strings to print 
+                        ( = number of choices if no scrolling required)
+
+Returns:      if CF = 0, modifies [bp-6] and [bp-8]
+              if CF = 1, keycode not a valid cursor movement key
+              valid keys: Up, Down, Home, End, PgUp, PgDown
+
+Uses:         AX, flags
+Called by:    $pick, $gpick

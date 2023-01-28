@@ -1,0 +1,188 @@
+C51 COMPILER V8.02   12864                                                                 08/08/2009 14:12:50 PAGE 1   
+
+
+C51 COMPILER V8.02, COMPILATION OF MODULE 12864
+OBJECT MODULE PLACED IN 12864.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE 12864.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include <REG51.H>
+   2          #include <intrins.h>
+   3          #define uint unsigned int
+   4          #define uchar unsigned char
+   5          //延时子程序模块
+   6          //**********************************************
+   7          void mdelay(uint delay)
+   8          {       uint i;
+   9   1              for(;delay>0;delay--)
+  10   1                      {for(i=0;i<80;i++) //1ms延时.
+  11   2                      {;}
+  12   2                      }
+  13   1      }
+  14          
+  15          //************************************************
+  16          
+  17          void show();   //液晶显示程序
+  18          //****************************************
+  19          //12864液晶显示部分子程序模块
+  20          //****************************************
+  21          sbit rs         = P3^0;
+  22          sbit rw         = P3^1;
+  23          sbit e          = P3^2;
+  24          #define lcddata P0
+  25          sbit busy=P0^7;   //lcd busy bit
+  26          void wr_d_lcd(uchar content);
+  27          void wr_i_lcd(uchar content);
+  28          void clrram_lcd (void);
+  29          void init_lcd(void);
+  30          void busy_lcd(void);
+  31          void rev_row_lcd(uchar row);
+  32          void rev_co_lcd(uchar row,uchar col,uchar mode);
+  33          void clr_lcd(void);
+  34          void wr_co_lcd(uchar row,uchar col,uchar lcddata1,uchar lcddtta2);
+  35          void wr_row_lcd(uchar row,char *p);
+  36          //**********************************
+  37          //液晶初始化
+  38          //**********************************
+  39          void init_lcd(void)
+  40          {
+  41   1              wr_i_lcd(0x06);  /*光标的移动方向*/
+  42   1              wr_i_lcd(0x0c);  /*开显示，关游标*/
+  43   1      }
+  44          //***********************************
+  45          //填充液晶DDRAM全为空格
+  46          //**********************************
+  47          void clrram_lcd (void)
+  48          {
+  49   1              wr_i_lcd(0x30);
+  50   1              wr_i_lcd(0x01);
+  51   1      }
+  52          //***********************************
+  53          //对液晶写数据
+  54          //content为要写入的数据
+  55          //***********************************
+C51 COMPILER V8.02   12864                                                                 08/08/2009 14:12:50 PAGE 2   
+
+  56          void wr_d_lcd(uchar content)
+  57          {
+  58   1              busy_lcd();
+  59   1              rs=1;
+  60   1          rw=0;
+  61   1              lcddata=content;
+  62   1              e=1;
+  63   1              ;
+  64   1              e=0;
+  65   1      }
+  66          //********************************
+  67          //对液晶写指令
+  68          //content为要写入的指令代码
+  69          //*****************************
+  70          void wr_i_lcd(uchar content)
+  71          {
+  72   1              busy_lcd();
+  73   1              rs=0;
+  74   1          rw=0;
+  75   1              lcddata=content;
+  76   1              e=1;
+  77   1              ;
+  78   1              e=0;
+  79   1      }
+  80          //********************************
+  81          //液晶检测忙状态
+  82          //在写入之前必须执行
+  83          //********************************
+  84          void busy_lcd(void)
+  85          {
+  86   1        lcddata=0xff;
+  87   1        rs=0;
+  88   1        rw=1;
+  89   1        e =1;
+  90   1        while(busy==1);
+  91   1        e =0;
+  92   1      }
+  93          //********************************
+  94          //指定要显示字符的坐标
+  95          //*******************************
+  96          void gotoxy(unsigned char y, unsigned char x)
+  97          {
+  98   1              if(y==1)
+  99   1                      wr_i_lcd(0x80|x);
+ 100   1              if(y==2)
+ 101   1              wr_i_lcd(0x90|x);
+ 102   1              if(y==3)
+ 103   1                      wr_i_lcd((0x80|x)+8);
+ 104   1              if(y==4)
+ 105   1              wr_i_lcd((0x90|x)+8);
+ 106   1      }
+ 107          //**********************************
+ 108          //液晶显示字符串程序
+ 109          //**********************************
+ 110          void print(uchar *str)
+ 111          {
+ 112   1              while(*str!='\0')
+ 113   1              {
+ 114   2                      wr_d_lcd(*str);
+ 115   2                      str++;
+ 116   2              }
+ 117   1      }
+C51 COMPILER V8.02   12864                                                                 08/08/2009 14:12:50 PAGE 3   
+
+ 118          
+ 119          //***************************************
+ 120          //液晶显示主程序模块
+ 121          //***************************************
+ 122          void show()   
+ 123          {
+ 124   1        
+ 125   1        gotoxy(1,0);
+ 126   1        print("欢迎光临锐志电子");
+ 127   1          mdelay(200);             
+ 128   1        gotoxy(2,0);
+ 129   1        print("【锐志电子】");
+ 130   1        mdelay(200);                 //扫描延时
+ 131   1      
+ 132   1      gotoxy(3,0);
+ 133   1        print("WWW.RICHMCU.COM");
+ 134   1        mdelay(200);                 //扫描延时
+ 135   1      gotoxy(4,0);
+ 136   1        print("12864 液晶测试");
+ 137   1        mdelay(200);                 //扫描延时
+ 138   1      }
+ 139          
+ 140          
+ 141          //************************************
+ 142          //主程序
+ 143          //*************************************
+ 144          main()
+ 145          {
+ 146   1        
+ 147   1              init_lcd();
+ 148   1              clrram_lcd();
+ 149   1              
+ 150   1              while(1)
+ 151   1              {   
+ 152   2              
+ 153   2                  show();                //液晶显示数据
+ 154   2                                      
+ 155   2                      }               
+ 156   1              
+ 157   1      }
+ 158          
+ 159          
+ 160          
+ 161          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    291    ----
+   CONSTANT SIZE    =     61    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       7
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

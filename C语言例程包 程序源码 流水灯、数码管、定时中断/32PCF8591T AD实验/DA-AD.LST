@@ -1,0 +1,183 @@
+C51 COMPILER V7.50   DA_AD                                                                 09/19/2011 17:32:32 PAGE 1   
+
+
+C51 COMPILER V7.50, COMPILATION OF MODULE DA_AD
+OBJECT MODULE PLACED IN DA-AD.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE DA-AD.C BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          /**********************************************************************************
+   2          *  标题:       ************* DA-AD试验*******************                         *
+   3          *                                                                                                                                                                 *
+   4          *   1.通过本例程了解并掌握AD-DA转换芯片的基本原理和使用                                                   *
+   5          *   2.了解掌握I2C总线接口的工作原理及一般编程方法。
+   6          *                                                                                     *
+   7          * 请学员认真消化本例程，懂得AD-DA 在C语言中的操作应用                             *
+   8          ***********************************************************************************/
+   9          
+  10          #include<reg52.h>
+  11          #include <I2C.H>
+  12          
+  13          #define  PCF8591 0x90    //PCF8591 地址
+  14          
+  15          
+  16          // 此表为 LED 的字模            // 0    1    2    3    4    5    6   7    8    9    A    b    c    d    E 
+             -   -    L   P    U    Hidden  _ (20)
+  17          unsigned char code  Disp_Tab[] = { 0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f,0x88,0x83,0xC6,0xA1,0
+             -x86,0xbf,0xc7,0x8c,0xc1, 0xff,  0xf7 }; 
+  18          
+  19          unsigned char AD_CHANNEL;
+  20          unsigned long xdata  LedOut[8];
+  21          unsigned int  D[32];
+  22                           
+  23          sbit KEY = P3^2;
+  24          /********************************************************************
+  25          * 名称 : Delay_1ms()
+  26          * 功能 : 延时子程序，延时时间为 1ms * x
+  27          * 输入 : x (延时一毫秒的个数)
+  28          * 输出 : 无
+  29          ***********************************************************************/
+  30          void Delay_1ms(unsigned char i)//1ms延时
+  31          {
+  32   1              unsigned char x,j;
+  33   1              for(j=0;j<i;j++)
+  34   1              for(x=0;x<=148;x++);    
+  35   1      }
+  36          /*******************************************************************
+  37          DAC 变换, 转化函数               
+  38          *******************************************************************/
+  39          bit DACconversion(unsigned char sla,unsigned char c,  unsigned char Val)
+  40          {
+  41   1         Start_I2c();              //启动总线
+  42   1         SendByte(sla);            //发送器件地址
+  43   1         if(ack==0)return(0);
+  44   1         SendByte(c);              //发送控制字节
+  45   1         if(ack==0)return(0);
+  46   1         SendByte(Val);            //发送DAC的数值  
+  47   1         if(ack==0)return(0);
+  48   1         Stop_I2c();               //结束总线
+  49   1         return(1);
+  50   1      }
+  51          
+  52          /*******************************************************************
+  53          ADC发送字节[命令]数据函数               
+C51 COMPILER V7.50   DA_AD                                                                 09/19/2011 17:32:32 PAGE 2   
+
+  54          *******************************************************************/
+  55          bit ISendByte(unsigned char sla,unsigned char c)
+  56          {
+  57   1         Start_I2c();              //启动总线
+  58   1         SendByte(sla);            //发送器件地址
+  59   1         if(ack==0)return(0);
+  60   1         SendByte(c);              //发送数据
+  61   1         if(ack==0)return(0);
+  62   1         Stop_I2c();               //结束总线
+  63   1         return(1);
+  64   1      }
+  65          
+  66          /*******************************************************************
+  67          ADC读字节数据函数               
+  68          *******************************************************************/
+  69          unsigned char IRcvByte(unsigned char sla)
+  70          {  unsigned char c;
+  71   1      
+  72   1         Start_I2c();          //启动总线
+  73   1         SendByte(sla+1);      //发送器件地址
+  74   1         if(ack==0)return(0);
+  75   1         c=RcvByte();          //读取数据0
+  76   1      
+  77   1         Ack_I2c(1);           //发送非就答位
+  78   1         Stop_I2c();           //结束总线
+  79   1         return(c);
+  80   1      }
+  81          
+  82          //******************************************************************/
+  83          main()
+  84          {  
+  85   1       unsigned char i,k;
+  86   1       while(1)
+  87   1       {/********以下AD-DA处理*************/  
+  88   2         switch(AD_CHANNEL)
+  89   2         {
+  90   3           case 0: ISendByte(PCF8591,0x41);
+  91   3                   D[0]=IRcvByte(PCF8591)*2;  //ADC0 模数转换1
+  92   3                               break;  
+  93   3       
+  94   3               case 1: ISendByte(PCF8591,0x42);
+  95   3                   D[1]=IRcvByte(PCF8591)*2;  //ADC1  模数转换2
+  96   3                               break;  
+  97   3      
+  98   3               case 2: ISendByte(PCF8591,0x43);
+  99   3                   D[2]=IRcvByte(PCF8591)*2;  //ADC2  模数转换3
+ 100   3                               break;  
+ 101   3      
+ 102   3               case 3: ISendByte(PCF8591,0x40);
+ 103   3                   D[3]=IRcvByte(PCF8591)*2;  //ADC3   模数转换4
+ 104   3                               break;  
+ 105   3      
+ 106   3               case 4: DACconversion(PCF8591,0x40, D[4]/4); //DAC       数模转换
+ 107   3                       break;
+ 108   3         }
+ 109   2      
+ 110   2         if(++AD_CHANNEL>4) AD_CHANNEL=0;
+ 111   2      
+ 112   2       /********以下将AD的值送到LED数码管显示*************/
+ 113   2              if(k==0)
+ 114   2              {
+ 115   3                      
+C51 COMPILER V7.50   DA_AD                                                                 09/19/2011 17:32:32 PAGE 3   
+
+ 116   3               LedOut[0]=Disp_Tab[D[0]%10000/1000];
+ 117   3           LedOut[1]=Disp_Tab[D[0]%1000/100];
+ 118   3           LedOut[2]=Disp_Tab[D[0]%100/10]&0x7f;
+ 119   3           LedOut[3]=Disp_Tab[D[0]%10];
+ 120   3               
+ 121   3               LedOut[4]=Disp_Tab[D[1]%10000/1000];
+ 122   3           LedOut[5]=Disp_Tab[D[1]%1000/100]&0x7f;
+ 123   3           LedOut[6]=Disp_Tab[D[1]%100/10];
+ 124   3           LedOut[7]=Disp_Tab[D[1]%10];  
+ 125   3              }
+ 126   2               if(k==1)
+ 127   2              {
+ 128   3                      
+ 129   3               LedOut[0]=Disp_Tab[D[2]%10000/1000];
+ 130   3           LedOut[1]=Disp_Tab[D[2]%1000/100];
+ 131   3           LedOut[2]=Disp_Tab[D[2]%100/10]&0x7f;
+ 132   3           LedOut[3]=Disp_Tab[D[2]%10];
+ 133   3               
+ 134   3               LedOut[4]=Disp_Tab[D[3]%10000/1000];
+ 135   3           LedOut[5]=Disp_Tab[D[3]%1000/100]&0x7f;
+ 136   3           LedOut[6]=Disp_Tab[D[3]%100/10];
+ 137   3           LedOut[7]=Disp_Tab[D[3]%10];  
+ 138   3              }       
+ 139   2               for( i=0; i<8; i++) 
+ 140   2               {       
+ 141   3                      P0 = LedOut[i];
+ 142   3                      P2 = i; 
+ 143   3                      Delay_1ms(1);
+ 144   3               }
+ 145   2               if(KEY == 0)
+ 146   2               {
+ 147   3                      k=!k;
+ 148   3                      Delay_1ms(250);
+ 149   3               }
+ 150   2              }  
+ 151   1      }
+ 152          
+ 153          
+ 154          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1060    ----
+   CONSTANT SIZE    =     21    ----
+   XDATA SIZE       =     32    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     65       8
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

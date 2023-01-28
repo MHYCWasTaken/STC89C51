@@ -1,0 +1,100 @@
+From: Inbar Raz
+Subj: Accessing the cursor keys
+____________________________________________________________________________
+
+Hello everyone.
+
+I have seen a debate here about accessing the cursor keys. Well, having
+written a resident dialer that allows you to dial from the cursor keys, I am
+posting here a segment of its source, to display the use of the cursor keys.
+
+If anyone wants the full source, lemme know.
+
+--------------------------------- cut here ---------------------------------
+
+Kbd:    mov     ah,010h
+        int     16h                             ; Extended kbd read
+
+        cmp     al,01Bh                         ; ESCape?
+        jz      GoodBye1
+
+        cmp     al,00Dh                         ; Done?
+        jz      Done1
+
+        cmp     ax,00E08h                       ; Backspace?
+        jnz     Label1
+
+        mov     bx,offset NumBuf
+        cmp     NumPtr,bx
+        jbe     Kbd                             ; Beginning of line?
+
+        dec     NumPtr
+        mov     si,NumPtr
+        mov     byte ptr [si],000h              ;  from buffer too
+
+        jmp     Kbd
+
+Done1:  jmp     Done
+
+Label1: cmp     al,000h                         ; Extended ASCII?
+        jnz     Label2
+
+        cmp     ah,047h                         ; Keypad?
+        jb      Kbd
+
+        cmp     ah,052h                         ;  - " -
+        ja      Kbd
+
+        mov     bx,offset XlatTbl
+        sub     bx,047h                         ; To make up for partiality
+        mov     al,ah
+        xlat                                    ; Translate key
+                                                ; Table is brought in the end
+
+        cmp     al,000h                         ; If illegal,
+        jz      Kbd                             ;  get a new one
+
+Echo:   mov     bx,offset NumBuf
+
+<<< some irrelevant code >>>
+
+Label3: mov     si,NumPtr
+
+<<< some irrelevant code >>>
+
+Label2: cmp     al,02Dh
+        jz      Echo                            ; '-'
+
+        cmp     ah,026h
+        jnz     Label5
+
+        and     al,04Fh
+        cmp     al,04Ch
+        jnz     Kbd1
+
+        mov     bx,offset NumBuf
+        cmp     NumPtr,bx
+        jne     Kbd1                            ; Beginning of line?
+
+        mov     AllDone,001h
+
+        jmp     Echo
+
+Label5: cmp     al,030h
+        jb      Kbd1
+
+        cmp     al,039h
+        jna     Echo
+
+        jmp     Kbd1
+
+Done:   mov     si,NumPtr
+
+; Translation table:
+
+XlatTbl db      037h, 038h, 039h, 0, 034h, 035h
+        db      036h, 0, 031h, 032h, 033h, 030h
+
+--------------------------------- cut here ---------------------------------
+
+Inbar Raz

@@ -1,0 +1,824 @@
+
+***************************** DISK & FILE *******************************
+
+ASMLIB disk & file subroutines (C) Copyright 1992 - 1993 Douglas Herr
+All rights reserved
+
+The MS-DOS file attribute byte tells you whether a file is read-only,
+system, a subdirectory, or may provide other information.  File attribute
+bits may be combined.  Each bit of the file attribute means:
+
+        0 = normal files
+        1 = read-only
+        2 = hidden files
+        4 = system files
+        8 = volume label (only one per disk)
+       16 = subdirectories
+       32 = archive bit set
+
+   Thus a file with an attribute of 18 is a hidden subdirectory (16 OR 2)
+
+
+
+                      ASMLIB buffered file I/O system
+
+    Several ASMLIB subroutines are available for buffered file Input or
+    Output.  Files to be managed by the buffered I/O system must be opened
+    by FOPEN or FCREATE, and must be closed by FCLOSE.  Buffered file I/O
+    will be much faster than unbuffered.  ASMLIB's default buffer size is
+    4096 bytes; this can be changed by altering FBUFFER_SIZE in FOPEN.ASM
+    and re-assembling.  Up to 20 files can be managed by FOPEN; this can
+    be changed by altering NUMBER_OF_FILES in $handle.asm and reassembling.
+    All ASMLIB file buffer subroutines assume DS:@data.
+
+    To use the ASMLIB buffered I/O system excess DOS memory must be
+    released.  See ENDPROG in SYSTEM.DOC.
+
+    Subroutines: FOPEN        open file & initialize buffer
+                 FCREATE      create file & initialize buffer
+                 FCLOSE       flush & close output buffer; close file
+                 FSEEK        move file pointer & update buffer
+                 FGETSTR      read a string from buffer
+                 FGETCHR      read a character from buffer
+                 FGET         read specified number of bytes from buffer
+                 FPUTSTR      write string to buffer
+                 FPUTCRLF     write CR+LF to buffer
+                 FPUTCHR      write character to buffer
+                 FPUT         write specified number of bytes to buffer
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+DISKWP:      determines if a floppy disk is write-protected
+Source:      diskwp.asm
+
+Call with:   DL = floppy disk number (drive A: = 0)
+Returns:     AL = BIOS error code
+                0 = no error
+                1 = invalid disk number
+                3 = disk is write-protected
+              128 = drive not ready
+Uses:        AX, flags
+Supports:    physical drives A: and B:
+Example:
+
+include asm.inc
+
+public  mycode
+extrn   diskwp:proc
+
+.code
+diskwp  proc
+        .
+        .
+        .
+        mov     dl,1        ; drive B:
+        call    diskwp      ; can I write to this disk?
+        or      al,al
+        jz      no_problem
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+DOTBAK:      changes the file extension of an existing file to .BAK
+Source:      dotbak.asm (strrchr.asm)
+
+Call with:   DS:[SI] = address of a ASCIIZ valid filename
+             assumes DS:@data
+             dotbak deletes a previous .BAK file of this name and
+             renames the input filename.ext to filename.bak.
+Returns:     if CF = 0, no error
+             if CF = 1, AL = DOS error code.  If AL = 5, the previous
+             .BAK filename is probably read-only.  All other errors refer
+             to the name change operation.
+Uses:        AX, flags
+Example:
+
+extrn  dotbak:proc
+
+.data
+
+disk_doc  db 'DISK.DOC',0
+
+.code
+; program fragment assumes DS:@data
+             .
+             .
+             .
+             mov   si,offset DGROUP:disk_doc
+             call  dotbak
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+FCLOSE:      close a file managed by ASMLIB's buffered file I/O system
+Source:      fopen.asm ($handle.asm, dosalloc.asm)
+
+Call with:   BX = file handle
+             The file must have been opened by FOPEN or FCREATE;  If the
+             file is not read-only, the output buffer will be written to
+             the disk file before closing the file.
+Returns:     if CF = 0, no error
+             if CF = 1, AX = error code
+Uses:        AX, flags
+Example:     see FOPEN
+
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+FCOPY:       copy a file
+FCOPYM:      copy a file using supplied memory buffer
+Source:      fcopy.asm
+
+Call with:   DS:[SI] = address of source filename
+             ES:[DI] = address of destination filename
+             Both filenames must be ASCIIZ strings.  Drive and path need
+             not be fully specified; filenames may not include * or ?
+             wildcards.
+             FCOPY only: Requires 64k DOS memory available
+             FCOPYM only: AX = segment address of 64k buffer
+Returns:     if CF = 0, no problem
+             if CF = 1, AX = DOS error code (AX = -1 if insufficient memory)
+Uses:        AX, CF
+Example:
+
+.data
+        db 'b:'
+source  db 'asmlib.lib',0         ; copy the library to b:
+
+extrn   fcopy:proc
+.code
+; program fragment assumes DS:@data
+        .
+        .
+        push    ds
+        pop     es
+        assume es:@data
+        lea     si,source
+        mov     di,si                ; DI also points to source
+        sub     di,2                 ; back the pointer to the 'B:'
+        call    fcopy
+        jc      oops
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+FCOUNT:      counts the number of files matching an ASCIIZ filespec string.
+             The filespec string may include the '*' and '?' wildcards.
+Source:      fcount.asm
+
+Call with:   DS:[DX] pointing to filespec string
+             CX = file attributes
+             assumes DS:@data
+Returns:     AX = number of files matching the filespec string
+Uses:        AX, all other registers and flags are saved
+Example:
+
+.code
+; program fragment assumes DS:@data
+        .
+        .
+        .
+        lea    dx,filespec      ; address of filespec string
+        xor    cx,cx            ; normal files only
+        call   fcount
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+FCREATE:     create new file and initialize output buffer
+Source:      fcreate.asm ($handle.asm, dosalloc.asm)
+
+Call with:   DS:[DX] pointing to ASCIIZ filename
+             The file is created with write-only access.  If a file with
+             the same name already exists, it is truncated to zero
+             length by FCREATE.
+Returns:     if CF = 0, AX = file handle
+             if CF = 1, AX = error code
+Uses:        AX, flags
+Example:
+
+include  asm.inc
+
+public   myprog
+extrn    fcreate:proc
+
+.data
+file_name   db 'ANYNEW.FIL',0
+file_handle dw 0
+
+.code
+myprog   proc
+; program fragment assumes DS:@data
+         .
+         .
+         .
+         lea   dx,file_name
+         call  fcreate
+         jc    something_went_wrong
+         mov   file_handle,ax ; save the handle
+         .
+         .
+         .
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+FEXIST:      determines if a file exists and can be opened with read access
+Source:      fexist.asm
+
+Call with:   DS:[DX] pointing to ASCIIZ filename
+Returns:     if CF = 0, file exists
+             if CF = 1, AX = MS-DOS error code
+Uses:        AX, CF; all other flags and registers are saved
+Example:
+
+include  asm.inc
+
+extrn    fexist:proc
+.data
+filename db 'asmlib.doc',0
+
+.code
+; program fragment assumes DS:@data
+         .
+         .
+         .
+         lea   dx,filename
+         call  fexist
+         jnc   got_the_file      ; if CF = 0, go on
+         jmp   doserror          ; else go to error handling code
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+FFLUSH:      flushes the ASMLIB and DOS output buffers for specified handle
+Source:      fflush.asm (fseek.asm, $handle.asm)
+
+Call with:   BX = file handle
+             flushing the buffers guards against data loss in case of system
+             failure, such as power loss
+Returns:     if CF = 0, no error; function successful
+             if CF = 1, AX = DOS error code
+Uses:        AX, flags
+Example:
+
+include asm.inc
+
+extrn fflush:proc
+
+.code
+; program opens file & writes to file
+      .
+      .
+      .
+; flush the buffers to disk
+      mov    bx,handle
+      call   fflush
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+FGET:        read specified number of bytes from file buffer
+Source:      fget.asm ($handle.asm, $fget.asm)
+
+Call with:   BX = file handle
+             CX = number of bytes requested (up to 4096 bytes)
+Returns:     if CF = 0, AX = number of bytes read
+                        ES:[BX] points to data in buffer
+             if CF = 1, AX = DOS error code
+Uses:        AX, BX, ES, flags
+Example:
+
+include   asm.inc
+
+extrn     fopen:proc, fget:proc
+
+.data
+file_name   db 'asmlib.doc',0
+file_handle dw 0
+
+.code
+; program fragment assumes DS:@data
+          .
+          .
+          .
+          lea   dx,file_name
+          call  fopen
+          jc    fopen_problem
+          mov   file_handle,ax  ; save for later
+
+          mov   bx,ax           ; file handle
+          mov   cx,8            ; I want 8 bytes
+          call  fget            ;  returned at ES:[BX]
+          jc    read_problem    ; uh oh, trouble ...
+          cmp   ax,cx           ; did I get what I wanted?
+          jne   not_enough
+          .
+          .
+
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+FGETCHR:     read a character from a file buffer
+Source:      fgetchr.asm ($handle.asm)
+
+Call with:   BX = file handle
+Returns:     if CF = 0, AL = next character from file buffer
+             if CF = 1, AX = DOS error code
+                        AX = 0 if at end of file
+Uses:        AX, flags
+Example:
+
+include   asm.inc
+
+extrn     fopen:proc, fgetchr:proc
+
+.data
+file_name   db 'asmlib.doc',0
+file_handle dw 0
+
+.code
+; program fragment assumes DS:@data
+          .
+          .
+          .
+          lea   dx,file_name
+          call  fopen
+          jc    fopen_problem
+          mov   file_handle,ax  ; save for later
+
+          mov   bx,ax           ; file handle
+          call  fgetchr         ; character in AL
+          jc    read_problem
+
+          .
+          .
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+FGETSTR:     read an ASCII string from a file buffer
+Source:      fgetstr.asm ($handle.asm, $fget.asm)
+
+Call with:   BX = file handle
+             ASCII strings may be terminated with either 0Dh or 0Dh+0Ah.
+             After reading each string, FGetStr positions the buffer pointer
+             to read the next string.  String length should be less than
+             the buffer size.  See FOPEN.
+Returns:     if CF = 0, ES:[BX] points to string in buffer
+                        CX = length of ASCII string
+                     if CX = byte length of buffer, string >= size of buffer
+             if CF = 1, AX = DOS error code
+                        AX = 0 if end of file
+Uses:        ES, BX, AX, CX, flags
+Example:
+
+include   asm.inc
+
+extrn     fopen:proc, fgetstr:proc
+
+.data
+file_name   db 'asmlib.doc',0
+file_handle dw 0
+
+.code
+; program fragment assumes DS:@data
+          .
+          .
+          .
+          lea   dx,file_name
+          call  fopen
+          jc    fopen_problem
+          mov   file_handle,ax  ; save for later
+
+          mov   bx,ax           ; file handle
+          call  fgetstr
+          jc    read_problem
+
+          call  strndup         ; make a copy in near heap for later
+          .
+          .
+          .
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+FILELIST:    creates a list of file names matching a filespec mask
+Source:      filelist.asm (fcount.asm, dosalloc.asm)
+
+Call with:   DS:[SI] pointing to filespec mask
+             CX = file attribute mask
+Returns:     if CF = 0:
+               ES = base segment address of list buffer
+               AX = number of filenames in list
+               CX = list field width
+             if CF = 1, AX = MS-DOS error code
+             You should use DOS function 49h to release the file list
+             buffer when you're done with it.
+Uses:        AX, CX, ES, CF
+Example:
+
+include asm.inc
+
+public  myproc
+
+.data
+filespec db '*.*',0
+
+.code
+; program fragment assumes DS:@data
+        .
+        .
+        .
+        lea    si,filespec
+        mov    cx,16            ; normal files and subdirectories
+        call   filelist
+        jc     cant_do_it       ; oops
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+FINDDATE:    given a successful call to FindFirst or FindNext, returns
+             the file's date stamp
+Source:      findfile.asm
+
+Call with:   DS:[BX] pointing to DTA buffer; assumes DS  @DATA
+Returns:     DX = month
+             AX = day
+             CX = year
+Uses:        AX, CX, DX, flags
+Example:
+
+.code
+; program fragment assumes DS:@data
+        .
+        .
+        .
+        lea    bx,filespec
+        mov    cx,0              ; normal files only
+        call   findfirst         ; find first matching file
+        jc     no_more_files
+        cmp    ax,-1
+        je     no_more_files
+        call   finddate
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+FINDFIRST:   This subroutine, when used with FindNext, finds files on
+             a disk which match an ASCIIZ filespec string.  The filespec
+             string may contain the '*' and '?' wildcards.
+Source:      findfile.asm (heap.asm)
+
+Call with:   DS:[BX] pointing to ASCIIZ filespec string; assumes DS:@data
+             CX = file attribute mask
+
+             FindFirst allocates space for a local DTA buffer from the
+             near heap.  See FindNext; also see HINIT.
+
+Returns:     AX = error code
+             -1 = insufficient memory in near heap (128 bytes required)
+             0 = no error
+             CF = 1 if no files match the filespec string
+             DS:[BX] -> DTA buffer if the subroutine is successful.  Do not
+             alter the 128 bytes in the DTA buffer.
+             The name of the file is an ASCIIZ string at 30[BX]
+             The file attribute is a byte at 21[BX]
+             The low word of the file's size is at 26[BX]
+             The high word of the file's size is at 28[BX]
+Uses:        AX, BX, flags
+Example:
+
+.code
+; program fragment assumes DS:@data
+     .
+     .
+     .
+     lea    bx,filespec
+     mov    cx,0              ; normal files only
+     call   findfirst         ; find first matching file
+     jc     no_more_files
+     cmp    ax,-1
+     je     no_memory         ; memory not available
+
+; print the filename on the screen
+tprint_next:
+     mov    si,bx
+     add    si,30             ; point to filename in DTA buffer
+     mov    dh,count          ; row value
+     mov    dl,0              ; column 0
+     mov    ah,12             ; color attribute - RED!
+     call   tprint            ; display the file name on the screen
+     inc    count             ; next filename on next row
+     call   findnext          ; any more matching filenames?
+     jnc    tprint_next
+no_more_files:
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+FINDNEXT:    finds file matching search string; use after FindFirst.
+             used only after a successful call to FindFirst.
+Source:      findfile.asm (heap.asm)
+
+Call with:   no parameters; assumes DS:@data
+
+             FindNext de-allocates the DTA buffer space after the first
+             unsuccessful search for a matching file.
+
+Returns:     DS:[BX] -> DTA buffer
+             CF = 1 if no more files match the filespec string.
+Uses:        BX, flags
+Example:     see FindFirst.
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+FINDTIME:    given a successful call to FindFirst or FindNext, returns
+             the file's time stamp
+Source:      findfile.asm
+
+Call with:   DS:[BX] pointing to DTA buffer; assumes DS:@data
+Returns:     DX = hour
+             AX = minute
+             CX = second
+Uses:        AX, CX, DX, flags
+Example:     lea    bx,filespec
+             mov    cx,0              ; normal files only
+             call   findfirst         ; find first matching file
+             jc     no_more_files
+             cmp    ax,-1
+             je     no_more_files
+             call   findtime
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+FOPEN:       opens existing file and initializes ASMLIB buffered I/O
+Source:      fopen.asm (dosalloc.asm, $handle.asm)
+
+Call with:   DS:[DX] pointing to name of file to be opened
+             AL = access mode
+              0 = read-only access
+              1 = write-only access
+              2 = read-write access NOT SUPPORTED YET
+Returns:     if CF = 0, AX = file handle
+             if CF = 1, AX = ASMLIB or DOS error code; file not opened
+                if AX = 0, insufficient DOS memory available
+                if AX = 0FFFFh, no handles available in ASMLIB I/O array;
+                   change NUMBER_OF_HANDLES in $handle.asm amd re-assemble
+                   (default = 20 handles)
+Uses:        AX, flags
+Example:
+
+include  asm.inc
+
+public   myprog
+extrn    fopen:proc, fclose:proc
+
+.data
+file_name   db 'ASMLIB.DOC',0
+file_handle dw 0
+
+.code
+myprog   proc
+; program fragment assumes DS:@data
+         .
+         .
+         .
+         lea   dx,file_name
+         xor   al,al          ; read-only access
+         call  fopen
+         jc    something_went_wrong
+         mov   file_handle,ax ; save the handle
+         .
+         .
+         .
+
+; all done with this file
+         mov   bx,file_handle
+         call  fclose
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+FPUT:        write specified number of bytes to output file buffer
+Source:      fput.asm ($handle.asm)
+
+Call with:   BX = file handle
+             ES:[DI] pointing to data to write
+             CX = number of bytes to write
+Returns:     if CF = 0, no error
+             if CF = 1, AX = error code
+Uses:        AX, flags
+Example:
+
+include  asm.inc
+
+public   myproc
+extrn    fput:proc
+extrn    fputchr:proc
+extrn    fputcrlf:proc
+
+.data
+data1    db 'several bytes may be written at once'
+data_len equ $-data1
+
+.code
+; program fragment assumes DS:@data
+         .
+         .
+         .
+         mov   bx,output_handle
+         push  ds
+         pop   es                     ; ES = DS = DGROUP
+         assume  es:DGROUP
+         lea   di,data1               ; ES:[DI] -> data1
+         mov   cx,data_len            ; bytes to write
+         call  fput
+         call  fputcrlf               ; write CR+LF for new line
+                                      ; in ASCII text file
+         mov   al,26                  ; End-of-File byte (optional)
+         call  fputchr
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+FPUTCHR:     write one character to output file buffer
+Source:      fputchr.asm (fput.asm)
+
+Call with:   BX = output file handle
+             AL = character to write
+Returns:     if CF = 1, AX = MS-DOS error code
+             if CF = 0, no error
+Uses:        AX, flags
+Example:     see FPUT
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+FPUTCRLF:    write CR+LF pair to output file buffer
+Source:      fputcrlf.asm (fput.asm)
+
+Call with:   BX = output file handle; file must have been opened by
+             FOPEN or FCREATE
+Returns:     if CF = 0, no error
+             if CF = 1, AX = DOS error code
+Uses:        AX, flags
+Example:     see FPUT
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+FPUTSTR:     write an ASCIIZ string to output buffer
+Source:      fpustr.asm (strlen.asm, fput.asm)
+
+Call with:   BX = file handle
+             ES:[DI] points to ASCIIZ string
+Returns:     if CF = 0, AX = bytes written
+             if CF = 1, AX = DOS error code
+Uses:        AX, flags
+Example:
+
+include  asm.inc
+
+public   myproc
+extrn    fputstr:proc
+extrn    fputcrlf:proc
+
+.data
+strptr   dw 0                      ; pointer to string, assigned by program
+
+.code
+; program fragment assumes DS:@data
+         .
+         .
+         .
+         push  ds
+         pop   es                     ; ES = DS = DGROUP
+         assume  es:DGROUP
+         mov   bx,output_handle
+         mov   di,strptr              ; ES:[DI] -> data1
+         call  fputstr
+         call  fputcrlf               ; write CR+LF for new line
+                                      ; in ASCII text file
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+FSEEK:       move file pointer for a file opened by FOPEN
+Source:      fseek.asm ($handle.asm)
+
+Call with:   BX = file handle
+             AL = method code: 0 = absolute offset from start of file
+                               1 = signed offset from current file pointer
+                               2 = signed offset from end of file
+             CX:DX = dword offset
+Returns:     if CF = 1, AX = DOS error code
+             if CF = 0, DX:AX = current location of file pointer
+Uses:        AX, DX, flags
+
+Example:
+
+include   asm.inc
+
+public  whoknows
+
+extrn fopen:proc, fseek:proc
+
+.data
+file0   db 'file0.dat',0
+
+.code
+whoknows  proc
+; program fragment assumes DS:@data
+        .
+        .
+        .
+        mov     dx,offset DGROUP:file0
+        mov     al,1              ; write only
+        call    fopen
+        jc      error
+        xor     cx,cx
+        mov     dx,cx             ; zero offset
+        mov     al,2              ; relative to end of file
+        call    fseek             ; move pointer to end of file
+
+
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+FSIZE:       determines a file's size
+Source:      fsize.asm
+
+Call with:   BX = valid file handle
+Returns:     if CF = 0, DX:AX = file size
+             if CF = 1, AX = MS-DOS error code
+Uses:        AX, DX, CF
+Example:
+
+include asm.inc
+
+extrn   fsize:proc
+
+.data
+filenam db 'ASMLIB.DOC',0      ; ASCIIZ filename
+
+.code
+        .
+        .
+        .
+        lea     dx,filenam     ; point to filename
+        mov     ax,3D00h       ; MS-DOS open file function, read-only
+        int     21h
+        jc      oops           ; jump to error control
+                               ; else no problem - continue
+        mov     bx,ax          ; file handle in BX
+        call    fsize
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+QFNAME:      qualifies a filename
+Source:      qfname.asm
+
+Call with:   DS:[BX] pointing to a filename; the filename may contain
+             drive specification and/or complete or partial path name.
+             Drive specification and path name not required.
+Returns:     DS:[SI] pointing to the full DRIVESPEC:\PATH\FILENAME
+             CX = length of full filename
+             Note that DS:[SI] points to QFName's buffer space; the next
+             call to QFName will return a new filename at the same address.
+Uses:        SI, CX, flags
+Example:
+
+include asm.inc
+
+.data
+docs   db '*.doc',0         ; search for .DOC files in current directory
+
+.code
+; program fragment assumes DS:@data
+       .
+       .
+       .
+       lea    bx,docs
+       call   qfname
+
+

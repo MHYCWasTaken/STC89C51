@@ -1,0 +1,23 @@
+C51 COMPILER V7.50   数码管_蔡_显蔩                                                        04/08/2009 23:00:37 PAGE 1   
+
+
+C51 COMPILER V7.50, COMPILATION OF MODULE 数码管_蔡_显蔩
+OBJECT MODULE PLACED IN 数码管静态显示.OBJ
+COMPILER INVOKED BY: E:\Program Files\Keil\C51\BIN\C51.EXE 数码管静态显示.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     72    ----
+   CONSTANT SIZE    =     20    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

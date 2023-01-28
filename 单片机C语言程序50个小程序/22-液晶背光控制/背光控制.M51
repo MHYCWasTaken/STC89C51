@@ -1,0 +1,299 @@
+BL51 BANKED LINKER/LOCATER V5.03                                                        05/13/2009  12:26:50  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V5.03, INVOKED BY:
+D:\KEIL\C51\BIN\BL51.EXE BLcon.obj TO 背光控制 RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  BLcon.obj (BLCON)
+  D:\KEIL\C51\LIB\C51S.LIB (?C_STARTUP)
+  D:\KEIL\C51\LIB\C51S.LIB (?C?CLDOPTR)
+  D:\KEIL\C51\LIB\C51S.LIB (PRINTF)
+  D:\KEIL\C51\LIB\C51S.LIB (?C_INIT)
+  D:\KEIL\C51\LIB\C51S.LIB (?C?CLDPTR)
+  D:\KEIL\C51\LIB\C51S.LIB (?C?CSTPTR)
+  D:\KEIL\C51\LIB\C51S.LIB (?C?PLDIIDATA)
+  D:\KEIL\C51\LIB\C51S.LIB (?C?CCASE)
+  D:\KEIL\C51\LIB\C51S.LIB (PUTCHAR)
+
+
+LINK MAP OF MODULE:  背光控制 (BLCON)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     0014H     UNIT         _DATA_GROUP_
+                    001CH     0004H                  *** GAP ***
+            BIT     0020H.0   0001H.1   UNIT         _BIT_GROUP_
+                    0021H.1   0000H.7                *** GAP ***
+            DATA    0022H     0024H     UNIT         ?DT?BLCON
+            IDATA   0046H     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     035CH     UNIT         ?PR?PRINTF?PRINTF
+            CODE    035FH     008EH     UNIT         ?C?LIB_CODE
+            CODE    03EDH     008CH     UNIT         ?C_C51STARTUP
+            CODE    0479H     005CH     UNIT         ?PR?MAIN?BLCON
+            CODE    04D5H     0030H     UNIT         ?PR?_SHOWSTRING?BLCON
+            CODE    0505H     0029H     UNIT         ?C_INITSEG
+            CODE    052EH     0027H     UNIT         ?PR?PUTCHAR?PUTCHAR
+            CODE    0555H     0023H     UNIT         ?PR?INITLCD?BLCON
+            CODE    0578H     0022H     UNIT         ?CO?BLCON
+            CODE    059AH     001DH     UNIT         ?PR?_SHOWCHAR?BLCON
+            CODE    05B7H     0017H     UNIT         ?PR?_WRITEDATA?BLCON
+            CODE    05CEH     0015H     UNIT         ?PR?_WRITECOMMAND?BLCON
+            CODE    05E3H     000FH     UNIT         ?PR?_DELAYMS?BLCON
+            CODE    05F2H     000EH     UNIT         ?PR?_DELAYUS?BLCON
+
+
+
+OVERLAY MAP OF MODULE:   背光控制 (BLCON)
+
+
+SEGMENT                            BIT_GROUP          DATA_GROUP 
+BL51 BANKED LINKER/LOCATER V5.03                                                      05/13/2009  12:26:50  PAGE 2
+
+
+  +--> CALLED SEGMENT           START    LENGTH     START    LENGTH
+-------------------------------------------------------------------
+?C_C51STARTUP                   -----    -----      -----    -----
+  +--> ?PR?MAIN?BLCON
+  +--> ?C_INITSEG
+
+?PR?MAIN?BLCON                  -----    -----      -----    -----
+  +--> ?PR?INITLCD?BLCON
+  +--> ?PR?_DELAYMS?BLCON
+  +--> ?CO?BLCON
+  +--> ?PR?PRINTF?PRINTF
+  +--> ?PR?_SHOWSTRING?BLCON
+
+?PR?INITLCD?BLCON               -----    -----      -----    -----
+  +--> ?PR?_DELAYMS?BLCON
+  +--> ?PR?_WRITECOMMAND?BLCON
+
+?PR?_DELAYMS?BLCON              -----    -----      -----    -----
+  +--> ?PR?_DELAYUS?BLCON
+
+?PR?_WRITECOMMAND?BLCON         -----    -----      -----    -----
+  +--> ?PR?_DELAYMS?BLCON
+
+?PR?PRINTF?PRINTF               0020H.0  0001H.1    0008H    0014H
+  +--> ?PR?PUTCHAR?PUTCHAR
+
+?PR?_SHOWSTRING?BLCON           -----    -----      0008H    0005H
+  +--> ?PR?_SHOWCHAR?BLCON
+
+?PR?_SHOWCHAR?BLCON             -----    -----      -----    -----
+  +--> ?PR?_WRITECOMMAND?BLCON
+  +--> ?PR?_WRITEDATA?BLCON
+
+?PR?_WRITEDATA?BLCON            -----    -----      -----    -----
+  +--> ?PR?_DELAYMS?BLCON
+
+
+
+SYMBOL TABLE OF MODULE:  背光控制 (BLCON)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        BLCON
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  C:04D5H         PUBLIC        _ShowString
+  D:0080H         PUBLIC        P0
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  D:00B0H         PUBLIC        P3
+  C:059AH         PUBLIC        _ShowChar
+  D:00A8H         PUBLIC        IE
+  C:05E3H         PUBLIC        _DelayMs
+  D:00B8H         PUBLIC        IP
+  C:05F9H         PUBLIC        _DelayUs
+  B:00A0H.4       PUBLIC        RS
+  B:00A0H.7       PUBLIC        BLCtrl
+BL51 BANKED LINKER/LOCATER V5.03                                                      05/13/2009  12:26:50  PAGE 3
+
+
+  C:0479H         PUBLIC        main
+  B:00A0H.5       PUBLIC        RW
+  C:0555H         PUBLIC        InitLcd
+  C:05CEH         PUBLIC        _WriteCommand
+  D:0098H         PUBLIC        SCON
+  D:0088H         PUBLIC        TCON
+  D:0022H         PUBLIC        TimeNum
+  B:00A0H.6       PUBLIC        E
+  D:0033H         PUBLIC        Test1
+  D:00C8H         PUBLIC        T2CON
+  B:00B0H.3       PUBLIC        KEY
+  C:05B7H         PUBLIC        _WriteData
+  D:00D0H         PUBLIC        PSW
+  -------         PROC          L?0025
+  -------         ENDPROC       L?0025
+  -------         PROC          _DELAYUS
+  D:0007H         SYMBOL        us
+  -------         DO            
+  D:0007H         SYMBOL        uscnt
+  -------         ENDDO         
+  C:05F9H         LINE#         34
+  C:05F9H         LINE#         35
+  C:05F9H         LINE#         37
+  C:05FDH         LINE#         38
+  C:05FFH         LINE#         39
+  -------         ENDPROC       _DELAYUS
+  -------         PROC          _DELAYMS
+  D:0006H         SYMBOL        ms
+  C:05E3H         LINE#         43
+  C:05E5H         LINE#         44
+  C:05E5H         LINE#         45
+  C:05E9H         LINE#         46
+  C:05E9H         LINE#         47
+  C:05E9H         LINE#         48
+  C:05ECH         LINE#         49
+  C:05ECH         LINE#         50
+  C:05EFH         LINE#         51
+  C:05F1H         LINE#         52
+  -------         ENDPROC       _DELAYMS
+  -------         PROC          _WRITECOMMAND
+  D:0005H         SYMBOL        c
+  C:05CEH         LINE#         56
+  C:05D0H         LINE#         57
+  C:05D0H         LINE#         58
+  C:05D5H         LINE#         59
+  C:05D7H         LINE#         60
+  C:05D9H         LINE#         61
+  C:05DBH         LINE#         62
+  C:05DCH         LINE#         63
+  C:05DEH         LINE#         64
+  C:05E0H         LINE#         65
+  C:05E2H         LINE#         66
+  -------         ENDPROC       _WRITECOMMAND
+  -------         PROC          _WRITEDATA
+  D:0005H         SYMBOL        c
+  C:05B7H         LINE#         70
+  C:05B9H         LINE#         71
+BL51 BANKED LINKER/LOCATER V5.03                                                      05/13/2009  12:26:50  PAGE 4
+
+
+  C:05B9H         LINE#         72
+  C:05BEH         LINE#         73
+  C:05C0H         LINE#         74
+  C:05C2H         LINE#         75
+  C:05C4H         LINE#         76
+  C:05C5H         LINE#         77
+  C:05C7H         LINE#         78
+  C:05C9H         LINE#         79
+  C:05CBH         LINE#         80
+  C:05CDH         LINE#         81
+  -------         ENDPROC       _WRITEDATA
+  -------         PROC          _SHOWCHAR
+  D:0006H         SYMBOL        pos
+  D:0003H         SYMBOL        c
+  -------         DO            
+  D:0004H         SYMBOL        p
+  -------         ENDDO         
+  C:059AH         LINE#         85
+  C:059EH         LINE#         86
+  C:059EH         LINE#         88
+  C:05A5H         LINE#         89
+  C:05AAH         LINE#         91
+  C:05ADH         LINE#         92
+  C:05B2H         LINE#         93
+  -------         ENDPROC       _SHOWCHAR
+  -------         PROC          _SHOWSTRING
+  D:0007H         SYMBOL        line
+  D:0008H         SYMBOL        ptr
+  -------         DO            
+  D:000BH         SYMBOL        l
+  D:000CH         SYMBOL        i
+  -------         ENDDO         
+  C:04D5H         LINE#         98
+  C:04DBH         LINE#         99
+  C:04DBH         LINE#         101
+  C:04E1H         LINE#         102
+  C:04E4H         LINE#         103
+  C:0504H         LINE#         104
+  -------         ENDPROC       _SHOWSTRING
+  -------         PROC          INITLCD
+  C:0555H         LINE#         108
+  C:0555H         LINE#         109
+  C:0555H         LINE#         110
+  C:055AH         LINE#         111
+  C:055FH         LINE#         112
+  C:0564H         LINE#         113
+  C:0569H         LINE#         114
+  C:056EH         LINE#         115
+  C:0573H         LINE#         116
+  -------         ENDPROC       INITLCD
+  -------         PROC          MAIN
+  C:0479H         LINE#         120
+  C:0479H         LINE#         122
+  C:0479H         LINE#         125
+  C:047CH         LINE#         126
+  C:0481H         LINE#         128
+  C:0493H         LINE#         129
+BL51 BANKED LINKER/LOCATER V5.03                                                      05/13/2009  12:26:50  PAGE 5
+
+
+  C:049EH         LINE#         131
+  C:04B0H         LINE#         132
+  C:04BBH         LINE#         134
+  C:04BBH         LINE#         135
+  C:04BEH         LINE#         136
+  C:04BEH         LINE#         137
+  C:04C3H         LINE#         138
+  C:04C6H         LINE#         139
+  C:04C9H         LINE#         140
+  C:04C9H         LINE#         141
+  C:04CEH         LINE#         142
+  C:04D1H         LINE#         143
+  C:04D3H         LINE#         144
+  C:04D3H         LINE#         145
+  C:04D3H         LINE#         146
+  -------         ENDPROC       MAIN
+  -------         ENDMOD        BLCON
+
+  -------         MODULE        ?C?CLDOPTR
+  C:035FH         PUBLIC        ?C?CLDOPTR
+  -------         ENDMOD        ?C?CLDOPTR
+
+  -------         MODULE        PRINTF
+  D:0008H         PUBLIC        ?_PRINTF517?BYTE
+  D:0008H         PUBLIC        ?_PRINTF?BYTE
+  D:0008H         PUBLIC        ?_SPRINTF517?BYTE
+  D:0008H         PUBLIC        ?_SPRINTF?BYTE
+  C:0065H         PUBLIC        _PRINTF
+  C:0065H         PUBLIC        _PRINTF517
+  C:005FH         PUBLIC        _SPRINTF
+  C:005FH         PUBLIC        _SPRINTF517
+  -------         ENDMOD        PRINTF
+
+  -------         MODULE        ?C?CLDPTR
+  C:038CH         PUBLIC        ?C?CLDPTR
+  -------         ENDMOD        ?C?CLDPTR
+
+  -------         MODULE        ?C?CSTPTR
+  C:03A5H         PUBLIC        ?C?CSTPTR
+  -------         ENDMOD        ?C?CSTPTR
+
+  -------         MODULE        ?C?PLDIIDATA
+  C:03B7H         PUBLIC        ?C?PLDIIDATA
+  -------         ENDMOD        ?C?PLDIIDATA
+
+  -------         MODULE        ?C?CCASE
+  C:03C7H         PUBLIC        ?C?CCASE
+  -------         ENDMOD        ?C?CCASE
+
+  -------         MODULE        PUTCHAR
+  C:052EH         PUBLIC        _PUTCHAR
+  -------         ENDMOD        PUTCHAR
+
+Program Size: data=66.1 xdata=0 code=1536
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

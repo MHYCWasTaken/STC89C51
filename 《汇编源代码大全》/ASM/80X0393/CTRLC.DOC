@@ -1,0 +1,30 @@
+By: Matthew Hildebrand
+Re: Ctrl-C & Ctrl-Break trap
+----------------------------------------------------------------------
+
+I've been noticing a lot of discussion regarding Ctrl-C and Ctrl-Break
+trapping, and the difficulties associated with it.  Here's some code I
+wrote to do this; it works quite well. TASM syntax, of course:
+
+Notes:
+1. To  trap  other keys,  add the  trapping  logic  between  @@L2  and 
+   @@oldHandler.
+2. This code uses int 16h, function 12h (Get enhanced keyboard flags). 
+   If you  don't have an  enhanced keyboard,  I  don't know what  will
+   happen. I guess int 16h, function 02h would be in order. Of course,
+   you could just take a peek at 40:17,  but I've let the BIOS do  the 
+   job for compatability.
+3. I've got a P386 at the top. There aren't any 386+ instructions, but
+   I threw it in for alignment.  In fact, I don't think there's even a
+   286 instruction  in  there.  Who knows?  If there is,  it's nothing 
+   that's hard to change.
+4. I've  tried all sorts of  ways to confuse this  code, but  it  kept  
+   working.  If anyone finds  something  wrong with it,  please let me 
+   know.
+
+Please direct any questions or comments to either 80XXX or 1:247/128.2
+whichever is appropriate.
+
+Hope it helps,
+
+        Matt

@@ -1,0 +1,941 @@
+
+******************************  TEXT MODE  *******************************
+
+ASMLIB Text mode video subroutines (C) Copyright 1991 - 1993 Douglas Herr
+All rights reserved
+
+Screen writing in TEXT mode
+
+ASMLIB subroutines write directly to the video memory buffer, except
+where noted.  ASMLIB detects the default display type and screen
+dimensions.  ASMLIB assumes that CGA equipment requires "snow" control
+and behaves accordingly.  In text modes, ASMLIB does not distinguish
+between CGA and MCGA equipment.
+
+Multiple pages of video memory are available except with MDA video adapters.
+
+Pages supported by ASMLIB are shown below:
+
+video system   screen size    ASMLIB support   BIOS support
+-------------  -----------    --------------   ---------------
+MDA            80 x 25        page  0          page  0
+CGA, MCGA      80 x 25        pages 0 - 3      pages 0 - 3
+CGA, EGA, VGA  40 x 25        pages 0 - 7      pages 0 - 7
+EGA, VGA       80 x 25        pages 0 - 7      pages 0 - 7
+EGA            80 x 43        pages 0 - 3      pages 0 - 3
+VGA            80 x 50        pages 0 - 3      pages 0 - 3
+EEGA          132 x 25        pages 0 - 3      pages 0 - 3
+EEGA          132 x 44        pages 0 & 1      pages 0 & 1
+PEGA          132 x 25        pages 0 - 3      pages 0 - 3
+PEGA          132 x 43        pages 0 & 1      pages 0 & 1
+HGC, HGC+, InC 80 x 25        pages 0 - 15     page  0
+HGC+, InC      90 x 25        pages 0 - 13     page  0
+HGC+, InC      80 x 43        page  0          page  0
+HGC+, InC      90 x 43        page  0          page  0
+
+   ASMLIB subroutines assume that rows are the vertical dimension and
+   columns are the horizontal dimension of a text-mode screen.  The upper
+   left corner of the screen is at row=0 and col=0
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+ANSICOLOR:   determines color attribute used by ANSI device driver.
+             See also IsANSI.
+Source:      anscolor.asm
+
+Call with:   no parameters
+Returns:     AH = color attribute
+Uses:        AX
+Example:
+
+       call  ansicolor         ; get ANSI screen color in AH
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+BLINKOFF:    disable blinking attriutes; enable bright background attributes
+BLINKON:     enable blinking attriutes; disable bright background attributes
+Source:      blink.asm
+
+Call with:   no parameters
+Returns:     nothing
+Uses:        nothing; all registers and flags are saved
+Supports:    All ASMLIB text modes
+Example:
+
+      call  blinkoff             ; turn blinking attributes into bright
+                                 ; background attributes
+
+      call  blinkon              ; turn bright background attributes into
+                                 ; blinking attributes
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+CRTINFO:     central control for ASMLIB Text subroutines; determines
+             active video system, screen size, page offset.
+Source:      crtinfo.asm
+
+Call with:   AH = 0 for page 0 information
+             AH = -1 to calculate active page address
+Returns:     AL = screen rows
+             CH = screen columns
+             BX:[SI] = video buffer address
+             DX = 3DAh if CGA or MCGA, 0 if not CGA
+               DX is used to monitor screen retrace, to avoid "snow"
+               on older CGA systems.  CRTINFO does not distinguish between
+               CGA and MCGA equipment; MCGA does not require snow control.
+               You may use GetCRT to determine if an MCGA is installed
+               and turn ASMLIB's snow control off with SnowOFF if the system
+               has an MCGA.
+Uses:        ES, AX, BX, CX, DX, SI, flags
+Supports:    all ASMLIB text modes
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+CURSORCOLOR: set cursor color and enable color palette (InColor only)
+Source:      curscolor.asm ($herc.asm)
+
+Call with:   AH = color attribute (1 - 15)
+Returns:     if CF = 0, no error
+             if CF = 1, InColor card not installed
+Uses:        Carry Flag
+Supports:    Hercules InColor card
+Example:
+
+extrn   cursorcolor:proc
+
+.code
+        .
+        .
+        .
+        mov   ah,14        ; bright yellow cursor
+        call  cursorcolor  ; enable InColor palette, set cursor color
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+CURSOROFF:   make hardware cursor invisible at present location
+Source:      cursor.asm
+
+Call with:   no parameters
+Returns:     nothing
+Uses:        nothing
+Supports:    CGA, MCGA, MDA, HGC, HGC+, InC, EGA, PEGA, EEGA, VGA: text mode
+Example:     call  cursoroff
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+CURSORON:    move cursor to (row, col) and update cursor shape
+             Cursor shape is underscore if INSERT is off, larger block
+             if INSERT is on.  See also UCursorON.
+Source:      cursor.asm (crtinfo.asm)
+
+Call with:   DH = row offset from top of screen
+             DL = column offset from left side
+Returns:     nothing
+Uses:        AX
+Supports:    CGA, MCGA, MDA, HGC, HGC+, InC, EGA, PEGA, EEGA, VGA: text mode
+Example:     mov    dh,row        ; vertical coordinate on text screen
+             mov    dl,column     ; horizontal coordinate
+             call   cursoron
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+GETSCREEN:   save a screen page to a memory buffer
+PUTSCREEN:   copy a saved screen page to the video buffer
+Source:      screen.asm (crtinfo.asm, $wcopy.asm)
+
+Call with:   DS:[SI] pointing to memory buffer
+Returns:     nothing
+Uses:        nothing; all flags and registers are saved
+Supports:    All ASMLIB text modes; includes CGA snow control
+Example:     see ScreenMem for example
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+HSCROLL:     scroll a portion of the screen left or right.
+Source:      hscroll.asm (a$wdata.asm, $wcopy.asm, a$putw.asm, $exit.asm)
+
+Call with:   DS:[BX] pointing to corner coordinates
+             AH = color attribute for cleared columns
+             CX = number of columns to scroll
+               scrolls left if CX > 0, scrolls right if CX < 0
+               clears area if CX = 0
+Returns:     nothing
+Uses:        nothing
+Supports:    All ASMLIB text modes; includes CGA snow control
+Example:
+
+.data
+
+wdata        dw     10          ; row0
+             dw     10          ; column0
+             dw     20          ; row1
+             dw     40          ; column1
+
+.code
+
+             .
+             .
+             .
+             lea    bx,wdata    ; DS:[BX] points to window coordinates
+             mov    ah,color    ; AH = color attribute for cleared columns
+             mov    cx,columns
+             call   hscroll     ; to clear entire window, columns = 0
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+PAINT:       change all color attributes on a text-mode screen
+             without re-printing the text
+Source:      paint.asm (crtinfo.asm, a$paint.asm)
+
+Call with:   AH = new color attribute
+Returns:     nothing
+Uses:        nothing
+Supports:    All ASMLIB text modes; includes CGA snow control
+Example:     mov   ah,newcolor
+             call  paint
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+RECOLOR:     change selected color attributes on a text-mode screen
+             Replaces oldcolor attribute with newcolor, without
+             re-printing the text.
+Source:      recolor.asm (crtinfo.asm, a$recolr.asm)
+
+Call with:   AL = color to replace
+             AH = new color attribute
+Returns:     nothing
+Uses:        nothing
+Supports:    All ASMLIB text modes; includes CGA snow control
+Example:     mov   al,olcolor
+             mov   ah,newcolor
+             call  recolor
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+SCREENMEM:   calculate bytes required to save screen page
+             Used with GetScreen and PutScreen.
+Source:      smem.asm (crtinfo.asm)
+
+Call with:   no parameters
+Returns:     AX = number of bytes required
+Uses:        AX
+Example:     call  screenmem
+             call  halloc             ; this example uses near heap memory
+             jc    drat
+             mov   saved_pointer, bx
+             mov   si,bx
+             call  getscreen          ; save the screen
+               .
+               .
+               .
+             mov   si,saved_pointer
+             call  putscreen          ; restore the initial screen
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+SHOWTPAGE:   change video page shown on screen
+Source:      tpage.asm (crtinfo.asm, $herc.asm)
+
+Call with:   BL = page number
+Returns:     AX = error code
+             0 = no error
+             -1 = bad page number
+Uses:        AX
+Supports:    All ASMLIB text modes (except MDA equipment)
+Example:     mov    bl,1               ; show page 1
+             call   showtpage
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+SNOWOFF:     disables CGA snow control
+SNOWON:      enables CGA snow control (ASMLIB default)
+Source:      crtinfo.asm
+
+Call with:   no parameters
+Returns:     nothing
+Uses:        no registers or flags
+Example:
+
+include asm.inc
+
+extrn  snowoff:proc
+extrn  getcrt:proc
+
+.code
+       .
+       .
+       .
+       call   getcrt
+       cmp    ax,2             ; ASMLIB doesn't disable snow control
+                               ; on MCGA systems
+       jne    continue
+       call   snowoff          ; MCGA doesn't need snow control
+continue:
+
+
+       
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+STR2VBUF:    copies a string to video memory buffer, with selected
+             color attribute; includes snow control for CGA systems
+Source:      str2vbuf.asm
+
+Call with:   CX = maximum number of characters to print (will also stop
+                  at NUL character)
+             DX = 0 to disable snow control
+                = 3DAh to enable CGA snow control
+                  (if DX = 3DAh on systems without a color monitor,
+                  the computer will jam up solid)
+             DS:[SI] points to first character of string
+             ES:[DI] points to video buffer
+             AH = color attribute
+             DF = 0 (clear direction flag with CLD)
+Returns:     ES:[DI] points to video buffer following string
+             if AL = 0
+                DS:[SI] points to byte following string's NUL terminator
+             if AL <> 0
+                DS:[SI] points to next byte in string after the last one
+                printed on the screen
+Uses:        AL, CX, DI, SI, flags
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+TCENTER:     prints a string on the screen, centered horizontally
+TNCENTER:    prints CX bytes of a string on the screen, centered horizontally
+Source:      tcenter.asm (crtinfo.asm, str2vbuf.asm, strlen.asm)
+
+Call with:   DS:[SI] pointing to the string
+             DH = row to print the string on
+             AH = color attribute
+             (tncenter only) CX = number of bytes to print
+Returns:     nothing
+Uses:        nothing
+Supports:    all ASMLIB text modes; includes CGA snow control
+Example:
+
+     assume  ds:@data
+     mov     ax,@data
+     mov     ds,ax       ; the string is in DGROUP
+
+     lea     si,string   ; DS:[SI] points to the string
+     mov     dh,row
+     mov     ah,attr     ; color attribute
+     call    tcenter     ; center the string on row in DH
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+TCLEAR:      clear a text-mode screen with specified color attribute
+Source:      tclear.asm (crtinfo.asm, a$putw.asm)
+
+Call with:   AH = color attribute
+Returns:     nothing
+Uses:        AL
+Supports:    all ASMLIB text modes; includes CGA snow control
+Example:     mov    ah,color
+             call   tclear
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+TCOPY:       copies one page of text-mode video memory to another page
+Source:      tcopy.asm (crtinfo.asm, tpage.asm, $herc.asm)
+
+Call with:   BH = frompage, BL = topage
+Returns:     if CF = 0, all OK
+             if CF = 1 and AH = -1, frompage number is out-of-bounds
+             if CF = 1 and AL = -1, topage number is out-of-bounds
+Uses:        AX, CF
+Supports:    all ASMLIB text modes, pages 0 - 15; includes CGA snow control
+Example:     mov    bh,0               ; frompage
+             mov    bl,1               ; copy from page 0 to page 1
+             call   tcopy
+             jc     oops               ; oh yuck - an MDA
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+TFILL:       fill a text-mode screen with specified character and color
+Source:      tclear.asm (crtinfo.asm, a$putw.asm)
+
+Call with:   AH = color attribute, AL = fill character
+Returns:     nothing
+Uses:        nothing
+Supports:    all ASMLIB text modes; includes CGA snow control
+Example:     mov    ah,color
+             mov    al,char              ; AL = character to fill screen
+             call   tfill
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+TGETCHR:     read character and attribute from text screen
+Source:      tgetchr.asm
+
+Call with:   DH = screen row
+             DL = screen column
+Returns:     AH = color atttribute
+             AL = ASCII character code
+Supports:    all ASMLIB text modes; includes CGA snow control
+Example:
+
+include asm.inc
+
+extrn tgetchr:proc
+
+.data
+
+position label word
+column   db 13
+row      db 18
+
+.code
+; program fragment assumes DS:@data
+         .
+         .
+         .
+         mov   dx,position
+         call  tgetchr         ; returns with AL = ASCII character code
+                               ;  and with AH = color attribute
+
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+TLOAD:       loads a screen image disk file saved by TSave
+Source:      tsave.asm (crtinfo.asm)
+
+Call with:   DS:[DX] = address of ASCIIZ filename
+Returns:     if CF = 1, AX = MS-DOS file I/O error code
+             if CF = 0, no error
+Uses:        AX, CF
+Supports:    all ASMLIB text modes; no CGA snow control
+             see also TSave
+Example:
+
+extrn tload:proc
+
+.data
+
+filename  db 'tscreen.bin',0
+
+.code
+     .
+     .
+     .
+
+     lea   dx,filename
+     call  tload
+
+
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+TPAGE:       changes active page and shows new active page
+Source:      tpage.asm (crtinfo.asm, $herc.asm)
+
+Call with:   BL = page number
+             for ASMLIB subroutines writing directly to video memory.
+             See also UseTPage and ShowTPage.  ASMLIB's active page is
+             not affected by INT  10h mode changes.
+             Page -1 may be used on two-monitor systems, directs ASMLIB
+             video output to Monochrome screen (except cursor).
+Returns:     AX = error code
+             if AX = 0, no error
+             if AX = -1, bad page number
+             if AX = 1, page may be written to but cannot be shown
+Uses:        AX
+Supports:    text-mode screens, all row/column configurations
+Example:     mov    bl,page
+             call   tpage
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+TPRINT:      print ASCIIZ string directly to video buffer.
+             String must be terminated by a NUL character.
+Source:      tprint.asm (crtinfo.asm, str2vbuf.asm)
+
+Call with:   DS:[SI] pointing to the string
+             DH = screen row, DL = screen column
+             AH = color attribute
+Returns:     nothing
+Uses:        nothing
+Supports:    all ASMLIB text modes; includes CGA snow control
+Example:     assume  ds:@data
+             mov     ax,@data
+             mov     ds,ax       ; the string is in DGROUP
+
+             lea     si,string   ; DS:[SI] points to the string
+             mov     dh,row
+             mov     dl,column
+             mov     ah,attr     ; color attribute
+             call    tprint
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+TPRINTCE:    prints an ASCIIZ string on the screen at specified position
+             and specified color, and clears from the end of the string
+             to the right edge of the screen
+Source:      tprintce.asm (crtinfo.asm, str2vbuf.asm, a$putw.asm)
+
+Call with:   DS:[SI] pointing to the string
+             DH = screen row, DL = screen column
+             AH = color attribute
+Returns:     nothing
+Uses:        nothing
+Supports:    all ASMLIB text modes; includes CGA snow control
+Example:     assume  ds:@data
+             mov     ax,@data
+             mov     ds,ax       ; the string is in DGROUP
+
+             lea     si,string   ; DS:[SI] points to the string
+             mov     dh,row
+             mov     dl,column
+             mov     ah,attr     ; color attribute
+             call    tprintce
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+TPRINTL:     print ASCIIZ string directly to video buffer, lower case
+Source:      tprintl.asm (crtinfo.asm)
+
+TPRINTU:     print ASCIIZ string directly to video buffer, upper case
+Source:      tprintu.asm (crtinfo.asm)
+
+             String must be terminated by a NUL character.  Similar to TPrint,
+             but characters a - z are TPrinted as upper case A - Z (TPrintU)
+             or characters A - Z are TPrinted as lower case a - z (TPrintL).
+             The string itself is not altered.
+
+Call with:   DS:[SI] pointing to the string
+             DH = screen row, DL = screen column, AH = color attribute
+
+Returns:     nothing
+Uses:        nothing
+Supports:    all ASMLIB text modes; includes CGA snow control
+Example:     assume  ds:@data
+             mov     ax,@data
+             mov     ds,ax       ; the string is in DGROUP
+
+             lea     si,string   ; DS:[SI] points to the string
+             mov     dh,row
+             mov     dl,column
+             mov     ah,attr     ; color attribute
+             call    tprintu
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+TSAVE:       saves a screen image as a disk file; does not compress the image
+Source:      tsave.asm (crtinfo.asm)
+
+Call with:   DS:[DX] = address of ASCIIZ filename
+Returns:     if CF = 1, AX = MS-DOS file I/O error code
+             if CF = 0, no error
+Uses:        AX, CF
+Supports:    All ASMLIB text modes; no CGA snow control
+             see also TLOAD
+Example:
+
+extrn tsave:proc
+
+.data
+
+filename  db 'tscreen.bin',0
+
+.code
+     .
+     .
+     .
+
+     lea   dx,filename
+     call  tsave
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+UCURSORON:   similar to CursorON, but the underscore cursor is used regardles
+             of the state of the INSERT toggle.  See also CursorON.
+Source:      cursor.asm (crtinfo.asm)
+
+Call with:   DH = row offset from top of screen
+             DL = column offset from left side
+Returns:     nothing
+Uses:        AX
+Supports:    text mode, all pages, all row/column configurations
+Example:     mov    dh,row
+             mov    dl,col
+             call   ucursoron
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+USETPAGE:    establish ASMLIB's active page
+Source:      tpage.asm (crtinfo.asm, $herc.asm)
+
+Call with:   BL = page number
+             ASMLIB text-mode subroutines can be directed to any video
+             page.  ASMLIB's active page is not affected by INT  10h
+             mode changes.  UseTPage does not change the page shown
+             on the screen.  See also TPage and ShowTPage.
+             If newpage = -1, ASMLIB video output is directed to a
+             Monochrome screen
+Returns:     AX = error code
+             if AX = -1, bad page number
+Uses:        AX, ES
+Supports:    All ASMLIB text modes
+Example:     mov     bl,page
+             call    usetpage
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+VSCROLL:     scroll a portion of the screen up or down.
+Source:      vscroll.asm (a$wdata.asm, $wcopy.asm, a$putw.asm, $exit.asm)
+
+Call with:   DS:[BX] pointing to corners of scroll area
+             AH = color attribute, CX = number of rows to scroll
+             Scrolls up if CX > 0, scrolls down if CX < 0, clears area
+             if CX = 0
+Returns:     nothing
+Uses:        nothing
+Supports:    all ASMLIB text modes; includes CGA snow control
+Example:
+
+.data
+
+wdata        dw     10               ; row0
+             dw     10               ; column0
+                                     ; (row0, column0) = upper left corner
+             dw     20               ; row1
+             dw     40               ; column1
+                                     ; (row1, column1) = lower right corner
+.code
+             .
+             .
+             .
+             lea    bx,wdata         ; DS:[BX] points to window coordinates
+             mov    ah,color
+             mov    cx,3             ; scroll up 3 rows
+             call   vscroll
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+WCLEAR:      clear a rectangular portion of a text-mode screen
+Source:      wclear.asm (a$wdata.asm, crtinfo.asm, a$putw.asm)
+
+Call with:   DS:[BX] pointing to box corner data
+             AH = color attribute
+Returns:     nothing
+Uses:        AL, flags
+Supports:    all ASMLIB text modes; includes CGA snow control
+Example:
+
+.data
+
+wdata        dw     10               ; row0
+             dw     10               ; column0
+             dw     20               ; row1
+             dw     40               ; column1
+
+.code
+             .
+             .
+             .
+             lea    bx,wdata         ; DS:[BX] points to window coordinates
+             mov    ah,color
+             call   wclear           ; clear a box on the screen with corners
+                                     ; at (row0, column0), (row1, column0),
+                                     ; (row0, column1) and (row1, column1)
+
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+WFILL:       fill a rectangular protion of a text-mode screen with
+             specified character and attribute; variation of WClear
+Source:      wclear.asm (a$wata.asm, crtinfo.asm, a$wclr.asm)
+
+Call with:   DS:[BX] pointing to box corner data
+             AH = color attribute
+             AL = fill character
+Returns:     nothing
+Uses:        flags
+Supports:    all ASMLIB text modes; includes CGA snow control
+Example:
+
+.data
+
+wdata        dw     10               ; row0:    top of fill area
+             dw     10               ; column0: left side of fill area
+             dw     20               ; row1:    last row of fill area
+             dw     40               ; column1: right side of fill area
+
+.code
+             .
+             .
+             .
+             lea    bx,wdata         ; DS:[BX] points to window coordinates
+             mov    ah,color
+             mov    al,'þ'           ; use ASCII 254 to fill
+             call   wfill            ; fill a box on the screen with corners
+                                     ; at (row0, column0), (row1, column0),
+                                     ; (row0, column1) and (row1, column1)
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+WFRAME:      draw a box on a text-mode screen
+Source:      wframe.asm (a$wdata.asm, a$putw.asm, crtinfo.asm)
+
+Call with:   DS:[BX] pointing to box corner data
+             AH = color attribute
+             AL = box character
+             box character is the character associated with an ASCII code
+             if character = 0, a single line is used
+             if character = -1, a double line is drawn
+Returns:     if bad window dimensions, CF = 1
+             if no problem, CF = 0
+Uses:        flags
+Supports:    all ASMLIB text modes; includes CGA snow control
+Example:
+
+.data
+
+wdata        dw     10               ; row0
+             dw     10               ; column0
+             dw     20               ; row1
+             dw     40               ; column1
+
+.code
+             .
+             .
+             .
+             lea    bx,wdata         ; DS:[BX] points to window coordinates
+             mov    ah,color
+             mov    al,'þ'           ; use ASCII 254 for boundary
+             call   wframe           ; draw a box on the screen with corners
+                                     ; at (row0, column0), (row1, column0),
+                                     ; (row0, column1) and (row1, column1)
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+WSIZE:       calculate the memory required to save a screen window
+Source:      wsize.asm
+
+Call with:   DS:[BX] pointing to row & column coordinates
+             The row and column coordinates define the corners of the
+             window.
+Returns:     AX = bytes required
+Uses:        AX
+Supports:    All ASMLIB text modes
+Example:     
+
+.data
+
+wdata        dw     10               ; row0
+             dw     10               ; column0
+             dw     20               ; row1
+             dw     40               ; column1
+
+.code
+
+             .
+             .
+             .
+             lea    bx,wdata         ; DS:[BX] points to window coordinates
+             call   wsize            ; returns AX = bytes needed to save window
+             jc     oops
+             call   halloc           ; allocate space from near heap
+             jc     drat
+             
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+WPAINT:      replace all color attributes in a window of the screen
+Source:      wpaint.asm (a$wdata.asm, crtinfo.asm, a$paint.asm, $exit.asm)
+
+Call with:   DS:[BX] pointing to window coordinates
+             AH = new color attribute
+Returns:     nothing
+Uses:        nothing; all registers and flags are saved
+Supports:    all ASMLIB text modes; includes CGA snow control
+Example:
+
+.data
+wdata        dw     10               ; row0
+             dw     10               ; column0
+             dw     20               ; row1
+             dw     40               ; column1
+
+.code
+             .
+             .
+             .
+             lea    bx,wdata         ; DS:[BX] points to window coordinates
+             mov    ah,color         ; AH = new color attribute
+             call   wpaint
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+WPRINT:      print ASCIIZ string directly to the video buffer in a
+             window of screen, with word wrap.  String must be terminated
+             by a NUL character.  WPrint clears any portion of the window
+             not occupied by the string.
+Source:      WPRINT.ASM (crtinfo.asm, str2vbuf.asm, strlen.asm, a$wdata.asm,
+                         a$putw.asm)
+
+Call with:   DS:[SI] pointing to the string
+             DS:[BX] pointing to window corners
+             AH = color attribute
+             note that the string and the window corner data must be in
+             the same segment
+Returns:     nothing
+Uses:        nothing
+Supports:    all ASMLIB text modes; includes CGA snow control
+Example:
+
+extrn   wframe:proc, wprint:proc
+
+.data
+wdata   dw 10,10,20,30          ; window corner data: upper left at row 10,
+                                ; column 10; lower right at row 20, column 30
+string  db "The quick brown fox jumped over the lazy dog's back",0
+
+.code
+     assume  ds:@data
+     mov     ax,@data
+     mov     ds,ax       ; the string is in DGROUP
+     lea     si,string   ; DS:[SI] points to the string
+     lea     bx,wdata    ; DS:[BX] points to corner data
+     mov     ah,12       ; bright red!!
+     call    wprint
+
+     dec     wdata       ; stretch the window borders a bit
+     dec     wdata+2     ; so I can draw a frame around the silly text
+     inc     wdata+4
+     inc     wdata+6
+     mov     al,-1       ; double-line border
+     mov     ah,14       ; bright yellow
+     call    wframe
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+WRECOLOR:    change selected color attributes in a window of the screen
+Source:      wrecolor.asm (a$wdata.asm, crtinfo.asm, a$recolr.asm, $exit.asm)
+
+Call with:   DS:[BX] pointing to window corner data
+             AL = color attribute to be replaced
+             AH = new color attribute
+Returns:     nothing
+Uses:        nothing; all registers and flags are saved
+Supports:    all ASMLIB text modes; includes CGA snow control
+Example:
+
+.data
+wdata        dw     10               ; row0
+             dw     10               ; column0
+             dw     20               ; row1
+             dw     40               ; column1
+
+.code
+             .
+             .
+             .
+             lea    bx,wdata         ; DS:[BX] points to window coordinates
+             mov    ah,newcolor      ; AH = new color attribute
+             mov    al,oldcolor      ; AL = color to be replaced
+             call   wrecolor         ; replace oldcolor with newcolor
+                                     ; within the window
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+WRESTORE:    restore a portion of a text-mode screen from a buffer
+WSAVE:       save a portion of a text-mode screen to a buffer
+             (handy when using pop-up windows on the screen)
+Source:      wsave.asm (a$wdata.asm, crtinfo.asm, $wcopy.asm)
+
+Call with:   ES:[DI] pointing to memory buffer
+             DS:[BX] pointing to corner data
+             The memory buffer must be sized to hold the entire window.
+             See wsize.
+Returns:     nothing
+Uses:        nothing
+Supports:    all ASMLIB text modes; includes CGA snow control
+Example:
+
+.data
+
+wdata    dw 10               ; row0
+         dw 10               ; column0
+         dw 20               ; row1
+         dw 40               ; column1
+buffer   dw 2000h            ; oversize
+
+.code
+
+         .
+         .
+         .
+; save a part of the screen
+         mov    ax,@data
+         mov    es,ax
+         mov    ds,ax
+        assume  ds:@data, es:@data
+         lea    bx,wdata         ; DS:[BX] points to window coordinates
+         lea    di,es:buffer     ; point to buffer
+         call   wsave
+         .
+         .
+         .
+; sometime later ...
+; restore the window saved earlier
+         mov    ax,@data
+         mov    es,ax
+         mov    ds,ax
+        assume  ds:@data, es:@data
+         lea    bx,wdata         ; DS:[BX] points to window coordinates
+         lea    di,es:buffer     ; point to buffer
+         call   wrestore
+

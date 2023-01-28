@@ -1,0 +1,74 @@
+C51 COMPILER V7.50   动蘝显蔩                                                              08/18/2011 09:46:25 PAGE 1   
+
+
+C51 COMPILER V7.50, COMPILATION OF MODULE 动蘝显蔩
+OBJECT MODULE PLACED IN 动态显示.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE 动态显示.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          /********************************************************************
+   2          * 文件名  ： 动态显示.c
+   3          * 描述    :  
+   4          * 创建人  ： 东流，2009年8月30日
+   5          * 版本号  ： 1.0
+   6          ***********************************************************************/
+   7          #include<reg52.h>
+   8          #define uchar unsigned char
+   9          #define uint  unsigned int
+  10          
+  11          //uchar code table[8] = {0x00,0x00,0x00,0x00,0x73,0x77,0x6d,0x6d};       //显示PASS编码
+  12          uchar code table[8] = {0x00,0x00,0x00,0x76,0x79,0x38,0x38,0x3f};         //显示HELL0编码
+  13          uchar code LED_W[8] = {0,1,2,3,4,5,6,7};
+  14          /********************************************************************
+  15          * 名称 : Delay_1ms()
+  16          * 功能 : 延时子程序，延时时间为 1ms * x
+  17          * 输入 : x (延时一毫秒的个数)
+  18          * 输出 : 无
+  19          ***********************************************************************/
+  20          void Delay(uint i)
+  21          {
+  22   1              uchar x,j;
+  23   1              for(j=0;j<i;j++)
+  24   1              for(x=0;x<=148;x++);    
+  25   1      }
+  26          
+  27          /********************************************************************
+  28          * 名称 : Main()
+  29          * 功能 : 数码管的显示
+  30          * 输入 : 无
+  31          * 输出 : 无
+  32          ***********************************************************************/
+  33          void Main(void)
+  34          {
+  35   1              uchar i = 0,j = 0;
+  36   1              while(1)
+  37   1              {
+  38   2                      P0 = table[i];                                  //数码管段值
+  39   2                      P2 = LED_W[j];                          //点亮某一位数码管
+  40   2                      Delay(2);
+  41   2                      j++;
+  42   2                      i++;
+  43   2                      if(j == 8)                                      //每个数码管都点亮了一次。
+  44   2                      {
+  45   3                              j = 0;
+  46   3                              i = 0;
+  47   3                      }
+  48   2              }
+  49   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     56    ----
+   CONSTANT SIZE    =     16    ----
+   XDATA SIZE       =   ----    ----
+C51 COMPILER V7.50   动蘝显蔩                                                              08/18/2011 09:46:25 PAGE 2   
+
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

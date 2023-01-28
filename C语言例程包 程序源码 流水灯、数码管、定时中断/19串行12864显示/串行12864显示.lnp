@@ -1,0 +1,4 @@
+"STARTUP.obj",
+"串行12864显示.obj" 
+TO "串行12864显示" 
+RAMSIZE(256) 

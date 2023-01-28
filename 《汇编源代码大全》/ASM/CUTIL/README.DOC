@@ -1,0 +1,62 @@
+
+								6/25/84
+
+
+  This floppy contains a set of utility routines, batch files, and
+programs that I wrote while learning about the IBM-PC and the "C"
+programming lanquage.  Since this was a learning experience for me I
+will not guarantee that they are efficient or bug free though I have
+tried very hard to make them that way.	I would be most interested in
+any additions or improvements that anyone might make to these routines.
+
+  Also note that these routines were written in the following environ-
+ment:
+
+		IBM-PC		256K		Monochrome screen
+		Epson MX-100 parallel printer
+		2 Serial ports
+		2 DS/SD floppy disk drives
+
+  Some of these routines have been ported to the IBM-PC aztec "C" under
+Concurrent CP/M and to a VAX 11/780 under VMS with minimal modifications.
+Obviously the DOS functions and 8088 assembler routines didn't port well
+but the "C" code needed almost no changes.
+
+
+				LEIGH CUTHBERTSON
+				1868 S. PERRY WAY
+				DENVER, CO
+						80219
+
+notes about some of the files on this disk -
+
+*.C and *.ASM files
+
+This are utility subroutines written in MICROSOFT "C".  These
+utilities include a menu system, cursor and screen control (using DOS
+or direct to BIOS), julian and gregorian date/time routines, and "C"
+callable assembler routines that issue BIOS interrupts.  NOTE - the
+DOS cursor and screen control utilities require DEVICE=ANSI.SYS
+command line be in the CONFIG.SYS file.  The BIOS cursor and screen
+controls do not require this.
+
+
+communications program (IBMTTY.C)
+
+This program is a terminal emulation/communications program written in
+MICROSOFT "C".  It is usable but not recommended for use becouse of
+user unfriendlyness and a high error rate.  Its main reason for
+inclusion is as an example of use of the various utility subroutines
+in the \util subdirectory.  It also provides an example of direct
+control of the IBM serial communications board.
+
+
+Batch files (*.BAT)
+
+These batch files emulate some of the most common UNIX commands on
+the IBM-PC.  The compiler and linker batch files are set up for the
+MICROSOFT "C" compiler and linker.  To use these batch files it is
+recommended to set up a PATH command in AUTOEXEC.BAT to include this
+subdirectory and the compiler subdirectory in the search path.
+ex. (A> PATH a:\;a:\unix;a:\compiler).
+

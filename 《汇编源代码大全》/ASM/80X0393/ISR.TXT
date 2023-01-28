@@ -1,0 +1,111 @@
+From: Inbar Raz
+Subj: Releasing memory of an ISR that hooks vectors
+________________________________________________________________________
+
+Hello everyone.
+
+Some  time ago, there was this debate here about the steps needed to  be 
+taken  in  order  for a program to remove itself from  memory.  The  big 
+obstacle  turned out to be the vector problem - what should the  exiting 
+program set the vector to, since it is possible that another program has 
+already hooked that vector, and therefore setting the vector to OUR  old 
+stored vector could hang the machine.
+
+Well,  when I was talking the other day with Yossi Gottlieb, I  suddenly 
+came  up  with a GREAT way to solve the problem! You don't  release  ALL 
+your  memory  - you leave (number of hooked vectors*5) bytes  in  memory 
+ONLY.
+
+HOW?  Well,  when  you  set your vector to YOUR ISR,  do  this:  In  the 
+beginning of the ISR, put a FAR JMP, that will point to the beginning of 
+the  code,  within your segment. When you want to  release  the  memory, 
+simply  copy  the ORIGINAL vector into the FAR JMP,  and  therefore  any 
+program  that will jump to YOUR ISR address, will automatically jump  to 
+the original vector!
+
+If  you  didn't quite understand it, or don't know how to  put  it  into 
+assembler lines, here is an example I wrote in 3 minutes:
+
+----------------------------- cut here ---------------------------------
+
+        .model tiny
+        .code
+
+        org     00100h
+
+Start   jmp     Begin
+
+New21   proc    far
+
+        EVEN
+
+        db      0EAh                    ; Jmp far
+My21off dw      offset 21Start
+My21seg dw      ?
+Old21   dd      ?
+
+21Start:
+
+;       <Your ISR here>
+;
+;       iret / jmp dword ptr cs:[Old21]         ; The usual thing
+
+; now comes the part that erases us from memory
+
+QuitTsr:
+
+; First, alter the JMP FAR to point to the ORIGINAL vector
+        cli
+        mov     ax,word ptr cs:[Old21]
+        mov     word ptr cs:[My21off],ax
+        mov     ax,word ptr cs:[Old21+2]
+        mov     word ptr cs:[My21seg],ax
+        sti
+
+; Second, but I'm not QUITE sure this is what we need to do - resize our
+; memory block.
+
+        mov     ah,04Ah                 ; Resize allocated block
+        push    cs
+        pop     es
+        mov     bx,(offset Old21 shl 4 ) + 1
+        pushf
+        call    dword ptr cs:[Old21]
+
+; Third, since we turned ourselves off from within the interrupt, return 
+; to the caller. You might want to alter this to something else.
+
+        iret
+
+New21   endp
+
+Begin:  mov     ax,03521h                       ; Get current vector
+        int     021h
+
+        mov     word ptr [Old21],bx             ; Store it
+        mov     word ptr [Old21+2],es
+
+        mov     word ptr [My21seg],cs           ; Complete JMP opcode
+
+        mov     ax,02521h                       ; Set new vector for 21h
+        lea     dx,New21
+        int     021h
+
+        lea     dx,Begin                        ; Stay resident
+
+end     Start
+        int     027h
+
+----------------------------- cut here ---------------------------------
+
+If  you are afraid to use the 04Ah, you might choose a safer,  yet  more 
+difficult,  way of setting memory: If your MCB is 'Z', turn it  to  'M'. 
+Change  the size of your MCB to what it takes to keep the  vectors,  and 
+manually create another MCB, this time 'Z', in the following  paragraph, 
+and  set YOUR MCB and the new one's sizes, accordingly. If your  MCB  is 
+ORIGINALLY  'M', then both the original and the newly created MCBs  will 
+be 'M'.
+
+Any comments, corrections and ideas are welcomed.
+
+Inbar Raz

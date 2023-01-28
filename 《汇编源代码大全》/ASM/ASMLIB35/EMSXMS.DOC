@@ -1,0 +1,408 @@
+
+******************** EXPANDED AND EXTENDED MEMORY **************************
+
+ASMLIB's EMS subroutines detect and manipulate Expanded Memory hardware
+and software.  Expanded memory, when installed in any PC, can help solve
+many memory limitation problems.  Call IsEMS before using any other
+ASMLIB EMS subroutines.
+
+EMS memory is allocated in blocks of 16k increments
+
+Error codes returned by EMS functions are:
+
+   AH = 0      no error
+   AH = 80h    error in memory manager software
+   AH = 81h    error in expanded memory hardware
+   AH = 84h    bad function code passed to memory manager
+   AH = 85h    no EMM handles available
+   AH = 89h    you tried to allocate zero pages
+
+
+ASMLIB also supports XMS-compatible extended memory.  You must call IsXMS
+to determine if XMS memory is available before using any ASMLIB XMS
+subroutines.
+
+XMS memory is available on many 286 or better computers with a suitable
+driver.  On 286 computers, XMS memory will be much slower than EMS memory.
+XMS memory is not available on XT (or compatible) computers.
+
+XMS memory is allocated in 1k increments
+
+XMS error codes include:
+
+   AH = 0                 no error
+   AH = 0A0h              all extended memory is allocated
+   AH = 0A1h              no handles available
+   AH = 0A2h, 0A3h, 0A5h  handle is invalid
+   AH = 0A4h, 0A6h        offset is invalid
+   AH = 0A7h              length is invalid
+
+
+ASMLIB's EMS and XMS subroutines were written with identical calling
+parameters and identical returned information for comparble EMS and XMS
+subroutines.  For example, AllocEMS and AllocXMS are both called with
+DX:AX = the number of bytes requested.
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+ALLOCEMS:   allocates EMS memory
+Source:     ems.asm
+
+Call with:  DX:AX = number of bytes of memory to allocate
+
+            EMS memory is allocated in 16k blocks.  AllocEMS will allocate
+            multiple blocks if nessesary.
+            NOTE: You must first use IsEMS to determine if Expanded
+            memory is installed.
+
+Returns:    if CF = 0, BX = EMS handle
+            if CF = 1, AH = EMS error code
+Uses:       AX, BX, flags
+Example:    see example code at the end of this file
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+ALLOCXMS:   allocates XMS memory
+Source:     xms.asm
+
+Call with:  DX:AX = number of bytes of memory to allocate
+
+            XMS memory is allocated in 1k blocks.  AllocXMS will allocate
+            multiple blocks if nessesary.
+            NOTE: You must first use IsXMS to determine if XMS Extended
+            memory is available.
+
+Returns:    if CF = 0, BX = XMS handle
+            if CF = 1, AH = XMS error code
+Uses:       AX, BX, flags
+Example:    see example code at the end of this file
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+EMGET:      copy data from EMS memory to system RAM
+Source:     emputget.asm ($emspage.asm)
+
+Call with:  BX = EMS handle
+            ES:[DI] pointing to destination buffer
+            DS:[SI] pointing to 4-byte offset in EMS block
+            DX:AX = number of bytes to copy
+Returns:    if CF = 0, no error
+            if CF = 1, AH = EMS error code
+Uses:       AX, flags
+Example:    see example code at the end of this file
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+EMMVER:     determines Expanded Memory Manager version
+Source:     emmver.asm
+
+Call with:  no parameters
+Returns:    if CF = 1, AH = EMS error code
+            if CF = 0, AH = major version number
+                       AL = minor version number
+Uses:       AX, flags
+Example:
+
+include  asm.inc
+
+extrn    isems:proc, emmver:proc
+
+.code
+         .
+         .
+         .
+         call   isems
+         jc     no_ems
+         call   emmver     ; get emm version
+         jc     ems_error
+         cmp    ah,4       ; version 4.x?
+         jb     version3x  ; nope, an older EMM version
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+EMPUT:      copy data to EMS memory from system RAM
+Source:     emputget.asm ($emspage.asm)
+
+Call with:  BX = EMS handle
+            ES:[DI] pointing to data to copy
+            DS:[SI] pointing to 4-byte offset in EMS block
+            DX:AX = number of bytes to copy
+Returns:    if CF = 0, no error
+            if CF = 1, AH = EMS error code
+Uses:       AX, flags
+Example:    see example code at the end of this file
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+EMSFREE:    determine free EMS memory
+Source:     emsfree.asm
+
+Call with:  no parameters
+
+            EMSFree does not verify that EMS memory is installed; you should
+            call IsEMS to determine if EMS memory is installed before using
+            this subroutine.  Do not confuse this subroutine with FreeEMS,
+            which releases a previously allocated EMS block and handle.
+
+Returns:    DX:AX = bytes of EMS memory available
+Uses:       AX, DX, flags
+Example:
+
+include asm.inc
+
+public  myprog
+extrn   isems:proc, emsfree:proc
+
+.code
+myprog  proc
+        call    isems           ; see if EMS memory is installed
+        jc      nope
+        call    emsfree         ; is enough available?
+        .
+        .
+        .
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+EMSTOTAL:   determine total EMS memory installed
+Source:     emsfree.asm
+
+Call with:  no parameters
+            EMSTotal does not verify that EMS memory is installed; you should
+            call IsEMS to determine if EMS memory is installed before using
+            this subroutine.
+Returns:    DX:AX = bytes of EMS memory installed
+Uses:       AX, DX, flags
+Example:
+
+include asm.inc
+
+public  myprog
+extrn   isems:proc, emstotal:proc
+
+.code
+myprog  proc
+        call    isems           ; see if EMS memory is installed
+        jc      nope
+        call    emstotal        ; how much?
+        .
+        .
+        .
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+FREEEMS:    releases an EMS memory block and handle
+Source:     ems.asm
+
+Call with:  BX = EMS handle
+
+            NOTE: DOS does not release EMS memory when your program
+            returns to DOS.  Your program must close any open EMS handles
+            before quitting, or the EMS memory associated with the handles
+            will be unavailable to other programs.  Do not confuse this
+            subroutine with EMSFree, whick determines the EMS memory
+            available.
+
+Returns:    if CF = 0, no error
+            if CF = 1, AH = EMS error code
+Uses:       AX, flags
+Example:    see example code at the end of this file
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+FREEXMS:    releases an XMS memory block and handle
+Source:     xms.asm
+
+Call with:  BX = XMS handle
+
+            NOTE: DOS does not release XMS memory when your program
+            returns to DOS.  Your program must close any open XMS handles
+            before quitting, or the XMS memory associated with the handles
+            will be unavailable to other programs.  Do not confuse this
+            subroutine with XMSFree, whick determines the XMS memory
+            available.
+
+Returns:    if CF = 0, no error
+            if CF = 1, AH = XMS error code
+Uses:       AX, flags
+Example:    see example code at the end of this file
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+ISEMS:      detects EMS driver
+Source:     isems.asm
+
+Call with:  no parameters
+Returns:    if CF = 1, no Expanded Memory manager installed
+            if CF = 0, EMS memory is installed
+Uses:       CF
+Example:    see example code at the end of this file
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+ISXMS:      detects XMS driver
+Source:     isxms.asm
+Call with:  no parameters
+Returns:    if CF = 1, no XMS driver is installed
+            if CF = 0, XMS memory is available
+Uses:       CF
+Example:    see example code at the end of this file
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+XMGET:      copy data from XMS memory to system RAM
+Source:     xmputget.asm (xms.asm)
+
+Call with:  BX = XMS handle
+            ES:[DI] pointing to destination buffer
+            DS:[SI] pointing to 4-byte offset in XMS block
+            DX:AX = number of bytes to copy
+Returns:    if CF = 0, no error
+            if CF = 1, AH = XMS error code
+Uses:       AX, flags
+Example:    see example code at the end of this file
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+XMPUT:      copy data to XMS memory from system RAM
+Source:     xmputget.asm (xms.asm)
+
+Call with:  BX = XMS handle
+            ES:[DI] pointing to data to copy
+            DS:[SI] pointing to 4-byte offset in XMS block
+            DX:AX = number of bytes to copy
+Returns:    if CF = 0, no error
+            if CF = 1, AH = XMS error code
+Uses:       AX, flags
+Example:    see example code at the end of this file
+
+
+
+
+
+; EXPANDED AND EXTENDED MEMORY EXAMPLE CODE
+
+; This example determines if EMS or XMS memory is installed, allocates
+; 32k of EMS or XMS memory, copies a Herules graph to the allocated memory
+; and later, copies the data back to the video buffer and releases
+; the memory block
+
+include asm.inc
+
+public  herc2x
+
+extrn   isems:proc, isxms:proc
+extrn   allocems:proc, allocxms:proc
+extrn   emput:proc, xmput:proc
+extrn   emget:proc, xmget:proc
+extrn   freeems:proc, freexms:proc
+
+.data
+IF @codesize
+xalloc  dd 0
+xput    dd 0
+xget    dd 0
+xfree   dd 0
+ELSE
+xalloc  dw 0
+xput    dw 0
+xget    dw 0
+xfree   dw 0
+ENDIF
+xoffset dw 0,0
+xhandle dw 0
+xerror  dw 0
+
+.code
+herc2x  proc
+; program fragment assumes DS:@data
+; set up default conditions: use EMS
+        mov     xerror,offset ems_error
+        mov     word ptr xalloc,offset allocems
+        mov     word ptr xput,offset emput
+        mov     word ptr xget,offset emget
+        mov     word ptr xfree,offset freeems
+IF @codesize
+        mov     ax,seg allocems
+        mov     word ptr xalloc+2,ax  ; all ASMLIB code in same segment
+        mov     word ptr xput+2,ax
+        mov     word ptr xget+2,ax
+        mov     word ptr xfree+2,ax
+ENDIF
+; see if EMS is installed
+        call    isems
+        jnc     allocate_memory
+
+; EMS not installed - see if XMS memory is avaialble
+; set up for XMS subroutines
+        mov     xerror,offset xms_error
+        mov     word ptr xalloc,offset allocxms
+        mov     word ptr xput,offset xmput
+        mov     word ptr xget,offset xmget
+        mov     word ptr xfree,offset freexms
+IF @codesize
+        mov     ax,seg allocxms
+        mov     word ptr xalloc+2,ax  ; all ASMLIB code in same segment
+        mov     word ptr xput+2,ax
+        mov     word ptr xget+2,ax
+        mov     word ptr xfree+2,ax
+ENDIF
+        call    isxms
+        jc      foiled_again         ; don't use EMS or XMS
+
+; allocate 32k
+allocate_memory:
+        mov     ax,32768
+        xor     dx,dx                ; DX:AX = 32768
+        call    xalloc               ; allocate EMS or XMS memory block
+        jc      xerror
+        mov     xhandle,bx           ; save the handle
+
+; copy the graph to EMS
+        mov     di,0B000h            ; Hercules buffer
+        mov     es,di
+        xor     di,di                ; ES:[BX] -> video buffer
+        mov     ax,32768             ; copy entire graph
+        lea     si,xoffset           ; start at offset 0 in memory block
+        call    xput                 ; copy the graph to memory
+        jc      xerror
+
+; later ...
+; copy the graph back to the video buffer
+        mov     bx,xhandle
+        mov     dx,0B000h
+        mov     es,dx
+        xor     di,di                ; ES:[DI] points to destination
+        mov     ax,32768             ; copy all 32k
+        xor     dx,dx                ; DX:AX = 32768
+        lea     si,xoffset           ; start at offset 0 in memory block
+        call    xget                 ; copy the graph back to video buffer
+        jc      xerror
+
+; all done with graph copy; release the memory block
+        call    xfree
+        jc      xerror
+

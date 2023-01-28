@@ -1,0 +1,60 @@
+          Operator Precedence and Associativity Rules in C / C++
+ ============================================================================
+    ( )       function call                                 left-to-right
+    [ ]       array element
+     .        class, structure or union member
+    ->        pointer reference to member
+    ::        scope access / resolution (C++)
+ ----------------------------------------------------------------------------
+     !        logical not                                   right-to-left
+     ~        bitwise complement
+     -        unary minus
+     +        unary plus
+    ++        increment
+    --        decrement
+     &        address of
+     *        contents of
+  (type)      cast to type
+  sizeof      size in bytes
+    new       create object (C++)
+  delete      destroy object (C++)
+ ----------------------------------------------------------------------------
+    .*        member pointer (C++)                          left-to-right
+    ->*       pointer reference to member pointer (C++)
+ ----------------------------------------------------------------------------
+     *        multiply                                      left-to-right
+     /        divide
+     %        remainder
+ ----------------------------------------------------------------------------
+     +        add                                           left-to-right
+     -        subtract
+ ----------------------------------------------------------------------------
+    <<        bitwise left shift                            left-to-right
+    >>        bitwise right shift
+ ----------------------------------------------------------------------------
+     <        scalar less than                              left-to-right
+     >        scalar greater than
+    <=        scalar less than or equal to
+    >=        scalar greater than or equal to
+ ----------------------------------------------------------------------------
+    ==        scalar equal                                  left-to-right
+    !=        scalar not equal
+ ----------------------------------------------------------------------------
+     &        bitwise and                                   left-to-right
+ ----------------------------------------------------------------------------
+     ^        bitwise exclusive or                          left-to-right
+ ----------------------------------------------------------------------------
+     |        bitwise or                                    left-to-right
+ ----------------------------------------------------------------------------
+    &&        logical sequential and                        left-to-right
+ ----------------------------------------------------------------------------
+    ||        logical sequential or                         left-to-right
+ ----------------------------------------------------------------------------
+   ?  :       conditional expression                        right-to-left
+ ----------------------------------------------------------------------------
+     =        assignment operator                           right-to-left
+              also   +=    -=    *=    /=    %=
+                     &=    ^=    |=   >>=   <<=
+ ----------------------------------------------------------------------------
+     ,        sequential expression                         left-to-right
+ ----------------------------------------------------------------------------

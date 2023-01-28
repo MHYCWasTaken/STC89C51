@@ -1,0 +1,78 @@
+C51 COMPILER V7.50   羅水灯                                                                08/16/2011 17:19:07 PAGE 1   
+
+
+C51 COMPILER V7.50, COMPILATION OF MODULE 羅水灯
+OBJECT MODULE PLACED IN 流水灯.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE 流水灯.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          /********************************************************************
+   2          * 文件名  ： 流水灯.c
+   3          * 描述    :  该程序实现LED的流水灯显示。
+   4                                   该程序用于学习 LED流水灯 的控制方法。
+   5                                   本例中是调用的 intrins.h 中的函数实现的循环移位。               
+   6          * 创建人  ： 东流，2009年8月27日
+   7          * 版本号  ： 1.0
+   8          ***********************************************************************/
+   9          #include<reg52.h>
+  10          #include<intrins.h>
+  11          #define uchar unsigned char
+  12          #define uint  unsigned int
+  13          
+  14          /********************************************************************
+  15          * 名称 : Delay()
+  16          * 功能 : 延时,延时时间为 10ms * del
+  17          * 输入 : del
+  18          * 输出 : 无
+  19          ***********************************************************************/
+  20          void Delay(uint del)
+  21          {
+  22   1              uint i,j;
+  23   1              for(i=0; i<del; i++)
+  24   1              for(j=0; j<1827; j++)   
+  25   1              ;
+  26   1      }
+  27          
+  28          /********************************************************************
+  29          * 名称 : Main()
+  30          * 功能 : 实现灯的闪烁
+  31          * 输入 : 无
+  32          * 输出 : 无
+  33          ***********************************************************************/
+  34          void Main(void)
+  35          {
+  36   1              uchar i;
+  37   1              while(1)
+  38   1              {
+  39   2                      P0 = 0x7f;                                      //P0.7亮亮
+  40   2                      for(i=0; i<7; i++)                      //移位7次
+  41   2                      {
+  42   3                              P0 = _cror_(P0, 1);             //_crol_()这个函数在intrins.h中定义了，用于循环右移
+  43   3                              Delay(15);
+  44   3                      }
+  45   2                      P0 = 0xfe;
+  46   2                      for(i=0; i<7; i++)
+  47   2                      {
+  48   3                              P0 = _crol_(P0, 1);         //用于循环左移
+  49   3                              Delay(15);
+  50   3                      }
+  51   2      
+  52   2              }
+  53   1      }
+
+
+C51 COMPILER V7.50   羅水灯                                                                08/16/2011 17:19:07 PAGE 2   
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     89    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,4 @@
+"STARTUP.obj",
+"温度采集DS18B20LCD.obj" 
+TO "温度采集DS18B20LCD" 
+RAMSIZE(256) 

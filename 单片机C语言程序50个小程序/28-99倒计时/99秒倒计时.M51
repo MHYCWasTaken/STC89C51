@@ -1,0 +1,144 @@
+BL51 BANKED LINKER/LOCATER V5.03                                                        05/13/2009  13:29:36  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V5.03, INVOKED BY:
+D:\KEIL\C51\BIN\BL51.EXE 99秒倒计时.obj TO 99秒倒计时 RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  99秒倒计时.obj (99秒__计蔩)
+  D:\KEIL\C51\LIB\C51S.LIB (?C_STARTUP)
+  D:\KEIL\C51\LIB\C51S.LIB (?C_INIT)
+
+
+LINK MAP OF MODULE:  99秒倒计时 (99秒__计蔩)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     0004H     UNIT         ?DT?99秒__计蔩
+            IDATA   000CH     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     0004H     UNIT         ?C_INITSEG
+                    0007H     0004H                  *** GAP ***
+            CODE    000BH     0003H     ABSOLUTE     
+            CODE    000EH     008CH     UNIT         ?C_C51STARTUP
+            CODE    009AH     0042H     UNIT         ?PR?TIM?99秒__计蔩
+            CODE    00DCH     002AH     UNIT         ?PR?MAIN?99秒__计蔩
+            CODE    0106H     000AH     UNIT         ?PR?_DELAY?99秒__计蔩
+            CODE    0110H     000AH     UNIT         ?CO?99秒__计蔩
+
+
+
+OVERLAY MAP OF MODULE:   99秒倒计时 (99秒__计蔩)
+
+
+SEGMENT
+  +--> CALLED SEGMENT
+---------------------
+?PR?TIM?99秒__计蔩
+  +--> ?CO?99秒__计蔩
+
+*** NEW ROOT ***************************************************
+
+?C_C51STARTUP
+  +--> ?PR?MAIN?99秒__计蔩
+  +--> ?C_INITSEG
+
+?PR?MAIN?99秒__计蔩
+  +--> ?PR?_DELAY?99秒__计蔩
+
+
+
+SYMBOL TABLE OF MODULE:  99秒倒计时 (99秒__计蔩)
+BL51 BANKED LINKER/LOCATER V5.03                                                      05/13/2009  13:29:36  PAGE 2
+
+
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        99秒__计蔩
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  D:00B0H         PUBLIC        P3
+  D:00A8H         PUBLIC        IE
+  D:00B8H         PUBLIC        IP
+  C:00DCH         PUBLIC        main
+  D:0098H         PUBLIC        SCON
+  D:0089H         PUBLIC        TMOD
+  D:0088H         PUBLIC        TCON
+  C:0110H         PUBLIC        tab
+  C:009AH         PUBLIC        tim
+  D:008CH         PUBLIC        TH0
+  D:008AH         PUBLIC        TL0
+  B:0088H.4       PUBLIC        TR0
+  D:00C8H         PUBLIC        T2CON
+  D:000AH         PUBLIC        Dis_Shiwei
+  C:0106H         PUBLIC        _delay
+  D:000BH         PUBLIC        Dis_Gewei
+  D:00D0H         PUBLIC        PSW
+  -------         PROC          _DELAY
+  D:0006H         SYMBOL        cnt
+  C:0106H         LINE#         20
+  C:0106H         LINE#         21
+  C:0106H         LINE#         22
+  C:010FH         LINE#         23
+  -------         ENDPROC       _DELAY
+  -------         PROC          MAIN
+  C:00DCH         LINE#         27
+  C:00DCH         LINE#         28
+  C:00DCH         LINE#         30
+  C:00DFH         LINE#         31
+  C:00E2H         LINE#         32
+  C:00E5H         LINE#         33
+  C:00E8H         LINE#         34
+  C:00EAH         LINE#         36
+  C:00EAH         LINE#         37
+  C:00EAH         LINE#         38
+  C:00EDH         LINE#         39
+  C:00F0H         LINE#         40
+  C:00F7H         LINE#         41
+  C:00FAH         LINE#         42
+  C:00FDH         LINE#         43
+  C:0104H         LINE#         44
+  -------         ENDPROC       MAIN
+  -------         PROC          TIM
+  -------         DO            
+  D:0008H         SYMBOL        second
+  D:0009H         SYMBOL        count
+  -------         ENDDO         
+  C:009AH         LINE#         50
+BL51 BANKED LINKER/LOCATER V5.03                                                      05/13/2009  13:29:36  PAGE 3
+
+
+  C:00A4H         LINE#         53
+  C:00A7H         LINE#         54
+  C:00AAH         LINE#         55
+  C:00ACH         LINE#         56
+  C:00B1H         LINE#         57
+  C:00B1H         LINE#         58
+  C:00B4H         LINE#         59
+  C:00B7H         LINE#         60
+  C:00B7H         LINE#         61
+  C:00B7H         LINE#         62
+  C:00BAH         LINE#         63
+  C:00BAH         LINE#         64
+  C:00C6H         LINE#         65
+  C:00D1H         LINE#         67
+  C:00D1H         LINE#         68
+  -------         ENDPROC       TIM
+  -------         ENDMOD        99秒__计蔩
+
+Program Size: data=13.0 xdata=0 code=278
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

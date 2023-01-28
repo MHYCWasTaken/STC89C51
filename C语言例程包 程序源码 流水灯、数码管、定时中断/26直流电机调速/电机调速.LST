@@ -1,0 +1,111 @@
+C51 COMPILER V7.50   µç»_µ_ËÙ                                                              09/01/2011 12:26:55 PAGE 1   
+
+
+C51 COMPILER V7.50, COMPILATION OF MODULE µç»_µ_ËÙ
+OBJECT MODULE PLACED IN µç»úµ÷ËÙ.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE µç»úµ÷ËÙ.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          /********************************************************************
+   2          * Ãû³Æ : µç»úµ÷ËÙ.c
+   3          * ¹¦ÄÜ : Í¨¹ýP1.0¿ÚÀ´¿ØÖÆÖ±Á÷µç»úµÄÐý×ªµÄ¿ìÂý
+   4          /***********************************************************************/
+   5          #include <reg52.h>
+   6          #define uchar unsigned char
+   7          #define uint  unsigned int
+   8          sbit KEY1 = P3^2;               //¶¨Òåµ÷ËÙµÄ°´¼ü
+   9          sbit PWM = P1^0;                //¶¨ÒåÖ±Á÷µç»úµÄ¿ØÖÆ¶Ë¿Ú
+  10          uchar CYCLE;                    //¶¨ÒåÖÜÆÚ 
+  11          uchar PWM_ON ;                  //¶¨ÒåµÍµçÆ½Ê±¼ä
+  12          
+  13          /********************************************************************
+  14          * Ãû³Æ : Delay_1ms()
+  15          * ¹¦ÄÜ : ÑÓÊ±×Ó³ÌÐò£¬ÑÓÊ±Ê±¼äÎª 1ms * x
+  16          * ÊäÈë : x (ÑÓÊ±Ò»ºÁÃëµÄ¸öÊý)
+  17          * Êä³ö : ÎÞ
+  18          ***********************************************************************/
+  19          void Delay(uint i)
+  20          {
+  21   1              uchar x,j;
+  22   1              for(j=0;j<i;j++)
+  23   1              for(x=0;x<=148;x++);    
+  24   1      }
+  25          
+  26          void Time0(void)
+  27          {
+  28   1              TMOD |=0x01;              //¶¨Ê±Æ÷ÉèÖÃ 1ms in 12M crystal
+  29   1              TH0=(65536-1000)/256; 
+  30   1              TL0=(65536-1000)%256; //¶¨Ê±1mS 
+  31   1              IE= 0x82;                         //´ò¿ªÖÐ¶Ï
+  32   1              TR0=1;                            //¶¨Ê±Æ÷´ò¿ª
+  33   1      }
+  34          main()
+  35          {
+  36   1              uchar PWM_Num;  //¶¨ÒåµµÎ»
+  37   1              Time0();
+  38   1              CYCLE = 10;             //Ê±¼ä¿ÉÒÔµ÷Õû Õâ¸öÊÇ10²½µ÷Õû ÖÜÆÚ10ms 8Î»PWM¾ÍÊÇ256²½
+  39   1              PWM = 0;
+  40   1              while(1)
+  41   1              {
+  42   2                      if(!KEY1)
+  43   2                      {
+  44   3                              Delay(15);
+  45   3                              if(!KEY1)
+  46   3                      {
+  47   4                              PWM_Num++;            //°´Ò»ÏÂP3.2¿Ú£¬¾Í¸øÖ±Á÷µç»ú»»Ò»¸öµµÎ»
+  48   4                                      if(PWM_Num==4)
+  49   4                                      {
+  50   5                                              PWM_Num=0;
+  51   5                              }
+  52   4                                      switch(PWM_Num)
+  53   4                                      {
+  54   5                                      case 0:P0=0x06;         PWM_ON=0;break;                 //µÍµçÆ½Ê±³¤     //¸øP0¿Ú¸³Öµ£¬ÊÇÈÃP0¿ÚÏÔÊ¾£º1,2,3,4 ÕâËÄ¸öµ
+             -µÎ»
+C51 COMPILER V7.50   µç»_µ_ËÙ                                                              09/01/2011 12:26:55 PAGE 2   
+
+  55   5                                      case 1:P0=0x5B;         PWM_ON=2;break;
+  56   5                                      case 2:P0=0x4F;         PWM_ON=4;break;
+  57   5                                      case 3:P0=0x66;         PWM_ON=6;break;
+  58   5                                      default:break;
+  59   5                              }
+  60   4                              }
+  61   3                      }
+  62   2              }
+  63   1      }
+  64          /********************************/
+  65          /*      ¶¨Ê±ÖÐ¶Ï                */
+  66          /********************************/
+  67          void tim(void) interrupt 1 using 1
+  68          {
+  69   1              static unsigned char count; 
+  70   1              TH0=(65536-1000)/256; 
+  71   1              TL0=(65536-1000)%256;//¶¨Ê±1mS 
+  72   1              if (count==PWM_ON)
+  73   1              {
+  74   2                      PWM = 1;                //Ö±Á÷µç»ú×ª 
+  75   2              }
+  76   1              count++;
+  77   1              if(count == CYCLE)
+  78   1              {
+  79   2                      count=0;
+  80   2                      if(PWM_ON!=0)   //Èç¹û×óÓÒÊ±¼äÊÇ0 ±£³ÖÔ­À´×´Ì¬
+  81   2                      {
+  82   3                              PWM = 0;    //Ö±Á÷µç»ú²»×ª
+  83   3                      }
+  84   2              }
+  85   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    148    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      3    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

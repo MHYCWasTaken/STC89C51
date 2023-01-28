@@ -1,0 +1,106 @@
+Fri 29 Jan 93  8:34
+By: Yousuf Khan
+To: All
+Re: FAQ: 386, 486, SX, and DX?
+------------------------------------------------------------------------
+
+The next few messages contain frequently asked questions and their
+answers. Feel free to comment.
+
+                               ***
+
+Q1) What is the difference between 386SX, 386DX, 486SX, and 486DX
+processors?
+
+                               ***
+
+A1) All 386 & 486 processor models are "32-bit" CPUs. What this means is
+that the processors' registers are large enough to load and store data
+that is upto 32-bits in length. It does not matter if the processor
+model is designated SX or DX, it is still 32 bit.
+
+One misconception about these processors is that their maximum memory
+addressibility is only 4 Gigabytes. They can all address considerably
+more than that, upto 64 Terabytes. Most of it is virtual memory --
+memory that is not real, but simulated from disk or some other storage
+media.
+
+Now for the differences. From a software developer's point of view a 486
+does not look very different from a 386, and it isn't. A 486 is an
+uprated version of the 386, with considerably re-engineered internal
+circuitry, which generally allows it to execute equivalent instructions
+faster. So given a 386 and 486 rated at the same clock frequency, the
+486 will generally be faster. The extra speed of the 486 is due to its
+extra wide internal data pathways (128 bit vs. 32 bit for the 386),
+which allows blocks of data to flow back and forth concurrently, instead
+of consecutively. There is also an internal ram cache, which is a buffer
+between the 486 and the slow external ram which could cause the 486 to
+wait too long for memory access.
+
+The difference between SX and DX depends entirely on whether you are
+talking about 386 or 486. In general, an SX is an economy version of the
+full DX processor, usually with some feature removed from it.
+
+In the case of the 386, the SX and SL (an uprated SX for use in low
+power notebook computers) versions have a smaller external data path;
+16-bit vs. 32-bit for the DX. This smaller data path does not mean that
+the 386SX's 32-bit registers are disabled, it simply means that the SX
+has to take two passes to fill the same register. This is done
+automatically by the processor's own circuitry, and the software
+developer does not have to do anything different when writing software
+for 386SX that one wouldn't do with a 386DX. Naturally this can mean
+that an 386SX will run somewhat slower than a 386DX, given the same
+clock frequency. The 386SX also has had some of its address lines
+removed. This results in a lower physical memory addressibility, but its
+virtual memory addressibility remains at 64 Terabytes. The Intel and
+clone 386SXs can address upto 16 Megabytes, the Intel 386SL can address
+32 Megabytes, and the Intel and clone 386DX can address 4 Gigabytes
+physically.
+
+IBM has a specialized version of the Intel 386SL called the 386SLC,
+which has added an internal 8K cache. It is otherwise pin compatible
+with the regular Intel 386SL.
+
+AMD and C&T Corp both have clones of the Intel 386SX and 386DX. They are
+in general very much the same as their Intel counterparts and are direct
+replacements of each other, both in terms of pin compatibility, and
+software compatibility.
+
+In the case of the 486, there are different variations within the SX
+theme. Intel, Cyrix, and IBM all have made different modifications to
+the 486DX design to come up with their economy 486.
+
+The 486DX is distinguishable from all 386 and economy 486 offerings
+because it has an internal math coprocessor. The math coprocessor used
+to be a separate add-on extension to a processor, because all its extra
+functions required more silicon than was available on the CPU. With
+increased miniaturization techniques, the 486DX was able to incorporate
+the circuitry directly into its own die.
+
+Intel's variation of the economy 486 is called the 486SX.  The 486SX has
+had its internal math coprocessor cut, but all data paths and address
+lines remain intact. The Intel 486SX and 486DX are not pin compatible
+with each other, so one cannot simply remove a 486SX and place a 486DX
+in its place or vice-versa.
+
+Cyrix has two levels of economy 486s: the 486SLC and the 486DLC. For the
+486SLC, Cyrix has cut the math copro too, but it has also reduced the
+size of the internal cache to 1K from 8K, and repackaged the CPU to be
+pin-compatible with a 386SX CPU. Since it is pin compatible with an
+Intel 386SX, the 486SLC can only address 16Megs of memory, and it has a
+16-bit external data path. Cyrix is positioning its offering as a direct
+replacement of the 386SX. For the 486DLC, all the same modifications
+that Cyrix made for the 486SLC apply, except that it is made
+pin-compatible with an Intel 386DX rather than 386SX. Since the 486DLC
+is pin compatible with the Intel 386DX, it will be able to address 4
+Gigabytes, and it has a 32-bit external data path. The Intel 486SX and
+the Cyrix 486xLC are not pin-compatible with each other, but they are
+software-compatible.
+
+IBM has come out with its own variation of the 486, confusingly called
+the 486SLC. IBM's 486SLC is not pin-compatible with the Cyrix 486SLC, it
+is pin-compatible with the Intel 386SL/IBM 386SLC, however. The IBM
+486SLC does not have a math copro built-in, but it has a larger internal
+ram cache than all other 486s, 16K. Because of its 386SL/386SLC
+heritage, the 486SLC incorporates the same power-saving features, and it
+can address upto 32Megs, 16-bits at a time.

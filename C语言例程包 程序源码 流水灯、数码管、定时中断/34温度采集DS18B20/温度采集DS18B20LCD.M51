@@ -1,0 +1,308 @@
+BL51 BANKED LINKER/LOCATER V6.00                                                        07/26/2014  11:11:04  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.00, INVOKED BY:
+C:\KEIL\C51\BIN\BL51.EXE STARTUP.obj, 温度采集DS18B20LCD.obj TO 温度采集DS18B20LCD RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  STARTUP.obj (?C_STARTUP)
+  温度采集DS18B20LCD.obj (温度采集DS18B20LCD)
+  C:\KEIL\C51\LIB\C51S.LIB (?C?UIDIV)
+
+
+LINK MAP OF MODULE:  温度采集DS18B20LCD (?C_STARTUP)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     0004H     UNIT         _DATA_GROUP_
+            DATA    000CH     0002H     UNIT         ?DT?温度采集DS18B20LCD
+            IDATA   000EH     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+                    0003H     07FDH                  *** GAP ***
+            CODE    0800H     008CH     UNIT         ?PR?MAIN?温度采集DS18B20LCD
+            CODE    088CH     0055H     UNIT         ?C?LIB_CODE
+            CODE    08E1H     0025H     UNIT         ?PR?READ_BYTE?温度采集DS18B20LCD
+            CODE    0906H     0023H     UNIT         ?PR?_WRITE_BYTE?温度采集DS18B20LCD
+            CODE    0929H     001DH     UNIT         ?PR?DELAY_1?温度采集DS18B20LCD
+            CODE    0946H     001DH     UNIT         ?PR?RESET?温度采集DS18B20LCD
+            CODE    0963H     0016H     UNIT         ?PR?_DELAY_1MS?温度采集DS18B20LCD
+            CODE    0979H     0012H     UNIT         ?PR?_DELAY?温度采集DS18B20LCD
+            CODE    098BH     0011H     UNIT         ?PR?_WRITE_BIT?温度采集DS18B20LCD
+            CODE    099CH     0010H     UNIT         ?PR?READ_BIT?温度采集DS18B20LCD
+            CODE    09ACH     000CH     UNIT         ?C_C51STARTUP
+            CODE    09B8H     000AH     UNIT         ?CO?温度采集DS18B20LCD
+
+
+
+OVERLAY MAP OF MODULE:   温度采集DS18B20LCD (?C_STARTUP)
+
+
+SEGMENT                                      DATA_GROUP 
+  +--> CALLED SEGMENT                      START    LENGTH
+----------------------------------------------------------
+?C_C51STARTUP                              -----    -----
+  +--> ?PR?MAIN?温度采集DS18B20LCD
+
+?PR?MAIN?温度采集DS18B20LCD                0008H    0004H
+  +--> ?PR?RESET?温度采集DS18B20LCD
+  +--> ?PR?_WRITE_BYTE?温度采集DS18B20LCD
+  +--> ?PR?READ_BYTE?温度采集DS18B20LCD
+  +--> ?CO?温度采集DS18B20LCD
+  +--> ?PR?_DELAY_1MS?温度采集DS18B20LCD
+BL51 BANKED LINKER/LOCATER V6.00                                                      07/26/2014  11:11:04  PAGE 2
+
+
+
+?PR?RESET?温度采集DS18B20LCD               -----    -----
+  +--> ?PR?_DELAY?温度采集DS18B20LCD
+
+?PR?_WRITE_BYTE?温度采集DS18B20LCD         -----    -----
+  +--> ?PR?_WRITE_BIT?温度采集DS18B20LCD
+  +--> ?PR?_DELAY?温度采集DS18B20LCD
+
+?PR?_WRITE_BIT?温度采集DS18B20LCD          -----    -----
+  +--> ?PR?_DELAY?温度采集DS18B20LCD
+
+?PR?READ_BYTE?温度采集DS18B20LCD           -----    -----
+  +--> ?PR?READ_BIT?温度采集DS18B20LCD
+  +--> ?PR?_DELAY?温度采集DS18B20LCD
+
+
+
+SYMBOL TABLE OF MODULE:  温度采集DS18B20LCD (?C_STARTUP)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        ?C_STARTUP
+  C:09ACH         SEGMENT       ?C_C51STARTUP
+  I:000EH         SEGMENT       ?STACK
+  C:0000H         PUBLIC        ?C_STARTUP
+  D:00E0H         SYMBOL        ACC
+  D:00F0H         SYMBOL        B
+  D:0083H         SYMBOL        DPH
+  D:0082H         SYMBOL        DPL
+  N:0000H         SYMBOL        IBPSTACK
+  N:0100H         SYMBOL        IBPSTACKTOP
+  N:0080H         SYMBOL        IDATALEN
+  C:09AFH         SYMBOL        IDATALOOP
+  N:0000H         SYMBOL        PBPSTACK
+  N:0000H         SYMBOL        PBPSTACKTOP
+  N:0000H         SYMBOL        PDATALEN
+  N:0000H         SYMBOL        PDATASTART
+  N:0000H         SYMBOL        PPAGE
+  N:0000H         SYMBOL        PPAGEENABLE
+  D:00A0H         SYMBOL        PPAGE_SFR
+  D:0081H         SYMBOL        SP
+  C:09ACH         SYMBOL        STARTUP1
+  N:0000H         SYMBOL        XBPSTACK
+  N:0000H         SYMBOL        XBPSTACKTOP
+  N:0000H         SYMBOL        XDATALEN
+  N:0000H         SYMBOL        XDATASTART
+  C:0000H         LINE#         92
+  C:09ACH         LINE#         99
+  C:09AEH         LINE#         100
+  C:09AFH         LINE#         101
+  C:09B0H         LINE#         102
+  C:09B2H         LINE#         151
+  C:09B5H         LINE#         155
+  -------         ENDMOD        ?C_STARTUP
+
+  -------         MODULE        温度采集DS18B20LCD
+BL51 BANKED LINKER/LOCATER V6.00                                                      07/26/2014  11:11:04  PAGE 3
+
+
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  D:00B0H         PUBLIC        P3
+  C:0946H         PUBLIC        Reset
+  C:09B8H         PUBLIC        table
+  D:00A8H         PUBLIC        IE
+  C:0979H         PUBLIC        _delay
+  B:00A0H.3       PUBLIC        DQ
+  D:00B8H         PUBLIC        IP
+  C:0929H         PUBLIC        delay_1
+  C:0800H         PUBLIC        main
+  D:0098H         PUBLIC        SCON
+  C:08E1H         PUBLIC        read_byte
+  D:0088H         PUBLIC        TCON
+  D:000CH         PUBLIC        TMPH
+  D:000DH         PUBLIC        TMPL
+  C:099CH         PUBLIC        read_bit
+  C:0906H         PUBLIC        _write_byte
+  C:098BH         PUBLIC        _write_bit
+  C:0963H         PUBLIC        _Delay_1ms
+  D:00C8H         PUBLIC        T2CON
+  D:00D0H         PUBLIC        PSW
+  -------         PROC          DELAY_1
+  -------         DO            
+  D:0006H         SYMBOL        i
+  D:0004H         SYMBOL        j
+  -------         ENDDO         
+  C:0929H         LINE#         27
+  C:0929H         LINE#         28
+  C:0929H         LINE#         30
+  C:092CH         LINE#         31
+  C:0945H         LINE#         33
+  -------         ENDPROC       DELAY_1
+  -------         PROC          _DELAY
+  D:0006H         SYMBOL        N
+  -------         DO            
+  D:0004H         SYMBOL        i
+  -------         ENDDO         
+  C:0979H         LINE#         41
+  C:0979H         LINE#         42
+  C:0979H         LINE#         44
+  C:098AH         LINE#         46
+  -------         ENDPROC       _DELAY
+  -------         PROC          _DELAY_1MS
+  D:0006H         SYMBOL        i
+  -------         DO            
+  D:0004H         SYMBOL        x
+  D:0005H         SYMBOL        j
+  -------         ENDDO         
+  C:0963H         LINE#         54
+  C:0963H         LINE#         55
+  C:0963H         LINE#         57
+  C:096CH         LINE#         58
+  C:0978H         LINE#         59
+  -------         ENDPROC       _DELAY_1MS
+BL51 BANKED LINKER/LOCATER V6.00                                                      07/26/2014  11:11:04  PAGE 4
+
+
+  -------         PROC          RESET
+  -------         DO            
+  D:0003H         SYMBOL        deceive_ready
+  -------         ENDDO         
+  C:0946H         LINE#         66
+  C:0946H         LINE#         67
+  C:0946H         LINE#         69
+  C:0948H         LINE#         70
+  C:094FH         LINE#         71
+  C:0951H         LINE#         72
+  C:0956H         LINE#         73
+  C:095BH         LINE#         74
+  C:0960H         LINE#         75
+  C:0962H         LINE#         76
+  -------         ENDPROC       RESET
+  -------         PROC          READ_BIT
+  -------         DO            
+  D:0007H         SYMBOL        i
+  -------         ENDDO         
+  C:099CH         LINE#         84
+  C:099CH         LINE#         85
+  C:099CH         LINE#         87
+  C:099EH         LINE#         88
+  C:09A0H         LINE#         89
+  C:09A6H         LINE#         90
+  C:09ABH         LINE#         91
+  -------         ENDPROC       READ_BIT
+  -------         PROC          _WRITE_BIT
+  D:0007H         SYMBOL        bitval
+  C:098BH         LINE#         99
+  C:098BH         LINE#         100
+  C:098BH         LINE#         101
+  C:0990H         LINE#         102
+  C:0992H         LINE#         103
+  C:0999H         LINE#         104
+  C:099BH         LINE#         105
+  -------         ENDPROC       _WRITE_BIT
+  -------         PROC          READ_BYTE
+  -------         DO            
+  D:0002H         SYMBOL        i
+  D:0001H         SYMBOL        m
+  D:0003H         SYMBOL        receive_data
+  -------         ENDDO         
+  C:08E1H         LINE#         113
+  C:08E1H         LINE#         114
+  C:08E1H         LINE#         116
+  C:08E3H         LINE#         117
+  C:08E5H         LINE#         118
+  C:08E6H         LINE#         119
+  C:08E6H         LINE#         120
+  C:08ECH         LINE#         121
+  C:08ECH         LINE#         122
+  C:08F8H         LINE#         123
+  C:08F8H         LINE#         124
+  C:08FFH         LINE#         125
+  C:0903H         LINE#         126
+  C:0905H         LINE#         127
+BL51 BANKED LINKER/LOCATER V6.00                                                      07/26/2014  11:11:04  PAGE 5
+
+
+  -------         ENDPROC       READ_BYTE
+  -------         PROC          _WRITE_BYTE
+  D:0001H         SYMBOL        val
+  -------         DO            
+  D:0003H         SYMBOL        i
+  D:0002H         SYMBOL        temp
+  -------         ENDDO         
+  C:0906H         LINE#         135
+  C:0908H         LINE#         136
+  C:0908H         LINE#         138
+  C:090AH         LINE#         139
+  C:090AH         LINE#         140
+  C:0915H         LINE#         141
+  C:0918H         LINE#         142
+  C:091DH         LINE#         143
+  C:0924H         LINE#         144
+  C:0928H         LINE#         145
+  -------         ENDPROC       _WRITE_BYTE
+  -------         PROC          MAIN
+  -------         DO            
+  D:0008H         SYMBOL        tt
+  D:0002H         SYMBOL        temp
+  -------         ENDDO         
+  C:0800H         LINE#         154
+  C:0800H         LINE#         155
+  C:0800H         LINE#         158
+  C:0803H         LINE#         159
+  C:0803H         LINE#         160
+  C:0803H         LINE#         161
+  C:0806H         LINE#         162
+  C:080BH         LINE#         163
+  C:0810H         LINE#         164
+  C:0813H         LINE#         165
+  C:0818H         LINE#         166
+  C:081DH         LINE#         167
+  C:0822H         LINE#         168
+  C:0827H         LINE#         169
+  C:083CH         LINE#         170
+  C:0859H         LINE#         171
+  C:085CH         LINE#         172
+  C:0863H         LINE#         173
+  C:087CH         LINE#         174
+  C:087FH         LINE#         175
+  C:0886H         LINE#         176
+  C:0889H         LINE#         177
+  -------         ENDPROC       MAIN
+  -------         ENDMOD        温度采集DS18B20LCD
+
+  -------         MODULE        ?C?UIDIV
+  C:088CH         PUBLIC        ?C?UIDIV
+  -------         ENDMOD        ?C?UIDIV
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?DELAY_1?温度采集DS18B20LCD
+
+******************************************************************************
+* RESTRICTED VERSION WITH 0800H BYTE CODE SIZE LIMIT; USED: 0170H BYTE (17%) *
+BL51 BANKED LINKER/LOCATER V6.00                                                      07/26/2014  11:11:04  PAGE 6
+
+
+******************************************************************************
+
+Program Size: data=15.0 xdata=0 code=453
+LINK/LOCATE RUN COMPLETE.  1 WARNING(S),  0 ERROR(S)

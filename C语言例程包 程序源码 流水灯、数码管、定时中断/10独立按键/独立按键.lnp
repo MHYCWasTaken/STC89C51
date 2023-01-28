@@ -1,0 +1,4 @@
+"STARTUP.obj",
+"独立按键.obj" 
+TO "独立按键" 
+RAMSIZE(256) 

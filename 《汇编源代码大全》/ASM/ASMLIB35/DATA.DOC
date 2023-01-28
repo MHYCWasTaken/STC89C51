@@ -1,0 +1,1188 @@
+
+*******************************  DATA  *************************************
+
+ASMLIB data manipulation subroutines Copyright (C) 1991 - 1993 Douglas Herr
+all rights reserved
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+CHRDEL:      deletes a character from a string
+CHRNDEL:     deletes a character from a string of known length
+             The resulting space is closed by moving the remaining
+             characters forward
+Source:      chrdel.asm (strlen.asm)
+
+Call with:   DS:[BX] pointing to an ASCIIZ string
+             (chrndel only) CX = current string length
+             AX = offset from DS:[BX] to character to delete
+Returns:     CX = new string length
+Uses:        CX
+Example:     lea   bx,string          ; DS:[BX] points to string
+             mov   ax,3               ; delete character at DS:[BX+3]
+             call  chrdel             ; delete the character, shorten string
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+COLORATTR:   calculate a color attribute for ASMLIB's text-mode subroutines.
+             Intended for 16-color text modes.
+Source:      coloratt.asm
+Call with:   AL = foreground color (0 - 15)
+             AH = background color (0 - 15)
+Returns:     AH = color attribute
+Uses:        AX
+Example:
+
+include      asm.inc
+
+      mov    al,hired            ; bright red
+      mov    ah,blue             ; blue
+      call   colorattr           ; this should get their attention
+      mov    warning,ah          ; save the attribute
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+CSET:        centers a string in a fixed field
+Source:      cset.asm (strlen.asm)
+
+Call with:   ES:[DI] = address of field string
+             DS:[SI] = address of string to be centered in the field
+             Both strings must be zero-terminated (ASCIIZ).  The field
+             string may not contain any nul characters except for the
+             terminator.
+Returns:     CF = 0 if no error
+             CF = 1 if string was truncated to fit in the field
+Uses:        CF; all other flags and registers are saved
+Example:     mov   ax,@data             ; in this case, both strings
+             mov   ds,ax                ; are in DGROUP
+             mov   es,ax
+             assume es:@data, ds:@data
+             lea   di,field             ; field string
+             lea   si,source            ; string to be centered in field
+             call  cset
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+DAYNAME:     returns a pointer to an ASCII string for specified day
+             of the week
+Source:      dname.asm (a$mname.asm)
+
+Call with:   AX = day of week (1 - 7, Sunday = 1)
+Returns:     ES:[BX] = pointer to day name string
+             CX = length of new string
+             Note that the day name string is not zero-terminated
+             strndup may be used to copy the string to the near heap
+Uses:        ES, BX, CX
+Example:     mov    ax,day
+             call   dayname
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+FILL4, FILL4b: fill a buffer with specified 4-byte data
+Source:        small & medium: fill4.asm
+               huge: fill4.asm (lowES2hi.asm)
+
+Call with:   DS:[SI] pointing to 4-byte data (integer, float or other)
+             ES:[DI] pointing to buffer
+             CX = number of 4-byte data blocks to fill in buffer
+             Fill4b: BX = byte increment between data blocks
+Returns:     nothing
+Uses:        nothing
+Example:
+
+include asm.inc
+
+extrn   fill4:proc
+
+.data
+wonowon dd 101.      ; float4 value
+farseg  dw ?         ; program allocates buffer, stores seg address here
+
+.code
+program fragment assumes DS:@data
+        .
+        .
+        .
+        mov   es,farseg
+        xor   di,di      ; start at beginning of far segment
+        lea   si,wonowon ; fill every other 4-byte block in far segment
+        mov   bx,8       ; skip 4 bytes between data blocks
+        mov   cx,25      ; do it 25 times
+        cal   fill4
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+FILL8, FILL8b: fill a buffer with specified 8-byte data
+Source:        small & medium: fill8.asm
+               huge: fill8.asm (lowES2hi.asm)
+
+Call with:   DS:[SI] pointing to 8-byte data (integer, float or other)
+             ES:[DI] pointing to buffer
+             CX = number of 8-byte data blocks to fill in buffer
+             Fill8b: BX = byte increment between data blocks
+Returns:     nothing
+Uses:        nothing
+Example:     see Fill4
+
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+FSTRISTR:    search for a string in a disk file, case insensetive
+Source:      fstristr.asm (strlen.asm, $strstr.asm, strnupr.asm)
+
+FSTRSTR:     search for a string in a disk file, case sensetive
+Source:      fstrstr.asm (strlen.asm, $strstr.asm)
+
+Call with:   BX = file handle, DS:[SI] points to string to find
+             The file must have been opened with read access, and at least
+             64k DOS memory must be free.  See STARTUP.ASM and ENDPROG.ASM.
+Returns:     if CF = 0, DX:AX is the offset of the string in the file
+             if CF = 1: memory not available if AX = DX = 0
+                        string not found if AX = DX = -1
+                        error reading file if AX = DX = -2
+Uses:        AX, DX, flags
+
+Example:
+
+extrn   fstrstr:proc
+
+.data
+string   db 'A String In The File',0
+filename db 'anyold.fil',0
+
+.code
+yoursub proc
+        mov      dx,offset filename
+        mov      ax,3D00h          ; open the file with read access
+        int      21h
+        jc       no_good
+        mov      bx,ax
+        mov      si,offset string  ; DS:[SI] points to the string
+        call     fstrstr
+        jc       no_good           ; returns with DX = high word of
+                                   ; string position, AX = low word
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+GETCMD:      isolates command line parameters
+             GetCMD assumes that parameters are separated by
+             one or more spaces
+Source:      getcmd.asm
+
+Call with:   ES = PSP segment (see STARTUP.ASM; not requried with TINY model)
+             AX = parameter number (first command line parameter = 0)
+Returns:     ES:[BX] pointing to command line parameter
+             CX = length of parameter string
+             CX = 0 if no command parameter(AX)
+             Note: the string at ES:[BX] is not zero-terminated
+Uses:        BX
+Example:
+
+include asm.inc
+
+extrn  getcmd:proc
+
+.data
+extrn  pspseg:word        ; PSP segment saved by startup code
+
+.code
+       .
+       .
+       .
+       mov    es,pspseg
+       mov    ax,0        ; get first parameter
+       call   getcmd      ; returns with ES:[BX] pointing to parameter
+                          ; and CX = length of parameter
+       jcxz   no_parameters
+       
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+I2TOSTR:     convert an integer value to an ASCIIZ string
+Source:      i2tostr.asm
+
+I4TOSTR:     convert a long integer value to an ASCIIZ string
+Source:      i4tostr.asm
+
+             ASMLIB's TPrint, GPrint and other 'print' subroutines require
+             a string argument.  Numeric data must be converted to a string
+             before printing.
+
+Call with:   DS:[SI] pointing to a buffer space
+             (i2tostr) AX = integer value
+             (i4tostr) DX:AX = long integer value
+             i2tostr requires a 7-byte (or greater) buffer;
+             i4tostr requires a 12-byte (or greater) buffer
+Returns:     ASCIIZ string at DS:[SI]; numerals are right-justified
+Uses:        nothing; all registers and flags are saved
+Supports:    (i2tostr) signed 2-byte integers
+             (i4tostr) signed 4-byte integers
+Example:
+
+include asm.inc
+
+extrn  i2tostr:proc
+
+.data
+nbuffer  db 7 dup(?)
+
+.code
+
+       .
+       .
+       .
+       mov   ax,@data
+       mov   ds,ax         ; numeric buffer is in DGROUP
+       assume  ds:@data
+       lea   si,nbuffer
+       mov   ax,32750      ; integer value
+       call  i2tostr
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+LOWDS2HI:    converts low DS:high SI address to high DS:low SI
+             this is handy for data structures over 64k
+Source:      lowds2hi.asm
+
+Call with:   DS:[SI] = address to convert
+Returns:     DS:[SI] = converted address; SI <= 15
+Uses:        DS, SI; all other registers and flags are saved
+Example:
+
+extrn   lowDS2hi:proc
+
+.code
+        .
+        .
+        .
+        mov   ds,hugeseg
+        mov   si,next_data
+        call  lowDS2hi       ; ready to address next (65535-15) bytes
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+LOWES2HI:    converts low ES:high DI address to high ES:low DI
+             this is handy for data structures over 64k
+Source:      lowes2hi.asm
+
+Call with:   ES:[DI] = address to convert
+Returns:     ES:[DI] = converted address; DI <= 15
+Uses:        ES, DI; all other registers and flags are saved
+Example:
+
+extrn   lowES2hi:proc
+
+.code
+        .
+        .
+        .
+        mov   es,hugeseg
+        mov   di,next_data
+        call  lowES2hi       ; ready to address next (65535-15) bytes
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+LSET:        left-justifies a string in a fixed field
+Source:      lset.asm (strlen.asm)
+
+Call with:   ES:[DI] = address of field string
+             DS:[SI] = address of string to be justified in the field
+             Both strings must be zero-terminated (ASCIIZ).  The field
+             string may not contain any NUL characters except for the
+             terminator.
+Returns:     CF = 0 if no error
+             CF = 1 if string was truncated to fit in the field
+Uses:        CF
+             all other flags and registers saved
+Example:     mov   ax,@data             ; in this case, both strings
+             mov   ds,ax                ; are in DGROUP
+             mov   es,ax
+             assume es:@data, ds:@data
+             lea   di,field             ; field string
+             lea   si,source            ; string to be justified in field
+             call  lset
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+LTRIM:       remove leading blanks from an ASCIIZ string
+Source:      ltrim.asm (strlen.asm)
+
+Call with:   DS:[BX] pointing to string
+Returns:     CX = new string length
+Uses:        CX
+Example:     lea    bx,string
+             call   ltrim
+
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+MAXI2, MAXI2b: find maximum value in a signed integer array
+Source:        small & medium models: maxi2.asm
+               huge model: maxi2.asm (lowDS2hi.asm)
+
+MINI2, MINI2b: find minimum value in a signed integer array
+Source:        small & medium models: mini2.asm
+               huge model: mini2.asm (lowDS2hi.asm)
+
+MAXU2, MINU2b: find maximum value in an unsigned integer array
+Source:        small & medium models: maxu2.asm
+               huge model: maxu2.asm (lowDS2hi.asm)
+
+MINU2, MINU2b: find minimum value in an unsigned integer array
+Source:        small & medium models: minu2.asm
+               huge model: minu2.asm (lowDS2hi.asm)
+
+Call with:   ES:[DI] pointing to the array
+             CX = number of array elements
+             For max/min?2b, call with BX = byte increment between
+             array elements.  Max/min?2 assume increment = 2.
+Returns:     AX = array element number with maximum value
+             see example to calculate address of maximum value
+             if subroutine was called with CX = 0, CF = 1
+Uses:        AX, CF
+Example:
+
+include asm.inc
+
+extrn  maxi2:proc
+
+.data
+
+integers     dw 140 dup(0)
+
+.code
+             .     ; program establishes array values
+             .
+             .
+             mov    ax,@data
+             mov    es,ax
+             assume es:@data
+             lea    di,integers
+             mov    cx,140        ; search the entire array
+             call   maxi2
+             shl    ax,1          ; convert word offset to byte offsest
+             add    di,ax         ; ES:[DI] points to the maximum value
+                                  ; With max/min?2b, the offset of the
+                                  ; value is DI + (AX * BX).
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+MAXI4, MAXI4b: find maximum value in a signed 4-byte integer array
+Source:        small & medium models: maxi4.asm
+               huge model: maxi4.asm (lowDS2hi.asm)
+
+MINI4, MINI4b: find minimum value in a signed 4-byte integer array
+Source:        small & medium models: mini4.asm
+               huge model: mini4.asm (lowDS2hi.asm)
+
+MAXU4, MAXU4b: find maximum value in an unsigned 4-byte integer array
+Source:        small & medium models: maxu4.asm
+               huge model: maxu4.asm (lowDS2hi.asm)
+
+MINU4, MINU4b: find minimum value in an unsigned 4-byte integer array
+Source:        small & medium models: minu4.asm
+               huge model: minu4.asm (lowDS2hi.asm)
+
+Call with:   ES:[DI] pointing to the array
+             CX = number of array elements
+             For max/min?4b, call with BX = byte increment between
+             array elements.  Max/min?4 assume increment = 4.
+Returns:     AX = array element number with maximum value
+             see example to calculate address of maximum value.
+             if subroutine was called with CX = 0, CF = 1
+Uses:        AX, CF
+Example:
+
+include asm.inc
+
+extrn  maxi4:proc
+
+.data
+
+int4         dd 140 dup(0)
+
+.code
+             .     ; program establishes array values
+             .
+             .
+             mov    ax,@data
+             mov    es,ax
+             assume es:@data
+             lea    di,int4
+             mov    cx,140        ; search the entire array
+             call   maxi4
+             shl    ax,1          ; convert dword offset to word offset
+             shl    ax,1          ; convert word offset to byte offset
+             add    di,ax         ; ES:[DI] points to the maximum value
+                                  ; With max/min?4b, the offset of the
+                                  ; value is DI + (AX * BX).
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+MONTHNAME:   returns a pointer to an ASCII string for specified month
+Source:      mname.asm (a$mname.asm)
+
+Call with:   AX = month (1 - 12, January = 1)
+Returns:     ES:[BX] = pointer to month name string
+             CX = length of month string
+             Note that the month name string is not zero-terminated
+             strndup may be used to copy the string to the near heap
+Uses:        ES, BX, CX
+Example:     mov    ax,month
+             call   monthname
+             jc     no_memory
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+NFORMAT:     formats a numeric string
+Source:      nformat.asm (ltrim.asm, strspace.asm, heap.asm)
+
+Call with:   DS:[SI] pointing to a numeric string (such as one produced
+             by i4tostr or i2tostr)
+             AL = number of decimal places in output string
+             BL = option code
+              where option 1 = negative numbers enclosed with parentheses
+                    option 2 = commas between thousands
+                    option 4 = decimals truncated (instead of rounded)
+             assumes DS @data
+             Note: you must initialize the near heap with HINIT before
+             using NFORMAT.  See STARTUP.ASM.
+Returns:     DS:[BX] pointing to formatted ASCIIZ string
+Uses:        BX, CF
+
+Example:
+
+include asm.inc
+
+extrn  nformat:proc, i2tostr:proc
+extrn  hinit:proc
+
+.data
+
+; reserve space for the heap
+heapsize equ 3000                ; should be plenty
+hbuffer  db heapsize  dup (0)
+
+; I'll use this numeric buffer
+nbuffer  db 12 dup(0)
+
+.code
+; program fragment assumes DS:@data
+         .
+         .
+         .
+         lea    bx,hbuffer
+         mov    ax,heapsize
+         call   hinit
+         mov    ax,-12345
+         lea    si,nbuffer
+         call   i2tostr
+         mov    al,2             ; 2 decimal places
+         mov    bl,1 OR 2        ; I want parentheses and commas
+         call   nformat          ; result returned at DS:[BX]
+                                 ; remember to release the formatted
+                                 ; string space with HFREE when you're
+                                 ; done with the string
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+PATH:        finds paths in program enviornment
+             isolates each path in "PATH=" part of enviornment
+Source:      path.asm (strlen.asm)
+
+Call with:   ES = PSP segment, AX = path number.  See STARTUP.ASM.
+Returns:     ES:[BX] -> path(AX) in enviornment block, CX = length of path
+             If CX = 0, path(AX) does not exist.  The first path in the
+             enviornment is path(0).
+             Note that the path string at ES:[BX] is NOT zero-terminated.
+Uses:        BX, CX, ES; flags and all other registers are saved
+Example:     
+
+; program startup code saves PSP segment
+include asm.inc
+
+extrn   path:proc
+
+stacksize equ 1024
+.stack stacksize
+
+.data
+public pspseg
+pspseg dw ?                          ; storage for PSP segment
+
+.code
+includelib asmlib
+start:
+; start by pointing DS to DGROUP
+        mov     ax,@data
+        mov     ds,ax
+        assume  ds:@data
+
+; save PSP segment
+        mov     pspseg,es
+         .
+         .
+         .
+; sometime later in the program
+        xor     ax,ax        ; start with the first path
+find_path:
+        mov     es,pspseg
+        call    path
+        jcxz    no_path      ; exit if no more paths, or else copy CX bytes
+                             ;  at ES:[BX] to some useful location (try
+                             ;  strndup).
+        inc     ax           ; look for next path
+        jmp     find_path
+
+no_path:
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+QFNAME:      qualifies a filename
+Source:      qfname.asm
+
+Call with:   DS:[BX] pointing to a filename; the filename may contain
+             drive specification and/or complete or partial path name.
+             Drive specification and path name not required.
+Returns:     DS:[SI] pointing to the full DRIVESPEC:\PATH\FILENAME
+             CX = length of full filename
+             Note that DS:[SI] points to QFName's buffer space; the next
+             call to QFName will return a new filename at the same address.
+Uses:        SI, CX, flags
+Example:
+
+include asm.inc
+
+.data
+docs   db '*.doc',0         ; search for .DOC files in current directory
+
+.code
+       .
+       .
+       .
+       mov    ax,@data
+       mov    ds,ax
+       lea    bx,docs
+       call   qfname        ; returns 'drive:\path\*.doc'
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+RANDOM:      generates a near-random number
+Source:      random.asm
+
+Call with:   no parameters
+Returns:     AX = near-random number between 0 and 65535
+             you may notice repeating patterns every few thousand calls
+             to Random.
+Uses:        AX
+Example:     call   random
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+RSET:        right-justifies a string in a fixed field
+Source:      rset.asm (strlen.asm)
+
+Call with:   ES:[DI] = address of field string
+             DS:[SI] = address of string to be justified in the field
+             Both strings must be zero-terminated (ASCIIZ).  The field
+             string may not contain any nul characters except for the
+             terminator.
+Returns:     CF = 0 if no error
+             CF = 1 if string was truncated to fit in the field
+Uses:        CF; all other flags and registers saved
+Example:     mov   ax,@data             ; in this case, both strings
+             mov   ds,ax                ; are in DGROUP
+             mov   es,ax
+             assume es:@data, ds:@data
+             lea   di,field             ; field string
+             lea   si,source            ; string to be justified in field
+             call  rset
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+RTRIM:       removes trailing blanks from an ASCIIZ string
+Source:      rtrim.asm (strlen.asm)
+
+Call with:   DS:[BX] pointing to string
+Returns:     CX = new string length
+Uses:        CX
+Example:     lea    bx,string
+             call   rtrim
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+SORTI4HI:    sort a signed array of 4-byte integers, highest first
+Source:      sorti4hi.asm
+
+SORTI4LO:    sort a signed array of 4-byte integers, lowest first
+Source:      sorti4lo.asm
+
+Call with:   ES:[DI] = address of first element of array to sort
+             CX = number of array elements
+Returns:     nothing
+Uses:        nothing; all registers and flags are saved
+Example:
+
+include asm.inc
+
+extrn    sorti4hi:proc
+
+.data
+
+i4data   dd 1500 dup(0)
+
+.code
+
+             .      ; program establishes data values
+             .
+             .
+         mov    ax,@data
+         mov    es,ax
+         assume es:@data
+         lea    di,i4data
+         mov    cx,1500
+         call   sorti4hi
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+STRTOI2:     converts an ASCII string to equivalent integer value
+STRNTOI2:    converts n bytes of an ASCII string to equivalent integer value
+             strtoi2 and strntoi2 ignore leading blanks and tabs, then read
+             the string until a non-numeric character is read.
+             strntoi2 reads a maximum of CX characters or until a
+             non-numeric character is read, whichever comes first.
+Source:      strtoi2.asm
+
+STRTOI4:     converts an ASCII string to a long integer value
+STRNTOI4:    converts n bytes of an ASCII string to a long integer value
+             similar to strtoi2 and strntoi2, but returning a long integer
+             value in DX:AX.
+Source:      strtoi4.asm
+
+Call with:   DS:[SI] = address of string
+             strntoi2/strntoi4 only: CX = number of bytes to read
+Returns:     AX = integer value, or DX:AX = long integer value
+             strtoix:  DS:[SI] points to character past terminating byte
+             strntoix: if CX = 0, DS:[SI] points to next character
+                     if CX <> 0, DS:[SI] points to character past
+                     terminating byte
+             BL = error code
+                bit 0 if set = CR read before reading any numeric characters
+                bit 1 if set = CR was the terminating character
+                bit 6 if set = overflow; result in DX:AX is unusable
+                bit 7 if set = result is unsigned; result is unusable if the
+                               value represented by the string was negative
+Uses:        AX, BX, CX, SI, flags
+Example:     lea    si,long_integer  ; near address of ASCII string
+             mov    cx,7             ; 7-byte field
+             call   strntoi2         ; return result as an integer in AX
+
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+STRCAT:      catenates (combines) two ASCIIZ strings
+Source:      strcat.asm (strdup.asm, strlen.asm, heap.asm)
+
+Call with:   DS:[SI] = address of first string
+             DS:[BX] = address of second string
+             assumes DS:@data
+Returns:     if CF = 0, DS:[BX] = address of combined ASCIIZ string
+             if CF = 1, insufficient memory available in near heap
+             Note: you must initialize the near heap with HINIT before
+             using STRCAT.  See STARTUP.ASM.
+Uses:        BX, CX, CF
+Example:
+
+include asm.inc
+
+extrn  strcat:proc
+
+.data
+string0 db 'this string goes first',0
+string1 db ' this one is added at the end of the first',0
+
+.code
+; program fragment assumes DS:@data
+       .
+       .
+       .
+       lea    si,string0       ; address of first string
+       lea    bx,string1       ; address of second string
+       call   strcat           ; result returned at DS:[BX]
+       jc     heap_is_full     ; original strings are undisturbed
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+STRCHR:      search an ASCIIZ string for a specified character
+STRNCHR:     search n bytes of an ASCII string for a specified character
+Source:      strchr.asm (strlen.asm)
+
+Call with:   DS:[BX] = pointer to ASCIIZ string
+             AL = character to find
+             CX = number of bytes to search (strnchr only)
+Returns:     CX = string length
+             if CF = 0, AX is the offset from DS:[BX] to matching character
+             in the source string
+             if CF = 1, no matching character found
+Uses:        CX, AX, CF
+
+Example on next page
+
+; use STRNCHR to determine if a key pressed was a legal key
+include asm.inc
+
+extrn   strnchr:proc, getkey:proc, toupper:proc
+
+.data
+
+valid_string db 'ABC123',27      ; keys 1,2,3,A,B,C and Esc
+valid_len    equ $-valid_string  ; number of valid keys
+
+dispatch_table label word
+        dw akey, bkey, ckey, onekey, twokey, threekey, esckey
+
+.code
+; program fragment assumes DS:@data
+        .
+        .
+        .
+get_another:
+        lea   bx,valid_string ; DS:[BX] points to a string of valid keys
+        call  getkey          ; keycode returned in AX
+        shr   ah,1            ; test for extended keycode
+        jc    get_another     ; I'm not interested in extended keycodes today
+
+        call  toupper         ; convert keycode to upper case
+        mov   cx,valid_len
+        call  strnchr
+        jc    get_another     ; CF = 1 if key pressed is not among the
+                              ; keys in the validation string
+        mov   bx,ax
+        shl   bx,1            ; convert byte offset to word offset
+        jmp   dispatch_table[bx]
+
+akey:   .
+        .
+        .
+
+bkey:   .
+        .
+        .
+
+ckey:   .
+        .
+        .
+
+; etc
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+STRCPY:      copy an ASCIIZ string to existing buffer
+Source:      strcpy.asm (strlen.asm, strncpy.asm)
+
+Call with:   ES:[BX] pointing to ASCIIZ string
+             DS:[SI] pointing to destination buffer
+             STRCPY assumes that the buffer is long enough to hold the
+             entire string.  The string's terminating NUL byte is not
+             copied to the buffer.
+Returns:     CX = string length
+Uses:        CX
+Example:
+
+include asm.inc
+
+extrn   strcpy:proc
+
+.fardata
+fstring        db 'a far string',0
+
+.data
+string_buffer  db 128 dup (?)
+
+.code
+; code fragment assumes DS:@data
+       .
+       .
+       .
+; copy far string to DGROUP for convenient manipulation
+       mov    ax,@fardata
+       mov    es,ax
+       assume es:@fardata
+       mov    bx,offset @fardata:fstring
+       mov    si,offset @data:string_buffer
+       call   strcpy
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+STRNCPY:     copy CX bytes to an existing buffer
+Source:      strncpy.asm
+
+Call with:   ES:[BX] pointing to ASCII string
+             DS:[SI] pointing to destination buffer
+             CX = number of bytes to copy
+             STRNCPY assumes that the buffer is long enough to hold the
+             entire string
+Returns:     nothing
+Uses:        nothing; all registers and flags are saved
+Example:
+
+; I want to copy a command line parameter to DGROUP
+
+include asm.inc
+extrn   getcmd:proc
+extrn   strncpy:proc
+
+.data
+extrn   pspseg:word             ; PSP segment address was saved by STARTUP
+string_buffer   db 128 dup (?)
+
+.code
+; code fragment assumes DS:@data
+       .
+       .
+       .
+       mov      es,pspseg
+       xor      ax,ax           ; first command line parameter
+       call     getcmd          ; returns parameter at ES:[BX], length as CX
+       jcxz     no_parameters
+       lea      si,string_buffer
+       call     strncpy
+
+; make it zero-terminated
+       add      si,cx
+       mov      byte ptr [si],0
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+STRINS:      inserts string1 in string0 at specified offset.
+             Creates new string in near heap; first part of new string
+             is n bytes of string0; middle of new string is string1; end
+             of new string is remainder of string0.
+Source:      strins.asm (strlen.asm, heap.asm)
+
+Call with:   DS:[SI] pointing to string0
+             DS:[BX] pointing to string1
+             AX = offset in string0 to insert string1 (0 >= AX >= 32767)
+             Assumes DS:@data
+Returns:     if CF = 1, insufficient memory in hear heap
+             if CF = 0, DS:[BX] points to new string
+             Note: you must initialize the near heap with HINIT before
+             using STRINS.  See STARTUP.ASM.
+Uses:        BX, CF
+Example:
+
+include asm.inc
+
+extrn  strins:proc
+
+.data
+string0 db '1234567890',0
+string1 db 'abcdefghij',0
+
+.code
+       .
+       .
+       .
+       mov    ax,@data
+       mov    ds,ax            ; dgroup
+       assume ds:@data         ; tell MASM about it
+       lea    si,string0       ; address of first string
+       lea    bx,string1       ; address of second string
+       mov    ax,3             ; string1 inserted after '123'
+       call   strins           ; result returned at DS:[BX]
+       jc     heap_is_full     ; original strings are undisturbed
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+STRDUP:      duplicates a string at ES:[BX]
+Source:      strdup.asm (strlen.asm, heap.asm)
+
+STRNDUP:     duplicates n bytes of a string at ES:[BX]
+Source:      strndup (strdup.asm, heap.asm)
+
+Call with:   ES:[BX] = address of source string
+             assumes DS:@data
+             (strndup) CX = number of bytes to duplicate
+             String copied to near heap
+             Source string need not be in same segment as heap
+             strdup requires an ASCIIZ string; strndup duplicates CX
+             characters at ES:[BX] whether zero-terminated or not.  The
+             duplicate created by strdup or strndup will be an ASCIIZ
+             string.
+
+Returns:     if CF = 0, DS:[BX] = address of string copy
+                        CX = string length
+             if CF = 1, insufficient memory in near heap
+             Note: you must initialize the near heap with HINIT before
+             using STRDUP.  See STARTUP.ASM.
+Uses:        BX, CX, CF; all other flags and registers are saved
+Example:     mov  ax,@data
+             mov  ds,ax
+             mov  es,ax              ; in this case, the source string
+                                     ; is in the data segment
+             lea  bx,source          ; ES:[BX] = source address
+             call strdup
+             jc   oops               ; not enough memory if CF = 1
+                                     ; otherwise, DS:[BX] = address
+                                     ; of string copy
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+             
+STRIPCHR:    remove all occurances of a character from an ASCIIZ string.
+Source:      stripchr.asm (strlen.asm)
+
+Call with:   DS:[BX] = string address
+             AL = character to remove from the string
+Returns:     CX = new string length
+Uses:        CX
+Example:     lea    bx,string        ; DS:[BX] -> string
+             mov    al,'$'           ; remove "$" character from string
+             call   stripchr
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+STRLEN:      finds length of an ASCIIZ string
+Source:      strlen.asm
+
+Call with:   DS:[BX] = address of the string
+Returns:     CX = length of string excluding the terminating NUL
+Uses:        CX
+Example:     lea   bx,string
+             call  strlen
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+STRLWR:      changes upper-case characters in a string to lower case
+Source:      strlwr.asm
+
+STRNLWR:     changes n bytes of a string to lower case
+Source:      strnlwr.asm
+
+Call with:   DS:[BX] = address of an ASCIIZ string
+             CX = number of bytes (strnlwr only)
+Returns:     nothing
+Uses:        nothing
+Example:     lea    bx,string
+             call   strlwr
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+STRRCHR:     find the last byte in a string matching AL
+STRNRCHR:    find the last byte in n bytes matching AL
+Source:      strrchr.asm (strlen.asm)
+
+Call with:   DS:[BX] pointing to the first character of the string
+             AL = byte to find
+             (strnrchr only) CX = number of bytes to search
+Returns:     if CF = 1, no match
+             if CF = 0, AX = offset from DS:[BX] of the last matching byte
+Uses:        AX, CF; all other flags and registers are saved
+Example:
+
+.data
+string   db 'my old computer was a real slug',0
+
+.code
+        .
+        .
+        .
+         mov   ax,@data
+         mov   ds,ax
+         assume  ds:@data
+
+         mov   al,'w'         ; look for the lower-case "w"
+         lea   bx,string
+         call  strrchr
+         jc    oops           ; cut outta here if not in the string
+                              ; else go on
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+STRREV:      reverses all characters in a string
+STRNREV:     reverses n characters in a string
+Source:      strrev.asm (strlen.asm)
+
+Call with:   DS:[BX] pointing to the first character of the string
+             CX = number of bytes in string to reverse (strnrev only)
+Returns:     CX = string length
+Uses:        CX; all other registers and flags saved
+Example:     lea   bx,string          ; DS:[BX] points to ASCIIZ string
+             call  strrev             ; also returns CX = string length
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+STRSPACE:    creates an ASCIIZ string filled with the space character,
+             terminated with NUL
+Source:      strspace.asm (heap.asm)
+
+Call with:   AX = string length (not including terminating NUL)
+             Assumes DS:@data
+Returns:     if CF = 1, insufficient memory in near heap
+             if CF = 0, DS:[BX] points to the new string
+                        CX = string length (should be same as AX)
+             Note: you must initialize the near heap with HINIT before
+             using STRSPACE.  See STARTUP.ASM.
+Uses:        CX, BX, CF
+Example:     mov   ax,14              ; make a new string 14 characters long
+             call  strspace
+             jc    oops               ; not enough memory if CF = 1
+             mov   string14,bx        ; else save pointer to string
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+STRSET:      sets all bytes of an ASCIIZ string to a specified character
+STRNSET:     sets n bytes of an ASCIIZ string to a specified character
+Source:      strset.asm (strlen.asm)
+
+Call with:   DS:[BX] pointing to a valid ASCIIZ string
+             AL = character
+             CX = number of bytes to set (strnset only)
+Returns:     CX = string length
+Uses:        CX
+Example:     lea   bx,string          ; DS:[BX] points to an ASCIIZ string
+             mov   al,'*'
+             call  strset
+
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+STRSTR:      finds the first match with a target string in a source string
+             case sensetive
+Source:      strstr.asm ($strstr.asm, strlen.asm)
+
+STRISTR:     finds the first match with a target string in a source string
+             case insensetive
+Source:      stristr.asm (strstr.asm, strdup.asm, upcase.asm, heap.asm)
+
+STRRSTR:     finds the last match with a target string in a source string
+             case sensetive
+Source:      strrstr.asm (strrev.asm, $strstr.asm)
+
+Call with:   ES:[DI] pointing to source string, DS:[SI] pointing to
+             target string.
+             STRISTR assumes DS:@data
+Returns:     if CF = 0, AX = offset of target in source string.
+             if CF = 1, no match
+
+             Note: you must initialize the near heap with HINIT before
+             using STRISTR.  See STARTUP.ASM.
+Uses:        AX, CF; all other flags and registers are saved
+Example:     mov   ax,@fardata
+             mov   es,ax
+            assume es:@fardata     ; source string is in far data area
+             mov   ax,@data
+             mov   ds,ax
+            assume ds:@data
+             lea   di,string       ; source = 'monday',0
+             lea   si,substring    ; target = 'day',0
+             call  strstr          ; in this example, strstr returns ax = 3
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+STRUPR:      changes lower-case characters in an ASCIIZ string to upper case
+Source:      strupr.asm
+
+STRNUPR:     changes lower-case characters in an n-length string to upper case
+Source:      strnupr.asm
+
+Call with:   DS:[BX] pointing to string
+             (strnupr only) CX = number of bytes in string
+Returns:     nothing
+Uses:        nothing
+Example:     mov    bx,offset string
+             mov    cx,bytes
+             call   strnupr
+
+
+
+°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°°
+
+SWAPB:       swaps AX bytes at DS:[SI] with the same number at ES:[DI]
+Source:      swapb.asm
+
+Call with:   DS:[SI] pointing to one of the data areas, ES:[DI] pointing
+             to the other
+             AX = number of bytes to swap
+Returns:     nothing
+Uses:        nothing; all registers and flags are saved
+Example:
+
+include  asm.inc
+
+extrn    swapb:proc
+
+.data
+
+string1  db 'this is string 1',0
+string2  db 'this is string 2',0
+
+strings  dw string1, string2         ; addresses of the strings
+                                     ; this example will swap
+                                     ; the string pointers
+
+.code
+public   stringswap
+stringswap   proc
+; program fragment assumes DS:@data
+         .
+         .
+         .
+         lea   si,strings
+         push  ds
+         pop   es                    ; ES = DS
+         mov   di,si
+         mov   ax,2                  ; each string pointer is 2 bytes
+         add   di,ax                 ; point to 2nd pointer
+         call  swapb
+

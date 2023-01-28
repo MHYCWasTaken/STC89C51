@@ -1,0 +1,66 @@
+C51 COMPILER V7.06   KEY                                                                   05/13/2009 00:34:57 PAGE 1   
+
+
+C51 COMPILER V7.06, COMPILATION OF MODULE KEY
+OBJECT MODULE PLACED IN key.OBJ
+COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE key.c BROWSE DEBUG OBJECTEXTEND
+
+stmt level    source
+
+   1          /*-----------------------------------------------
+   2            名称：独立按键
+   3            公司：上海浩豚电子科技有限公司
+   4            编写：师访
+   5            日期：2009.5
+   6            修改：无
+   7            内容：切换到独立按键模式，通过按键在数码管显示对应的数字
+   8          ------------------------------------------------*/
+   9          #include<reg52.h> //包含头文件，一般情况不需要改动，头文件包含特殊功能寄存器的定义
+  10          sbit key1=P3^0;   //定义按键位置
+  11          sbit key2=P3^1;
+  12          sbit key3=P3^2;
+  13          sbit key4=P3^3;
+  14          /*------------------------------------------------
+  15                              延时子程序
+  16          ------------------------------------------------*/
+  17          void delay(unsigned int cnt)
+  18          {
+  19   1       while(--cnt);
+  20   1      }
+  21          /*------------------------------------------------
+  22                              主函数
+  23          ------------------------------------------------*/
+  24          main()
+  25          {
+  26   1       
+  27   1      
+  28   1       P2=0x00;
+  29   1       while(1)
+  30   1            { 
+  31   2            if(!key1)  //按下相应的按键，数码管显示相应的码值
+  32   2                   P0=0x06;//数码管显示"1"
+  33   2                if(!key2)
+  34   2                   P0=0x5B;//2
+  35   2                if(!key3)
+  36   2                   P0=0x4F;//3
+  37   2                if(!key4)
+  38   2                   P0=0x66;//4
+  39   2      
+  40   2            }
+  41   1      }//如果有干扰请加去抖程序
+  42           //红外接收头部分用黑色物质遮光，防止干扰按键
+  43          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     39    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

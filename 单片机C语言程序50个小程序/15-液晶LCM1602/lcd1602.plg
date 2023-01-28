@@ -1,0 +1,21 @@
+<html>
+<body>
+<pre>
+<h1>礦ision2 Build Log</h1>
+<h2>Project:</h2>
+F:\51开发板\DY_mini80光盘资料\5、配套程序\复件 c语言配套程序\15-液晶LCM1602\lcd1602.uv2
+Project File Date:  04/02/2009
+
+<h2>Output:</h2>
+Build target 'Target 1'
+compiling lcd1602.c...
+linking...
+Program Size: data=74.1 xdata=0 code=1512
+creating hex file from "lcd1602"...
+"lcd1602" - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling lcd1602.c...
+linking...
+Program Size: data=66.1 xdata=0 code=1512
+creating hex file from "lcd1602"...
+"lcd1602" - 0 Error(s), 0 Warning(s).

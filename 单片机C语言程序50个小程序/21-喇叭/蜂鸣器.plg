@@ -1,0 +1,15 @@
+<html>
+<body>
+<pre>
+<h1>µVision2 Build Log</h1>
+<h2>Project:</h2>
+F:\51¿ª·¢°å\DY_mini80¹âÅÌ×ÊÁÏ\5¡¢ÅäÌ×³ÌĞò\¸´¼ş cÓïÑÔÅäÌ×³ÌĞò\21-À®°È\·äÃùÆ÷.uv2
+Project File Date:  04/14/2008
+
+<h2>Output:</h2>
+Build target 'Target 1'
+compiling ·äÃùÆ÷.c...
+linking...
+Program Size: data=9.0 xdata=0 code=59
+creating hex file from "·äÃùÆ÷"...
+"·äÃùÆ÷" - 0 Error(s), 0 Warning(s).

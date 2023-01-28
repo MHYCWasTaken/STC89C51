@@ -1,0 +1,128 @@
+BL51 BANKED LINKER/LOCATER V5.03                                                        05/13/2009  14:46:54  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V5.03, INVOKED BY:
+D:\KEIL\C51\BIN\BL51.EXE »¨ÑùµÆ.obj TO »¨ÑùµÆ RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  »¨ÑùµÆ.obj (»_Ñù_Æ)
+  D:\KEIL\C51\LIB\C51S.LIB (?C_STARTUP)
+
+
+LINK MAP OF MODULE:  »¨ÑùµÆ (»_Ñù_Æ)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            IDATA   0008H     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     0067H     UNIT         ?PR?MAIN?»_Ñù_Æ
+            CODE    006AH     0010H     UNIT         ?CO?»_Ñù_Æ
+            CODE    007AH     000EH     UNIT         ?PR?_DELAY?»_Ñù_Æ
+            CODE    0088H     000CH     UNIT         ?C_C51STARTUP
+
+
+
+OVERLAY MAP OF MODULE:   »¨ÑùµÆ (»_Ñù_Æ)
+
+
+SEGMENT
+  +--> CALLED SEGMENT
+---------------------
+?C_C51STARTUP
+  +--> ?PR?MAIN?»_Ñù_Æ
+
+?PR?MAIN?»_Ñù_Æ
+  +--> ?PR?_DELAY?»_Ñù_Æ
+  +--> ?CO?»_Ñù_Æ
+
+
+
+SYMBOL TABLE OF MODULE:  »¨ÑùµÆ (»_Ñù_Æ)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        »_Ñù_Æ
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0090H         PUBLIC        P1
+  D:00B0H         PUBLIC        P3
+  D:00A8H         PUBLIC        IE
+  D:00B8H         PUBLIC        IP
+  C:0003H         PUBLIC        main
+BL51 BANKED LINKER/LOCATER V5.03                                                      05/13/2009  14:46:54  PAGE 2
+
+
+  D:0098H         PUBLIC        SCON
+  D:0088H         PUBLIC        TCON
+  C:006AH         PUBLIC        seg
+  D:00C8H         PUBLIC        T2CON
+  C:007EH         PUBLIC        _delay
+  D:00D0H         PUBLIC        PSW
+  C:007AH         SYMBOL        L?0024
+  -------         PROC          L?0023
+  -------         ENDPROC       L?0023
+  C:007AH         SYMBOL        L?0024
+  -------         PROC          _DELAY
+  D:0006H         SYMBOL        cnt
+  C:007EH         LINE#         27
+  C:007EH         LINE#         28
+  C:007EH         LINE#         29
+  C:0087H         LINE#         30
+  -------         ENDPROC       _DELAY
+  -------         PROC          MAIN
+  -------         DO            
+  D:0005H         SYMBOL        i
+  -------         ENDDO         
+  C:0003H         LINE#         34
+  C:0003H         LINE#         35
+  C:0003H         LINE#         37
+  C:0003H         LINE#         38
+  C:0003H         LINE#         39
+  C:0006H         LINE#         40
+  C:0008H         LINE#         41
+  C:0008H         LINE#         42
+  C:000BH         LINE#         43
+  C:0011H         LINE#         44
+  C:0015H         LINE#         46
+  C:0018H         LINE#         47
+  C:001AH         LINE#         48
+  C:001AH         LINE#         49
+  C:001DH         LINE#         50
+  C:0023H         LINE#         51
+  C:0027H         LINE#         53
+  C:002AH         LINE#         54
+  C:002CH         LINE#         55
+  C:002CH         LINE#         56
+  C:002FH         LINE#         57
+  C:0035H         LINE#         58
+  C:0038H         LINE#         59
+  C:003CH         LINE#         61
+  C:003FH         LINE#         62
+  C:0041H         LINE#         63
+  C:0041H         LINE#         64
+  C:0044H         LINE#         65
+  C:004AH         LINE#         66
+  C:004DH         LINE#         67
+  C:0051H         LINE#         69
+  C:0059H         LINE#         70
+  C:0059H         LINE#         71
+  C:0060H         LINE#         72
+  C:0067H         LINE#         73
+  -------         ENDPROC       MAIN
+BL51 BANKED LINKER/LOCATER V5.03                                                      05/13/2009  14:46:54  PAGE 3
+
+
+  -------         ENDMOD        »_Ñù_Æ
+
+Program Size: data=9.0 xdata=0 code=148
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

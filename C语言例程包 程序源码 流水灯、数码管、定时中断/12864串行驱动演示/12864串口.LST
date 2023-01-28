@@ -1,0 +1,149 @@
+C51 COMPILER V8.02   12864串口                                                             08/08/2009 14:13:31 PAGE 1   
+
+
+C51 COMPILER V8.02, COMPILATION OF MODULE 12864串口
+OBJECT MODULE PLACED IN 12864串口.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE 12864串口.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          /*
+   2          12864LCD （ST7920）驱动程序
+   3          马文垒     2004/12/27
+   4          
+   5          */
+   6          
+   7          #include <REGx51.H>
+   8            //引脚定义
+   9          #define CS    P3_0      //片选 高电平有效 单片LCD使用时可固定高电平
+  10          #define SID   P3_1      //数据
+  11          #define SCLK  P3_2      //时钟
+  12          #define PSB   P3_3      //低电平时表示用串口驱动，可固定低电平
+  13          #define RESET P3_4      //LCD复位，LCD模块自带复位电路。可不接
+  14          
+  15          void write(bit start, unsigned char ddata);
+  16          void sendbyte(unsigned char bbyte);
+  17          void delaynms(unsigned int di);
+  18          void lcdinit(void);
+  19          void lcdtest(void);
+  20          void lcdcls(void);
+  21          
+  22          unsigned char code ma[] ={"  汉字显示LCD   "};
+  23          unsigned char code ma2[]={"自带字库图文混排"};
+  24          unsigned char code ma3[]={"控制IC：ST7920  "};
+  25          unsigned char code ma4[]={"功能强大使用方便"};
+  26          
+  27          void lcdinit(void)      //初始化LCD 
+  28          {
+  29   1        delaynms(10); //启动等待，等LCM讲入工作状态
+  30   1        PSB=0; ;       //串口驱动模式
+  31   1        RESET=0; delaynms(1); RESET=1; // 复位LCD
+  32   1        CS=1;
+  33   1        write(0,0x30);  //8 位介面，基本指令集
+  34   1        write(0,0x0c);  //显示打开，光标关，反白关
+  35   1        write(0,0x01);  //清屏，将DDRAM的地址计数器归零  
+  36   1      }
+  37          
+  38          void write(bit start, unsigned char ddata) //写指令或数据
+  39          {
+  40   1        unsigned char start_data,Hdata,Ldata;
+  41   1        if(start==0) start_data=0xf8;  //写指令
+  42   1          else       start_data=0xfa;  //写数据
+  43   1        
+  44   1        Hdata=ddata&0xf0;               //取高四位
+  45   1        Ldata=(ddata<<4)&0xf0;  //取低四位
+  46   1        sendbyte(start_data);   //发送起始信号
+  47   1        delaynms(5); //延时是必须的
+  48   1        sendbyte(Hdata);            //发送高四位
+  49   1        delaynms(1);  //延时是必须的
+  50   1        sendbyte(Ldata);                //发送低四位
+  51   1        delaynms(1);  //延时是必须的
+  52   1      }
+  53          
+  54          void sendbyte(unsigned char bbyte) //发送一个字节
+  55          {
+C51 COMPILER V8.02   12864串口                                                             08/08/2009 14:13:31 PAGE 2   
+
+  56   1       unsigned char i;
+  57   1       for(i=0;i<8;i++)
+  58   1         {
+  59   2         SID=bbyte&0x80; //取出最高位
+  60   2         SCLK=1;
+  61   2         SCLK=0;
+  62   2         bbyte<<=1; //左移
+  63   2         }  
+  64   1      }
+  65          
+  66          void delaynms(unsigned int di) //延时
+  67          {
+  68   1       unsigned int da,db;
+  69   1       for(da=0;da<di;da++)
+  70   1         for(db=0;db<10;db++);
+  71   1      }
+  72          
+  73          void lcdtest(void)      //图形方式下屏幕全黑
+  74          { 
+  75   1      unsigned char i,j;
+  76   1      for(i=0;i<32;i++)
+  77   1        { write(0,0x80+i);write(0,0x80);
+  78   2          for(j=0;j<16;j++) write(1,0xff);
+  79   2        }
+  80   1      
+  81   1       for(i=0;i<32;i++)
+  82   1        { write(0,0x80+i);write(0,0x88);
+  83   2          for(j=0;j<16;j++) write(1,0xff);
+  84   2        }
+  85   1      }
+  86          
+  87          void lcdcls(void)  //图形方式下清屏
+  88          { 
+  89   1      unsigned char i,j;
+  90   1      for(i=0;i<32;i++)
+  91   1        { write(0,0x80+i);write(0,0x80);
+  92   2          for(j=0;j<16;j++) write(1,0x00);
+  93   2        }
+  94   1      
+  95   1       for(i=0;i<32;i++)
+  96   1        { write(0,0x80+i);write(0,0x88);
+  97   2          for(j=0;j<16;j++) write(1,0x00);
+  98   2        }
+  99   1      }
+ 100          
+ 101          void main(void)
+ 102          {
+ 103   1       unsigned char i;
+ 104   1       lcdinit();
+ 105   1      
+ 106   1       while(1)
+ 107   1       {
+ 108   2        write(0,0x80); for(i=0;i<16;i++)  write(1,ma[i]);
+ 109   2        write(0,0x90); for(i=0;i<16;i++)  write(1,ma2[i]);
+ 110   2        write(0,0x88); for(i=0;i<16;i++)  write(1,ma3[i]);
+ 111   2        write(0,0x98); for(i=0;i<16;i++)  write(1,ma4[i]);
+ 112   2      
+ 113   2        write(0,0x36); //图形方式
+ 114   2        lcdtest();
+ 115   2        lcdcls();
+ 116   2       }
+ 117   1      
+C51 COMPILER V8.02   12864串口                                                             08/08/2009 14:13:31 PAGE 3   
+
+ 118   1      }
+ 119           
+ 120          
+ 121          
+ 122          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    499    ----
+   CONSTANT SIZE    =     68    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       9
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

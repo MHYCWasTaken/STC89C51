@@ -1,0 +1,164 @@
+BL51 BANKED LINKER/LOCATER V5.12                                                        08/18/2011  11:41:47  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V5.12, INVOKED BY:
+C:\KEIL\C51\BIN\BL51.EXE STARTUP.obj, 独立按键.obj TO 独立按键 RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  STARTUP.obj (?C_STARTUP)
+  独立按键.obj (独立按键)
+
+
+LINK MAP OF MODULE:  独立按键 (?C_STARTUP)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            IDATA   0008H     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     0031H     UNIT         ?PR?KEY?独立按键
+            CODE    0034H     0020H     UNIT         ?PR?_DELAY?独立按键
+            CODE    0054H     000CH     UNIT         ?C_C51STARTUP
+            CODE    0060H     0005H     UNIT         ?PR?MAIN?独立按键
+
+
+
+OVERLAY MAP OF MODULE:   独立按键 (?C_STARTUP)
+
+
+SEGMENT
+  +--> CALLED SEGMENT
+---------------------
+?C_C51STARTUP
+  +--> ?PR?MAIN?独立按键
+
+?PR?MAIN?独立按键
+  +--> ?PR?KEY?独立按键
+
+?PR?KEY?独立按键
+  +--> ?PR?_DELAY?独立按键
+
+
+
+SYMBOL TABLE OF MODULE:  独立按键 (?C_STARTUP)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        ?C_STARTUP
+  C:0054H         SEGMENT       ?C_C51STARTUP
+  I:0008H         SEGMENT       ?STACK
+  C:0000H         PUBLIC        ?C_STARTUP
+  D:00E0H         SYMBOL        ACC
+BL51 BANKED LINKER/LOCATER V5.12                                                      08/18/2011  11:41:47  PAGE 2
+
+
+  D:00F0H         SYMBOL        B
+  D:0083H         SYMBOL        DPH
+  D:0082H         SYMBOL        DPL
+  N:0000H         SYMBOL        IBPSTACK
+  N:0100H         SYMBOL        IBPSTACKTOP
+  N:0080H         SYMBOL        IDATALEN
+  C:0057H         SYMBOL        IDATALOOP
+  N:0000H         SYMBOL        PBPSTACK
+  N:0000H         SYMBOL        PBPSTACKTOP
+  N:0000H         SYMBOL        PDATALEN
+  N:0000H         SYMBOL        PDATASTART
+  N:0000H         SYMBOL        PPAGE
+  N:0000H         SYMBOL        PPAGEENABLE
+  D:00A0H         SYMBOL        PPAGE_SFR
+  D:0081H         SYMBOL        SP
+  C:0054H         SYMBOL        STARTUP1
+  N:0000H         SYMBOL        XBPSTACK
+  N:0000H         SYMBOL        XBPSTACKTOP
+  N:0000H         SYMBOL        XDATALEN
+  N:0000H         SYMBOL        XDATASTART
+  C:0000H         LINE#         92
+  C:0054H         LINE#         99
+  C:0056H         LINE#         100
+  C:0057H         LINE#         101
+  C:0058H         LINE#         102
+  C:005AH         LINE#         151
+  C:005DH         LINE#         155
+  -------         ENDMOD        ?C_STARTUP
+
+  -------         MODULE        独立按键
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+  D:0090H         PUBLIC        P1
+  D:00B0H         PUBLIC        P3
+  C:0060H         PUBLIC        Main
+  B:0080H.0       PUBLIC        LED1
+  B:0080H.1       PUBLIC        LED2
+  B:0080H.2       PUBLIC        LED3
+  D:00A8H         PUBLIC        IE
+  D:00B8H         PUBLIC        IP
+  B:00B0H.2       PUBLIC        KEY1
+  B:00B0H.3       PUBLIC        KEY2
+  B:00B0H.4       PUBLIC        KEY3
+  D:0098H         PUBLIC        SCON
+  D:0088H         PUBLIC        TCON
+  C:0034H         PUBLIC        _Delay
+  D:00C8H         PUBLIC        T2CON
+  C:0003H         PUBLIC        KEY
+  D:00D0H         PUBLIC        PSW
+  -------         PROC          _DELAY
+  D:0006H         SYMBOL        del
+  -------         DO            
+  D:0004H         SYMBOL        i
+  D:0002H         SYMBOL        j
+  -------         ENDDO         
+  C:0034H         LINE#         29
+  C:0034H         LINE#         30
+BL51 BANKED LINKER/LOCATER V5.12                                                      08/18/2011  11:41:47  PAGE 3
+
+
+  C:0034H         LINE#         32
+  C:003EH         LINE#         33
+  C:0053H         LINE#         35
+  -------         ENDPROC       _DELAY
+  -------         PROC          KEY
+  C:0003H         LINE#         43
+  C:0003H         LINE#         44
+  C:0003H         LINE#         45
+  C:000CH         LINE#         46
+  C:000CH         LINE#         47
+  C:0013H         LINE#         48
+  C:001CH         LINE#         49
+  C:001CH         LINE#         50
+  C:001FH         LINE#         51
+  C:001FH         LINE#         52
+  C:0021H         LINE#         53
+  C:0023H         LINE#         54
+  C:0026H         LINE#         55
+  C:0026H         LINE#         56
+  C:0028H         LINE#         57
+  C:002AH         LINE#         59
+  C:002AH         LINE#         60
+  C:002CH         LINE#         61
+  C:002CH         LINE#         62
+  C:002CH         LINE#         63
+  C:0033H         LINE#         64
+  C:0033H         LINE#         65
+  -------         ENDPROC       KEY
+  -------         PROC          MAIN
+  C:0060H         LINE#         72
+  C:0060H         LINE#         73
+  C:0060H         LINE#         74
+  C:0060H         LINE#         75
+  C:0060H         LINE#         76
+  C:0063H         LINE#         77
+  -------         ENDPROC       MAIN
+  -------         ENDMOD        独立按键
+
+Program Size: data=9.0 xdata=0 code=101
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

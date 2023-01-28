@@ -1,0 +1,243 @@
+                              VIDTYPE 1.1
+                             by Yousuf Khan
+
+Introduction
+============
+
+You may use this program's executable, VIDTYPE.COM, with no obligations
+or fees and include it in any software package, shareware or commercial
+as you please. You may use all or parts of this program's source code,
+VIDTYPE.ASM, with no fees, and with the sole condition that you
+mention me within your own programming ventures.
+
+This document divides itself between two sections. The first section
+describes how to use this program and how to interpret its information.
+The second section describes how it was programmed.
+
+(1) How to use this program
+===========================
+
+IBM PCs were designed from the beginning to be able to use many
+different types of video hardware. Not only that, but PCs can use upto
+two different video subsystems at once. This program will identify many
+of these adapters, and it will return configurable DOS errorlevels for
+testing inside of batchfiles.
+
+The following are the command-line parameters you can feed to the
+program before running:
+
+Param   Function
+-----   --------
+none    errorlevel based on prim subsystem standard video code
+"e"     errorlevel based on prim subsystem extended video code
+"2"     errorlevel based on sec subsystem standard video code
+both    errorlevel based on sec subsystem extended video code
+
+Examples would be:
+
+vidtype
+vidtype e
+vidtype 2
+vidtype e2
+vidtype 2E
+
+You'll note that upper or lower case do not matter.
+
+The Standard or Extended video Code:
+-----------------------------------
+The standard video code returns standard IBM-recognized video adapters,
+such as CGA, MDA, MCGA, EGA, or VGA. Just about all video adapters will
+return at least one of these codes for compatibility.
+
+The extended video code is returned only by extended adapter types like
+the various Hercules or Super VGA adapters. The Hercules adapters, for
+example, all appear to be standard MDA monochrome adapters to the
+standard video code, but they are recognized separately in the extended
+video code. Same for the Super VGA adapters, which all appear to be
+standard VGA, but separate extended.
+
+        Extended MDA errorlevel codes:
+        0       no Hercules, regular MDA only
+        1       regular Hercules card
+        2       Hercules Plus card
+        3       Hercules InColor card
+
+        Extended VGA errorlevel codes:
+        0       regular VGA
+        1       ATI
+        2       Ahead
+        3       Paradise
+        4       Oak
+        5       Genoa
+        6       Cirrus
+        7       Chips&Tech
+        8       Tseng
+        9       ZyMos
+        If a VESA BIOS is present, then add 128 to errorlevels returned.
+
+The Primary or Secondary Subsystem:
+----------------------------------
+The primary video subsystem is the system where DOS and BIOS will send
+all their output to at present. The secondary is system is considered to
+be dormant, but it to can be used independently by software that
+recognizes the existence of two separate subsystems. At any time you can
+swap which subsystem is primary or secondary with the DOS MODE command.
+
+VIDTYPE will return a screen similar to the one below:
+
+VIDTYPE v1.0 (c) 1992, Yousuf J. Khan
+    Primary video subsystem:
+        Standard video information:
+            VGA w/ color analog display
+        Extended video information:
+            Super VGA: ATI
+            VESA BIOS present
+    Secondary video subsystem:
+        Standard video information:
+            no display
+        Extended video information:
+            no extended info available
+
+In the above example, we have a system with a single primary subsystem,
+no secondary subsystem. It was determined to be a VGA standard, an ATI
+Super VGA extended, and had a VESA BIOS installed.
+
+(2) Programming highlights
+==========================
+
+You will find the complete assembler source code, VIDTYPE.ASM, included
+in this archive. It was written in Masm-style code with Borland's Turbo
+Assembler 2.0. Although I've attempted to maintain Masm compatibility as
+best as I can, there's no guarantees that it will assemble under Masm.
+
+There are four important instance variables in the system. They are
+[Std0type], [Ext0type], [Std1type], and [Ext1type]. Each are a byte
+long. [Std?type] variables all indicate an IBM standard video adapter
+type, such as CGA, MDA, EGA, or VGA. [Ext?type] variables all indicate
+extended information (if available) about those adapters, eg. whether an
+MDA is also a Hercules-style monographics adapter, or whether a VGA is a
+form of Super VGA. [*0type] variables indicate that the information has
+been gathered for the primary video subsystem, while [*1type] indicates
+info about the secondary subsystem.
+
+There is a fifth instance variable, also a byte long, [egatype], which
+is used only after the EGA adaptor detection test. Since the EGA can be
+either a monochrome or color adaptor, after the test, this instance
+variable indicates which one it was. If a monochrome EGA were found, for
+example, then the MDA test could be be skipped later. Similarly if a
+color EGA were found the CGA tests could be skipped.
+
+The first test carried out is the procedure FindVGA. It uses video BIOS
+function AX=1A00h, Get Display Combination Code, which is only available
+on PS/2, MCGA, and/or VGA systems. If it is detected that this function
+is supported by the current machine, then no more work needs to be done
+to detect standard video display types, because all the relevant
+information is returned in BX by this function. BH contains the display
+combination code (DCC) for the secondary subsystem, and BL contains the
+DCC for the primary. A list of DCCs is included inside the FindVGA
+procedure.
+
+However, even though the DCC is returned, it only represents information
+relevant to standard video adapter types, tests still need to be done to
+determine extended video types. If an MDA is found then the FindHGC
+procedure performed afterwards, to determine if it's Hercules. If a VGA
+is found then the FindSVGA procedure is performed.
+
+The FindSVGA procedure will determine if a VGA has a Super VGA
+extension. There are currently 9 distinct SVGA types that it will
+identify. Some of the SVGAs can be identified easily by looking for
+certain strings at prespecified locations on their BIOS. Other SVGAs
+can only be identified by testing for the existence of extended,
+brand-specific registers. Whatever the case, it will return a value
+between 0 and 9 which will be placed in one of the [ext?type] instance
+variables. Later on, FindSVGA will also determine if the BIOS conforms
+to the VESA BIOS specfications. If a VESA compliant BIOS is found then
+the 7th bit of [ext?type] will be set, in other words increasing the
+value of [ext?type] by 128.
+
+The FindEGA procedure uses a video BIOS function available only on EGA
+and later adapters, Int 10h, AH=12h, BL=10h, GET EGA INFO. If this
+function is supported then BX will have been changed upon return. BH
+will return the fact that the EGA is either in monochrome or color mode,
+which is then be used to set the [egatype] instance variable. No
+[ext?type] instance variables are set during this function.
+
+The FindEGA procedure is performed next. If the [egatype] instance varb
+indicates that a color EGA was found, then this procedure is bypassed.
+Otherwise it determines if a CGA is installed by testing for the
+presence of 6845 or compatible CRTC at the assumed i/o port location of
+color adapters, 3D4h.
+
+The FindMono procedure is performed last. If the [egatype] indicates a
+mono EGA was found, then this procedure is skipped. Otherwise the same
+6845 detection procedure is performed as with the CGA, but this time at
+port location 3B4h. And if it is determined that an MDA adapter is
+present, then an extended test for Hercules, FindHGC, is called.
+
+The FindHGC procedure is called only after it has been determined that
+an MDA exists. It returns a value from 0 to 3 depending whether and what
+type of Hercules or compatible card is installed.
+
+The Find6845 procedure is used by both FindCGA and FindMono to test for
+the presence of a 6845 at their respective assumed locations.
+
+The Determine_subsystem procedure is used only by FindEGA, FindCGA, and
+FindMono. It will make a determination whether the currently tested
+subsystem is the primary or secondary subsystem. It makes this
+determination by looking at offset 63h in the BIOS Data Segment (ie.
+segment 40h), which contains the value of video base port address. That
+is if the color subsystem is active then it will contain 3D4h. If the
+mono is active then it will contain 3B4h.
+
+The Write_msg procedure displays all this information to the user.
+
+The Return_errorlevel procedure parses the command-line and returns a
+DOS errorlevel. The only possible command-line parameters are "2" and
+"e". If "e" (case-insensitive) is present then the errorlevel returned
+will be based on the [ext0type] value. If "2" is on the command-line,
+then the errorlevel is based on the [std1type]. If both parameters are
+present, then the errorlevel returned is from [ext1type]. If no
+parameters are on the command-line, or garbage parameters are on the
+command-line then the errorlevel is based on the [std0type] value.*
+
+* Note: there is a bug in the command-line parsing here and simply
+sending no parameters will not work, you must send garbage parameters.
+
+Version History
+===============
+
+Vers #  Date    Description
+------  ----    -----------
+1.0     Nov 92  -first release to public
+
+1.1     Nov 92  -fixed a silly bug that made a Tseng mistakenly send the
+                return code for a C&T, and made a ZyMos send the return
+                code for a Tseng. Pointed out by John Olson in Fidonet's
+                80XXX echo.
+                -added Trident chipset detector sent over by the same
+                John Olson, above.
+                -added an installation check for the 8514/A's
+                HDILOAD.EXE driver. Treated like any other Super VGA
+                installation check.
+                -received reports that the C&T chipset test was causing
+                lockups on other people's machines. Have moved test
+                location to the very last position, so hopefully other
+                chipsets have a chance to be detected before this test
+                is performed. May consider commenting over this test
+                entirely, if any more reports come in about lockups.
+                -command-line bug is still present.
+
+Conclusion
+==========
+
+Well, that's that. I hope you find this program useful. Better yet, I
+hope you find this program educational, that's why I included its source
+code. If you have any questions, or if you got any hot new Super VGA
+detectors that you would want me to implement, write to me at:
+
+Postal address: Yousuf J. Khan
+                1007 Alenmede Cres.
+                Ottawa, Ont., Canada
+                K2B 8H2
+Fidonet address: 1:163/215.6
+Internet address: 1:163/215.6@fidonet.org

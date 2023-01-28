@@ -1,0 +1,84 @@
+C51 COMPILER V7.06   计数器                                                                12/01/2008 13:15:31 PAGE 1   
+
+
+C51 COMPILER V7.06, COMPILATION OF MODULE 计数器
+OBJECT MODULE PLACED IN 计数器.OBJ
+COMPILER INVOKED BY: d:\Keil2\C51\BIN\C51.EXE 计数器.c BROWSE DEBUG OBJECTEXTEND
+
+stmt level    source
+
+   1          /*
+   2          1、程序目的：使用定时器学习计时
+   3          2、硬件要求：数码管、晶振12M
+   4          */
+   5          #include <reg52.h>
+   6          
+   7          code unsigned char tab[]=
+   8                                  {0xc0,0xf9,0xa4,0xb0,0x99,0x92,0x82,0xf8,0x80,0x90}; 
+   9                                  //共阳数码管 0-9 
+  10          
+  11          unsigned char Dis_Shiwei;//定义十位
+  12          unsigned char Dis_Gewei; //定义个位
+  13          void delay(unsigned int cnt)
+  14          {
+  15   1       while(--cnt);
+  16   1      }
+  17          
+  18          main()
+  19          {
+  20   1      
+  21   1      TMOD |=0x01;//定时器设置 10ms in 12M crystal
+  22   1      TH0=0xd8;
+  23   1      TL0=0xf0;
+  24   1      IE= 0x82;  //打开中断
+  25   1      TR0=1;
+  26   1      
+  27   1      while(1)
+  28   1        {
+  29   2        P0=Dis_Shiwei;//显示十位
+  30   2        P2=0xFD;
+  31   2        delay(300);//短暂延时
+  32   2        P0=Dis_Gewei; //显示个位
+  33   2        P2=0xFE;
+  34   2        delay(300);
+  35   2        }
+  36   1      
+  37   1      }
+  38          /********************************/
+  39          /*      定时中断                */
+  40          /********************************/
+  41          void tim(void) interrupt 1 using 1
+  42          {
+  43   1      static unsigned char second,count;
+  44   1      TH0=0xd8;//重新赋值
+  45   1      TL0=0xf0;
+  46   1      count++;
+  47   1      if (count==100)
+  48   1          {
+  49   2          count=0;
+  50   2          second++;//秒加1
+  51   2              if(second==100)
+  52   2                 second=0;
+  53   2              Dis_Shiwei=tab[second/10];//十位显示值处理
+  54   2          Dis_Gewei=tab[second%10]; //个位显示处理
+  55   2          
+C51 COMPILER V7.06   计数器                                                                12/01/2008 13:15:31 PAGE 2   
+
+  56   2              }
+  57   1      
+  58   1      
+  59   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    122    ----
+   CONSTANT SIZE    =     10    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      4    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

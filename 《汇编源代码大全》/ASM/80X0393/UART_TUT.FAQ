@@ -1,0 +1,592 @@
+                      The Serial Hardware Tutorial
+                By Yousuf J. Khan (FidoNet 1:163/215.4)
+                         Revision: Jan 20, 1993
+
+Serial communications on the IBM PC and compatible range of computers
+conforms to the RS-232C serial port standard. The chip that implements
+and controls the RS-232 serial port is the UART.
+
+BIOS Data Segment
+-----------------
+The base port addresses of each UART can be pointed to by reading the
+four memory words at offset 0, 2, 4, and 6 from the start of the BIOS
+Data Segment (BDS), segment 40h. Each word points to the starting port
+address of a UART assembly. These pointer words are known commonly as
+COM1, COM2, COM3, and COM4.
+
+Some standard base port locations to put the UART assemblies are at
+ports 02E8h, 02F8h, 03E8h, and 03F8h, in no particular order. If one of
+the port pointers is zero, then that indicates that a serial port does
+not exist there.
+
+Any code snippets in this tutorial are compatible with Tasm 2.0
+assembler (but likely will work with many other versions of assemblers).
+They may refer to a fictional memory location known as [COMX]. [COMX] is
+a word variable representing anything from COM1 through COM4.
+
+The UART
+--------
+There have been about four major functional revisions of the UART. The
+first one in the series was the National Semiconductor 8250.
+
+The next version was the NS 16450. There was also an 8250A, which was
+functionally identical to the 16450, therefore is really just a 16450.
+The addition of a scratch register is what distinguishes a 16450 from
+the 8250.
+
+After the 16450, came the 16550A. The 16550A added a 16 byte FIFO buffer
+to the data register. The FIFOs insulate the serial communications from
+disruptions caused by high interrupt latencies in the computer. There
+was also a 16550 (non-A), but that one had disfunctional FIFOs, so it
+looks and acts just like a 16450. From now on any references to a
+"16550" assumes we are talking about the 16550A revision and later.
+
+The most recent addition to the family are the Type 3 UARTs, found in
+late model IBM PS/2's. The Type 3's can read and write data using the
+DMA circuitry of the PC. There is also a new, switchable, higher speed
+baud rate clock on the Type 3's, which raise maximum baud rates by 6
+fold.
+
+The Data register (offset 0)
+----------------------------
+The data register is at offset zero in the port addresses. If you read
+from it, it becomes the Receive Data register, and if you write to it,
+it becomes the Transmit Data register. The data register is eight bits
+long, and is common to all revisions.
+
+If you have an UART with FIFOs (ie. 16550+ only), and they are enabled,
+then you do not have to stop reading or writing after doing just one.
+You may simply keep reading until the receiver FIFO is empty. Or you may
+simply keep writing until the transmitter FIFO is full. Each character
+will get pushed up through the FIFO stack.
+
+The Interrupt Enable register (offset 1)
+----------------------------------------
+At the port offset one is the Interrupt Enable register. This register
+controls what sorts of change of state will cause the UART to interrupt
+the CPU. You write to this port to set the states, and you read from
+this port to get the states. Only the first four bits (bits 0-3) are
+defined, the remainder are zero.
+
+         7    4   3    2   1   0
+        ÚÄÄÄÄÄÄÂÄÄÄÄÂÄÄÄÄÂÄÄÄÂÄÄÄ¿
+        ³ 0000 ³ MS ³ LS ³ T ³ R ³
+        ÀÄÄÄÄÄÄÁÄÄÄÄÁÄÄÄÄÁÄÄÄÁÄÄÄÙ
+
+        Bit 0 (R): enable Receive data ready int
+        Bit 1 (T): enable Transmit data empty int
+        Bit 2 (LS): Line Status int. Any change in the Line Status
+                register with this bit set will cause an int.
+        Bit 3 (MS): Modem Status int. Any change in the Modem Status
+                register with this bit set will cause an int.
+        Bits 4-7: reserved, cleared.
+
+Sample code:
+        ;The following is an example of setting only the MS bit without
+        ;turning on any of the other bits.
+        ...
+        IER     record  ms:1,ls:1,t:1,r:1
+        mov     dx, [comx]              ;get comport address
+        inc     dx                      ;one offset from base
+        mov     al, IER <1,0,0,0>       ;set just MS bit
+        out     dx, al
+        ...
+
+The Interrupt ID register (offset 2)
+------------------------------------
+The register at this offset has a split personality depending on whether
+you are reading from or writing to it. If you are reading from it, then
+this is the Interrupt ID reg. For the 8250 & 16450, this register has
+only the bit fields 0-2 defined. For the 16550 and above, three
+additional bit fields have been defined. All undefined fields, on any
+particular revision, are cleared.
+
+         7    6 5  4   3  2  1  0
+        ÚÄÄÄÄÄÄÂÄÄÄÄÂÄÄÄÄÂÄÄÄÄÂÄÄÄ¿
+        ³ FIFO ³ 00 ³ FT ³ ID ³ I ³
+        ÀÄÄÄÄÄÄÁÄÄÄÄÁÄÄÄÄÁÄÄÄÄÁÄÄÄÙ
+
+        Bit 0 (I): Interrupt pending. Simply indicates an interrupt
+                occurred, but not what the cause was (as set by
+                Interrupt Enable register).
+        Bits 1-2 (ID): Indicates what the cause of the interrupt was.
+                00b     Look in Modem Status register
+                01b     Transmit data int occurred
+                10b     Receive data int occurred
+        Bit 3 (FT): 16550+ only. FIFO Timeout. Set only in conjunction
+                with ID bits = 10b (Receive data) condition. Allows the
+                processor to read the last few bytes left in the FIFO
+                buffer, which would otherwise be not enough to trigger a
+                full receive data int.
+        Bits 4-5: reserved, cleared
+        Bits 6-7 (FIFO): 16550+ only. Mode status.
+                00b     Char mode, ie. emulate 8250 or 16450.
+                01b     DMA mode. Type 3 UART only.
+                11b     FIFO mode.
+
+Sample code:
+        ;The following is a sample interrupt handler which determines
+        ;if an int occurred & what sort of int occurred.
+        ...
+        IID     record  fifo:2,rsrv:2=0,ft:1,id:2,i:1
+        mov     dx, [comx]
+        add     dx, 2           ;two offsets from base
+        in      al, dx
+        test    al, mask i      ;did an int occur on this comport?
+        jne     no_irq          ;no? then branch
+        and     al, mask id     ;mask all but ID bits
+        cmp     al, iid <,,,01b,>;transmit data empty int?
+        pop     ax              ;restore AL
+        je      transdata       ;yes? then write to buffer
+        cmp     al, iid <,,,10b,>;received data int?
+        je      rcvdata         ;yes? then read buffer
+        ...
+rcvdata:
+        ...
+transdat:
+        ...
+no_irq:
+        ...
+
+The FIFO Control register (offset 2)
+------------------------------------
+This is the other half of the Interrupt ID register, but only available
+in write mode, and only available on the 16550+ UART. It is used to
+control various aspects of the FIFO buffers.
+
+         7   6 5   3   2    1    0
+        ÚÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÂÄÄÄÄÂÄÄÄÄ¿
+        ³ FTS ³ 000 ³ TR ³ RR ³ FE ³
+        ÀÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÁÄÄÄÄÁÄÄÄÄÙ
+
+        Bit 0 (FE): FIFO Enable
+        Bit 1 (RR): Receive buffer reset
+        Bit 2 (TR): Transmit buffer reset
+        Bits 3-5: reserved, cleared
+        Bit 6-7 (FTS): FIFO Trigger Size. Sets how full the receive
+                FIFOs may get before it ints.
+                00b     1 byte
+                01b     4 bytes
+                10b     8 bytes
+                11b     14 bytes
+
+The Line Control register (offset 3)
+------------------------------------
+Common to all revisions. You use this register to set things like baud
+rates, word size, parity, etc.
+
+          7   6    5    4   3   2  1  0
+        ÚÄÄÄÂÄÄÄÂÄÄÄÄÂÄÄÄÄÂÄÄÄÂÄÄÄÂÄÄÄÄ¿
+        ³ D ³ B ³ SP ³ EP ³ P ³ S ³ WS ³
+        ÀÄÄÄÁÄÄÄÁÄÄÄÄÁÄÄÄÄÁÄÄÄÁÄÄÄÁÄÄÄÄÙ
+
+        Bits 0-1 (WS): Word Size. Number of data bits.
+                00b     5 bits
+                01b     6 bits
+                10b     7 bits
+                11b     8 bits
+        Bit 2 (S): Number of Stop bits (one or two)
+        Bit 3 (P): Parity enable. Parity checking is done as a
+                primitive form of error checking. It involves counting
+                up the number of 1 data bits in the data word. If EP is
+                set, then parity is set such that it will make the
+                number of 1's even. Otherwise it is set such that it
+                will make the number of 1's odd.
+        Bit 4 (EP): Even Parity (set=even, cleared=odd)
+        Bit 5 (SP): Sticky Parity. This is not really parity checking.
+                If the P and SP bits are set, then this simply sets the
+                parity bit either on or off all the time. It's not so
+                much an error check as it is a place marker, so the
+                receiver will always see a known bit at the exact same
+                point in the data flow.
+        Bit 6 (B): Send Break. Some comm programs require that this
+                special modem signal be sent to end transmissions for
+                example. While this bit is set the break signal will be
+                continuously sent over the modem, until this bit is
+                cleared.
+        Bit 7 (D): Access Divisor Latch. This is used to set the baud
+                rates. When this bit is set, it takes over the Data and
+                Interrupt Enable registers (offsets 0 and 1), and turns
+                them into Baud Rate Divisor (BRD) register. All the
+                revisions have a 1.8432 MHz countdown clock. The Type 3
+                can also switch to an optional 11.0592 MHz clock. The
+                BRD register is a 16 bit counter. It counts down every
+                clock tick, until it reaches zero, at which point it
+                transmits or receives another bit on the line. At 1.8432
+                MHz, some common BRD values are: 96d = 1200 baud, 12d =
+                9600 baud, 1d = 115,200 baud.
+
+Sample code:
+        ;The following is sample code to set baud rates
+        ...
+        LCR     record  d:1,b:1,sp:1,ep:1,p:1,s:1,ws:2
+        mov     dx, [comx]
+        add     dx, 3
+        in      al, dx          ;get current settings
+        push    ax              ;save AL
+        or      al, mask d      ;turn on D bit in AL without affecting
+                                ; any of other bits
+        out     dx, al          ;send command
+        mov     dx, [comx]      ;back to [COMX]
+        ;note: there's probably no reason to set the upper byte of the
+        ; BRD latch, because serial comm hardly ever gets that slow,
+        ; that it needs to be set. So just set lower byte of BRD.
+        mov     al, 12          ;ie. 9600 baud
+        out     dx, al          ;this reg is now BRD, not Data reg
+        add     dx, 3
+        pop     ax              ;restore AL
+        out     dx, al          ;set BRD back to Data
+        ...
+
+The Modem Control register (offset 4)
+-------------------------------------
+This register is used mainly to communicate between the computer and the
+local modem. It is common to all revisions.
+
+         7   5  4    3    2     1     0
+        ÚÄÄÄÄÄÂÄÄÄÂÄÄÄÄÂÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄ¿
+        ³ 000 ³ L ³ O2 ³ O1 ³ RTS ³ DTR ³
+        ÀÄÄÄÄÄÁÄÄÄÁÄÄÄÄÁÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÙ
+
+        Bit 0 (DTR): Data Terminal Ready. Simply indicates to the modem
+                that the data terminal (ie. the computer) is ready and
+                waiting for the modem. The modem would then send a Data
+                Set Ready (DSR) back to computer when it was ready.
+        Bit 1 (RTS): Request To Send. In the olden days before the
+                current generation of smart modems, this was the signal
+                to the modem to blindly place a carrier signal on the
+                line. When connection to the remote modem was
+                established, then the local modem would activate both
+                the DCD and CTS signals back to the computer.
+        Bit 2 (O1): Out 1. Not used in PCs.
+        Bit 3 (O2): Out 2. Master Enable Interrupts. This bit enables or
+                disables all interrupts, regardless of the state of the
+                Interrupt Enable register.
+        Bit 4 (L): Loop. Reroutes the output of the transmitter back to
+                the receiver. Used for testing the UART circuitry.
+        Bits 5-7: reserved, cleared
+
+The Line Status register (offset 5)
+-----------------------------------
+This register indicates the status of the line. There are fields which
+indicate various errors that can occur in the line.
+
+           7    6    5    4    3    2    1    0
+        ÚÄÄÄÄÂÄÄÄÄÂÄÄÄÄÂÄÄÄÄÂÄÄÄÄÂÄÄÄÄÂÄÄÄÄÂÄÄÄÄ¿
+        ³ RE ³ TS ³ TH ³ BI ³ FE ³ PE ³ OE ³ DR ³
+        ÀÄÄÄÄÁÄÄÄÄÁÄÄÄÄÁÄÄÄÄÁÄÄÄÄÁÄÄÄÄÁÄÄÄÄÁÄÄÄÄÙ
+
+        Bit 0 (DR): Data in Receive buffer
+        Bit 1 (OE): Overrun Error. Occurs if one doesn't read the
+                receive buffer before the next character comes in.
+        Bit 2 (PE): Parity Error
+        Bit 3 (FE): Framing Error. It probably has something to do with
+                start and stop bits being out of place.
+        Bit 4 (BI): Break Interrupt. Indicates a break signal coming
+                from the other modem has been detected.
+        Bit 5 (TH): Transmitter holding register empty
+        Bit 6 (TS): Transmitter shift register empty
+        Bit 7 (RE): 16550+ only. Error in receive FIFO.
+
+The Modem Status register (offset 6)
+------------------------------------
+This register is common to all revisions. The register is split into two
+functional halves. The upper nibble indicates the current state of the
+DCD, RI, DSR, and CTS lines, while the lower nibble indicates whether
+any of these lines have changed since you last inspected them. I will
+prefix all the lower nibble, change fields with a "d", the calculus
+symbol for change.
+
+            7    6     5     4      3     2      1      0
+        ÚÄÄÄÄÄÂÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄ¿
+        ³ DCD ³ RI ³ DSR ³ CTS ³ dDCD ³ dRI ³ dDSR ³ dCTS ³
+        ÀÄÄÄÄÄÁÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÙ
+
+        Bit 0 (dCTS): Change in CTS
+        Bit 1 (dDSR): Change in DSR
+        Bit 2 (dRI): Change in RI
+        Bit 3 (dDCD): Change in DCD
+        Bit 4 (CTS): Clear To Send. Modem sets this line indicating that
+                it is ready for data, after computer indicates that it
+                is ready for data with an RTS. It used to be a signal
+                that the local modem has connected with a remote modem
+                too, in the olden days.
+        Bit 5 (DSR): Data Set Ready. This is the completing signal in a
+                DTR-DSR pair. Computer sends DTR to modem, saying it
+                wants to connect with it. Modem sends DSR back to
+                computer, saying that connection has been established.
+        Bit 6 (RI): Ring Indicator. Indicates that there is remote modem
+                attempting to call your local modem.
+        Bit 7 (DCD): Data Carrier Detect. Indicates that the remote
+                modem has established connection with local modem.
+
+The Scratch register (offset 7)
+-------------------------------
+Simply a place to jot down notes to yourself, does not affect UART
+operations at all. No functional purpose, except that it does
+distinguish the original 8250 from all later revisions. Only available
+on 16450+.
+
+The Type 3 enhanced registers
+-----------------------------
+The next set of registers only apply to the IBM Type 3 DMA UART. This
+UART, on top of the fact that it can act just like a 16550 FIFO UART,
+can even read and write the data directly to memory without any
+intervention from the CPU. It also has a higher maximum baud rate than
+all previous revisions, thanks to a dual speed clock. The enhanced
+registers are all accessed at least 8000h offsets away from their base
+port. So if a baseport is found at 3F8h, then the first enhanced
+register will be found at 83F8h. So far this UART is only found on IBM
+PS/2 models 57, 90 & 95, but there is no reason why in the future they
+can't be installed on ISA machines either. All the input and output
+memory addresses are set by setting the PC's DMA channels (I don't know
+which channel, though). It is beyond the scope of this tutorial to show
+you how to control DMA channels.
+
+Sample code:
+        ;Sample code to detect Type 3 UART
+        ...
+        ;this is a record for the bit fields of DMA CMD Reg 1
+        DCR1    record  dr:1,dt:1,rs:1,tcr:1,tct:1,se:1,te:1,rc:1
+        mov     dx, [comx]
+        add     dx, 8003h       ;8003h offsets from base
+        in      al, dx          ;get current settings
+        or      al, mask dt     ;turn on DMA transmit (DT) bit
+        mov     ah, al          ;save AL in AH
+        out     dx, al
+        mov     dx, [comx]
+        add     dx, 2           ;2 offsets from base, Int ID reg
+        in      al, dx          ;get current IID reg settings
+        ;restore the DMA CMD Reg 1 to original state
+        mov     dx, [comx]
+        add     dx, 8003h
+        xchg    al, ah          ;restore AL from AH, and save current AL
+        and     al, not mask dt ;turn off DT bit
+        out     dx, al
+        ;this is a record of the primary Int ID reg
+        IID     record  fifo:2,rsrv:2=0,ft:1,id:2,i:1
+        mov     al, ah          ;restore AL from AH
+        and     al, mask fifo   ;mask off FIFO mode bits
+        cmp     al, <1,,,,>     ;if FIFO mode bits = 1, 
+        je      yes_dma         ; then DMA mode is on
+        ...
+yes_dma:
+        ...
+
+The Command register (offset 8000h)
+-----------------------------------
+This is a write-only register. Only the lower two bits are used, all the
+rest are reserved.
+
+         7      2 1   0
+        ÚÄÄÄÄÄÄÄÄÂÄÄÄÄÄ¿
+        ³ 000000 ³ CMD ³
+        ÀÄÄÄÄÄÄÄÄÁÄÄÄÄÄÙ
+
+        Bits 0-1 (CMD): Command bits. Can be used to suspend a DMA
+                transmit at any time.
+                01b     Start sending
+                10b     Stop sending
+                11b     Reset error
+        Bits 2-7: reserved, cleared
+
+The Secondary Interrupt ID register (offset 8001h)
+--------------------------------------------------
+In non-DMA mode, this register exactly matches the lower nibble of the
+primary Interrupt ID register (offset 2, read). However, there are two
+more bits defined in this register's upper nibble, because of the extra
+functionality.
+
+         7  6 5  1  0
+        ÚÄÄÄÄÂÄÄÄÄÂÄÄÄ¿
+        ³ 00 ³ ID ³ I ³
+        ÀÄÄÄÄÁÄÄÄÄÁÄÄÄÙ
+
+        Bit 0 (I): Interrupt pending
+        Bits 1-5 (ID): Interrupt ID.
+                00000b  Modem status
+                00001b  Transmit data
+                00010b  Receive data
+                00011b  Line status
+                00110b  FIFO receive buffer timeout
+                10000b  Receive DMA terminal count. If the TCR bit in
+                        the next register is set, then the UART will
+                        interrupt the processor, when it reaches the end
+                        of the DMA receive buffer.
+                10001b  Transmit DMA terminal count. If TCT bit in next
+                        register is set. End of DMA transmit buffer.
+                10010b  Receive Char Count. If RC bit in next reg is
+                        set. Ints everytime another byte is received, so
+                        you can check Char Count reg (offset 8007h).
+                10011b  Transmit REGS empty. If TE bit in next reg is
+                        set. Ints if transmit register is empty.
+                11000b  Compare match CHAR 0. If a match was made with
+                        first comparison character, and if first
+                        comparison function set to interrupt (see
+                        offsets 8005h and 8006h).
+                11001b  Compare match CHAR 1
+                11010b  Compare match CHAR 2
+        Bits 6-7: reserved, cleared
+
+The DMA Control 1 register (offset 8003h)
+-----------------------------------------
+Enables and disables various interrupt conditions. Also enables DMA
+transmit and/or receive mode.
+
+           7    6    5     4     3    2    1    0
+        ÚÄÄÄÄÂÄÄÄÄÂÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÂÄÄÄÄÂÄÄÄÄ¿
+        ³ DR ³ DT ³ RS ³ TCR ³ TCT ³ SE ³ TE ³ RC ³
+        ÀÄÄÄÄÁÄÄÄÄÁÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÁÄÄÄÄÁÄÄÄÄÙ
+
+        Bit 0 (RC): Enable receive Char Count int. If set, then it will
+                int everytime there is a increment in the Char Count
+                register (offset 8007h).
+        Bit 1 (TE): Enable Transmitter Empty int
+        Bit 2 (SE): Stop transmission on receive error
+        Bit 3 (TCT): Enable Transmit Terminal Count int
+        Bit 4 (TCR): Enable Receive Terminal Count int
+        Bit 5 (RS): Store Status with Received data. If this is enabled,
+                then UART will store a byte of Line Status info right
+                after the data byte. Allows the CPU to see how valid
+                each data byte that came in was, without being
+                interrupted for each error.
+        Bit 6 (DT): Enable DMA transmit
+        Bit 7 (DR): Enable DMA receive
+
+The DMA Control 2 register (offset 8004h)
+-----------------------------------------
+The lower nibble of this register enables various hardware flow control
+options. The upper nibble controls software flow pacing.
+
+The Type 3 UART has two flow clock speeds, switchable via the HF bit.
+The lower speed clock is 1.8432 MHz like all previous revisions, and is
+there to maintain compatibility with those previous revisions. The
+higher speed clock is 11.0592 MHz. This results in maximum throughput
+going from 115,200 baud to 691,200 baud.
+
+           7    6    5    4      3      2      1      0
+        ÚÄÄÄÄÂÄÄÄÄÂÄÄÄÄÂÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄ¿
+        ³ BP ³ HF ³ ST ³ SR ³ RDSR ³ TDCD ³ TDSR ³ TCTS ³
+        ÀÄÄÄÄÁÄÄÄÄÁÄÄÄÄÁÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÙ
+
+        Bit 0 (TCTS): Control transmitter via CTS status
+        Bit 1 (TDSR): Control transmitter via DSR status
+        Bit 2 (TDCD): Control transmitter via DCD status
+        Bit 3 (RDSR): Control receiver via DSR status
+        Bit 4 (SR): Slow receiver by a fixed factor of 16. Allows slower
+                CPUs to keep up.
+        Bit 5 (ST): Slow transmitter by a fixed factor of 16
+        Bit 6 (HF): Use High-speed Flow clock
+        Bit 7 (BP): Byte pacing. When set, uses the Byte Pacer register
+                (offset 8007h, write), to slow baud rate by 256*value of
+                Byte Pacer.
+
+The DMA Control 3 register (offset 8005h)
+-----------------------------------------
+Only the lower three bits of this register are defined. They are used to
+set the action to be taken when the UART encounters one of three
+possible compare characters, and what those three compare characters
+are. These three characters may be software control characters.
+
+In the next port offset, are either the Character Compare registers or
+the Compare Function registers. The AC bit chooses either the Compare or
+the Function register. The CCA bits choose which one of three Compare or
+Function registers.
+
+         7     3 2   1   0
+        ÚÄÄÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄ¿
+        ³ 00000 ³ CCA ³ AC ³
+        ÀÄÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÙ
+
+        Bit 0 (AC): Register type select
+                0       func reg
+                1       char reg
+        Bit 1 (CCA): Register number select
+                00b     reg 1
+                01b     reg 2
+                10b     reg 3
+        Bits 3-7: reserved, cleared
+
+The Character Compare registers (offset 8006h)
+----------------------------------------------
+There are three of these registers, each of which are bank switched from
+the same port offset. Whenever the UART encounters any one of the three
+characters stored at each register, it executes the required action from
+the corresponding Compare Function registers (see next port).
+
+         7         0
+        ÚÄÄÄÄÄÄÄÄÄÄÄ¿
+        ³           Ã¿  Char 0
+        ÀÂÄÄÄÄÄÄÄÄÄÄÙÃ¿  Char 1
+         ÀÂÄÄÄÄÄÄÄÄÄÄÙ³   Char 2
+          ÀÄÄÄÄÄÄÄÄÄÄÄÙ
+
+Each Character Compare (CC) register may contain any 8-bit value. The CC
+registers are gettable/settable whenever AC in the DMA Control 3
+register is set. Each specific CC register is chosen from the CCA bits
+in DMA Control 3.
+
+The Compare Function registers (offset 8006h)
+---------------------------------------------
+Each of these CF registers complement each of the CC registers. They
+specify what action is to be taken whenever a data character comes in
+matching one of the CC characters. Only the lower nibble of these
+registers is defined.
+
+         7    4       3       2     1     0
+        ÚÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄ¿
+        ³ 0000 ³ STARTT ³ STOPT ³ DEL ³ INT Ã¿  Func 0
+        ÀÂÄÄÄÄÄÁÂÄÄÄÄÄÄÄÁÂÄÄÄÄÄÄÁÂÄÄÄÄÁÂÄÄÄÄÙÃ¿  Func 1
+         ÀÂÄÄÄÄÄÁÂÄÄÄÄÄÄÄÁÂÄÄÄÄÄÄÁÂÄÄÄÄÁÂÄÄÄÄÙ³   Func 2
+          ÀÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÙ
+
+        Bit 0 (INT): Int CPU if match found
+        Bit 1 (DEL): Delete character if match found
+        Bit 2 (STOPT): Stop transmitter if match found
+        Bit 3 (STARTT): Start transmitter if match found
+        Bit 4-7: reserved, cleared
+
+Any of those above bits may be set independently, but of course if bits
+2 & 3 are both set, they'll likely cancel out.
+
+The Char Count register (offset 8007h)
+--------------------------------------
+Read mode only. This register shares this port offset with the Byte
+Pacer Register, which operates in write mode only. This contains an
+8-bit count of the number of characters received. If RC in DMA Control 1
+is set, then everytime this register changes, then the CPU is alerted by
+an interrupt.
+
+The Byte Pacer register (offset 8007h)
+--------------------------------------
+Write mode only. If the BP bit in DMA Control 2 is set then the value of
+this register times 256 is used as the factor to slow down the baud rate
+with.
+
+Acknowledgments
+---------------
+-Douglas Boling, of PC Magazine. His serial port articles in PC Mag, May
+12th and 26th, 1992 got me started on this tutorial of my own.
+
+-Matthew Hildebrand, of Fidonet 1:247/128.2, for some of his insights.
+
+Revision History
+----------------
+Description of changes made to The Serial Hardware Tutorial:
+
+Jan 1, 1993     -First release
+
+Jan 15, 1993    -Second release
+                -Contained a small clarification about the purpose of
+                Break in the Line Control and Line Status registers.
+                -Contains a clarification to a minor bit of confusion
+                about how to choose DMA memory locations for the Type 3
+                DMA UARTs.
+                -Looking for information on which DMA channel the Type
+                3's use. If anybody has this information, let me know.
+
+Jan 20, 1993    -Third release
+                -Contains a more definitive definition of the Break bit
+                in the Line Control and Line Status registers.
+                -Still searching for info on which DMA channel is used
+                by Type 3's.

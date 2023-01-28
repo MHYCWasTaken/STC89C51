@@ -1,0 +1,82 @@
+C51 COMPILER V7.50   串口发送试验                                                          08/29/2011 11:08:46 PAGE 1   
+
+
+C51 COMPILER V7.50, COMPILATION OF MODULE 串口发送试验
+OBJECT MODULE PLACED IN 串口发送试验.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE 串口发送试验.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          /********************************************************************
+   2          * 文件名  ： 串口发送试验.c
+   3          * 描述    :  该文件实现通过串口把数据从单片机发送到电脑，通过串口调试助手显示出来。
+   4          * 创建人  ： 东流，2009年4月8日
+   5          * 版本号  ： 2.0
+   6          ***********************************************************************/
+   7          #include<reg52.h>
+   8          #include<intrins.h>
+   9          
+  10          #define uchar unsigned char
+  11          #define uint  unsigned int 
+  12          
+  13          /********************************************************************
+  14          * 名称 : Com_Init()
+  15          * 功能 : 初始化串口程序，晶振11.0592, 波特率9600
+  16          * 输入 : 无
+  17          * 输出 : 无
+  18          ***********************************************************************/
+  19          void Com_Init(void)
+  20          {
+  21   1           TMOD = 0x20;
+  22   1           PCON = 0x00;
+  23   1           SCON = 0x50;                       
+  24   1           TH1 = 0xFd;
+  25   1           TL1 = 0xFd;
+  26   1           TR1 = 1;                   
+  27   1      }
+  28          
+  29          /********************************************************************
+  30          * 名称 : Main()
+  31          * 功能 : 主函数
+  32          * 输入 : 无
+  33          * 输出 : 无
+  34          ***********************************************************************/
+  35          void Main()
+  36          {
+  37   1              uchar i = 0;
+  38   1              uchar code Buffer[] = "Welcome To The MCU World.           http://dlmcu.taobao.com               QQ:85536
+             -436            ";      //所要发送的数据
+  39   1              uchar *p;
+  40   1              Com_Init();
+  41   1              P2 = 0x00;
+  42   1              p = Buffer;
+  43   1              while(1)
+  44   1              {
+  45   2                      
+  46   2                      SBUF = *p;
+  47   2                      while(!TI)                   //如果发送完毕，硬件会置位TI
+  48   2                      {
+  49   3                              _nop_();        
+  50   3                      }
+  51   2                      p++;
+  52   2                      if(*p == '\0') break;           //在每个字符串的最后，会有一个'\0'
+  53   2                      TI = 0;                         //TI清零
+  54   2              }
+C51 COMPILER V7.50   串口发送试验                                                          08/29/2011 11:08:46 PAGE 2   
+
+  55   1              while(1);
+  56   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     62    ----
+   CONSTANT SIZE    =     98    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       1
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

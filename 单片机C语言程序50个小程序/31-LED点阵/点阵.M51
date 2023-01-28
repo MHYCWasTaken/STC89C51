@@ -1,0 +1,105 @@
+BL51 BANKED LINKER/LOCATER V5.03                                                        09/09/2009  23:23:03  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V5.03, INVOKED BY:
+D:\KEIL\C51\BIN\BL51.EXE µ„’Û–ƒ–Œ.obj TO µ„’Û RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  µ„’Û–ƒ–Œ.obj (_„’Û_ƒ_Œ)
+  D:\KEIL\C51\LIB\C51S.LIB (?C_STARTUP)
+  D:\KEIL\C51\LIB\C51S.LIB (?C_INIT)
+
+
+LINK MAP OF MODULE:  µ„’Û (_„’Û_ƒ_Œ)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     0008H     UNIT         ?DT?_„’Û_ƒ_Œ
+            DATA    0010H     0001H     UNIT         _DATA_GROUP_
+            IDATA   0011H     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     008CH     UNIT         ?C_C51STARTUP
+            CODE    008FH     0023H     UNIT         ?PR?MAIN?_„’Û_ƒ_Œ
+            CODE    00B2H     000BH     UNIT         ?C_INITSEG
+            CODE    00BDH     000AH     UNIT         ?PR?_DELAY?_„’Û_ƒ_Œ
+            CODE    00C7H     0008H     UNIT         ?CO?_„’Û_ƒ_Œ
+
+
+
+OVERLAY MAP OF MODULE:   µ„’Û (_„’Û_ƒ_Œ)
+
+
+SEGMENT                          DATA_GROUP 
+  +--> CALLED SEGMENT          START    LENGTH
+----------------------------------------------
+?C_C51STARTUP                  -----    -----
+  +--> ?PR?MAIN?_„’Û_ƒ_Œ
+  +--> ?C_INITSEG
+
+?PR?MAIN?_„’Û_ƒ_Œ              0010H    0001H
+  +--> ?CO?_„’Û_ƒ_Œ
+  +--> ?PR?_DELAY?_„’Û_ƒ_Œ
+
+
+
+SYMBOL TABLE OF MODULE:  µ„’Û (_„’Û_ƒ_Œ)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        _„’Û_ƒ_Œ
+  C:0000H         SYMBOL        _ICE_DUMMY_
+BL51 BANKED LINKER/LOCATER V5.03                                                      09/09/2009  23:23:03  PAGE 2
+
+
+  D:0080H         PUBLIC        P0
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  D:00B0H         PUBLIC        P3
+  D:00A8H         PUBLIC        IE
+  D:00B8H         PUBLIC        IP
+  D:0008H         PUBLIC        dofly
+  C:008FH         PUBLIC        main
+  D:0098H         PUBLIC        SCON
+  D:0088H         PUBLIC        TCON
+  C:00C7H         PUBLIC        seg
+  D:00C8H         PUBLIC        T2CON
+  C:00BDH         PUBLIC        _delay
+  D:00D0H         PUBLIC        PSW
+  -------         PROC          _DELAY
+  D:0006H         SYMBOL        cnt
+  C:00BDH         LINE#         16
+  C:00BDH         LINE#         17
+  C:00BDH         LINE#         18
+  C:00C6H         LINE#         19
+  -------         ENDPROC       _DELAY
+  -------         PROC          MAIN
+  -------         DO            
+  D:0010H         SYMBOL        i
+  -------         ENDDO         
+  C:008FH         LINE#         23
+  C:008FH         LINE#         24
+  C:008FH         LINE#         27
+  C:008FH         LINE#         28
+  C:008FH         LINE#         30
+  C:0097H         LINE#         31
+  C:009FH         LINE#         32
+  C:00A6H         LINE#         33
+  C:00A8H         LINE#         34
+  C:00ADH         LINE#         35
+  C:00B0H         LINE#         36
+  -------         ENDPROC       MAIN
+  -------         ENDMOD        _„’Û_ƒ_Œ
+
+Program Size: data=18.0 xdata=0 code=207
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

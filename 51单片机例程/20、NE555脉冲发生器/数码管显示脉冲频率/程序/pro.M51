@@ -1,0 +1,238 @@
+BL51 BANKED LINKER/LOCATER V6.22                                                        09/02/2013  15:11:42  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
+D:\KEIL\C51\BIN\BL51.EXE STARTUP.obj, main.obj TO pro
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  STARTUP.obj (?C_STARTUP)
+  main.obj (MAIN)
+  D:\KEIL\C51\LIB\C51S.LIB (?C?ULDIV)
+  D:\KEIL\C51\LIB\C51S.LIB (?C?ULCMP)
+
+
+LINK MAP OF MODULE:  pro (?C_STARTUP)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     0010H     UNIT         ?DT?MAIN
+            IDATA   0018H     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+                    0003H     0008H                  *** GAP ***
+            CODE    000BH     0003H     ABSOLUTE     
+            CODE    000EH     000CH     UNIT         ?C_C51STARTUP
+                    001AH     0001H                  *** GAP ***
+            CODE    001BH     0003H     ABSOLUTE     
+            CODE    001EH     016AH     UNIT         ?PR?MAIN?MAIN
+            CODE    0188H     00DFH     UNIT         ?C?LIB_CODE
+            CODE    0267H     0074H     UNIT         ?PR?DIGDISPLAY?MAIN
+            CODE    02DBH     0073H     UNIT         ?PR?TIMER0?MAIN
+            CODE    034EH     001EH     UNIT         ?PR?TIMER1?MAIN
+            CODE    036CH     0014H     UNIT         ?PR?TIMER_CONFIGURATION?MAIN
+            CODE    0380H     0011H     UNIT         ?CO?MAIN
+
+
+
+OVERLAY MAP OF MODULE:   pro (?C_STARTUP)
+
+
+SEGMENT
+  +--> CALLED SEGMENT
+---------------------
+?C_C51STARTUP
+  +--> ?PR?MAIN?MAIN
+
+?PR?MAIN?MAIN
+  +--> ?PR?TIMER_CONFIGURATION?MAIN
+  +--> ?CO?MAIN
+  +--> ?PR?DIGDISPLAY?MAIN
+
+
+
+BL51 BANKED LINKER/LOCATER V6.22                                                      09/02/2013  15:11:42  PAGE 2
+
+
+SYMBOL TABLE OF MODULE:  pro (?C_STARTUP)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        ?C_STARTUP
+  C:000EH         SEGMENT       ?C_C51STARTUP
+  I:0018H         SEGMENT       ?STACK
+  C:0000H         PUBLIC        ?C_STARTUP
+  D:00E0H         SYMBOL        ACC
+  D:00F0H         SYMBOL        B
+  D:0083H         SYMBOL        DPH
+  D:0082H         SYMBOL        DPL
+  N:0000H         SYMBOL        IBPSTACK
+  N:0100H         SYMBOL        IBPSTACKTOP
+  N:0080H         SYMBOL        IDATALEN
+  C:0011H         SYMBOL        IDATALOOP
+  N:0000H         SYMBOL        PBPSTACK
+  N:0100H         SYMBOL        PBPSTACKTOP
+  N:0000H         SYMBOL        PDATALEN
+  N:0000H         SYMBOL        PDATASTART
+  N:0000H         SYMBOL        PPAGE
+  N:0000H         SYMBOL        PPAGEENABLE
+  D:00A0H         SYMBOL        PPAGE_SFR
+  D:0081H         SYMBOL        SP
+  C:000EH         SYMBOL        STARTUP1
+  N:0000H         SYMBOL        XBPSTACK
+  N:0000H         SYMBOL        XBPSTACKTOP
+  N:0000H         SYMBOL        XDATALEN
+  N:0000H         SYMBOL        XDATASTART
+  C:0000H         LINE#         126
+  C:000EH         LINE#         133
+  C:0010H         LINE#         134
+  C:0011H         LINE#         135
+  C:0012H         LINE#         136
+  C:0014H         LINE#         185
+  C:0017H         LINE#         196
+  -------         ENDMOD        ?C_STARTUP
+
+  -------         MODULE        MAIN
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+  D:00A0H         PUBLIC        P2
+  B:00A8H.7       PUBLIC        EA
+  D:0008H         PUBLIC        Freq
+  D:000CH         PUBLIC        TimeCount
+  C:001EH         PUBLIC        main
+  C:02DBH         PUBLIC        Timer0
+  C:034EH         PUBLIC        Timer1
+  D:0089H         PUBLIC        TMOD
+  C:036CH         PUBLIC        TIMER_Configuration
+  B:00A8H.1       PUBLIC        ET0
+  B:00A8H.3       PUBLIC        ET1
+  D:008CH         PUBLIC        TH0
+  D:008DH         PUBLIC        TH1
+  D:008AH         PUBLIC        TL0
+  C:0380H         PUBLIC        DIG_CODE
+BL51 BANKED LINKER/LOCATER V6.22                                                      09/02/2013  15:11:42  PAGE 3
+
+
+  D:008BH         PUBLIC        TL1
+  B:0088H.4       PUBLIC        TR0
+  D:0010H         PUBLIC        DisplayData
+  B:0088H.6       PUBLIC        TR1
+  B:00A0H.2       PUBLIC        LSA
+  B:00A0H.3       PUBLIC        LSB
+  B:00A0H.4       PUBLIC        LSC
+  C:0267H         PUBLIC        DigDisplay
+  -------         PROC          MAIN
+  C:001EH         LINE#         32
+  C:001EH         LINE#         33
+  C:001EH         LINE#         35
+  C:0021H         LINE#         37
+  C:0021H         LINE#         38
+  C:0021H         LINE#         39
+  C:0027H         LINE#         40
+  C:0027H         LINE#         41
+  C:0041H         LINE#         42
+  C:0059H         LINE#         45
+  C:008CH         LINE#         46
+  C:00BFH         LINE#         47
+  C:00F1H         LINE#         48
+  C:0122H         LINE#         49
+  C:0152H         LINE#         50
+  C:0171H         LINE#         53
+  C:017AH         LINE#         54
+  C:017CH         LINE#         55
+  C:017EH         LINE#         56
+  C:0180H         LINE#         57
+  C:0182H         LINE#         58
+  C:0182H         LINE#         61
+  C:0185H         LINE#         62
+  -------         ENDPROC       MAIN
+  -------         PROC          TIMER_CONFIGURATION
+  C:036CH         LINE#         72
+  C:036CH         LINE#         73
+  C:036CH         LINE#         76
+  C:036FH         LINE#         79
+  C:0372H         LINE#         80
+  C:0375H         LINE#         83
+  C:0377H         LINE#         84
+  C:0379H         LINE#         85
+  C:037BH         LINE#         88
+  C:037DH         LINE#         89
+  C:037FH         LINE#         90
+  -------         ENDPROC       TIMER_CONFIGURATION
+  -------         PROC          TIMER0
+  C:02DBH         LINE#         98
+  C:02F8H         LINE#         100
+  C:030DH         LINE#         101
+  C:0321H         LINE#         102
+  C:0321H         LINE#         103
+  C:0323H         LINE#         104
+  C:0325H         LINE#         105
+  C:032DH         LINE#         106
+  C:032DH         LINE#         109
+  C:0330H         LINE#         110
+BL51 BANKED LINKER/LOCATER V6.22                                                      09/02/2013  15:11:42  PAGE 4
+
+
+  C:0333H         LINE#         111
+  -------         ENDPROC       TIMER0
+  -------         PROC          TIMER1
+  C:034EH         LINE#         119
+  C:0352H         LINE#         122
+  C:0367H         LINE#         123
+  -------         ENDPROC       TIMER1
+  -------         PROC          DIGDISPLAY
+  -------         DO            
+  D:0007H         SYMBOL        i
+  D:0004H         SYMBOL        j
+  -------         ENDDO         
+  C:0267H         LINE#         131
+  C:0267H         LINE#         132
+  C:0267H         LINE#         135
+  C:0269H         LINE#         136
+  C:0269H         LINE#         137
+  C:028EH         LINE#         138
+  C:028EH         LINE#         139
+  C:028EH         LINE#         140
+  C:0292H         LINE#         141
+  C:0292H         LINE#         142
+  C:029AH         LINE#         143
+  C:029AH         LINE#         144
+  C:029EH         LINE#         145
+  C:029EH         LINE#         146
+  C:02A6H         LINE#         147
+  C:02A6H         LINE#         148
+  C:02AAH         LINE#         149
+  C:02AAH         LINE#         150
+  C:02B2H         LINE#         151
+  C:02B2H         LINE#         152
+  C:02B6H         LINE#         153
+  C:02B6H         LINE#         154
+  C:02BCH         LINE#         155
+  C:02BCH         LINE#         156
+  C:02C3H         LINE#         157
+  C:02C7H         LINE#         158
+  C:02D1H         LINE#         159
+  C:02D4H         LINE#         160
+  C:02DAH         LINE#         161
+  -------         ENDPROC       DIGDISPLAY
+  -------         ENDMOD        MAIN
+
+  -------         MODULE        ?C?ULDIV
+  C:01C4H         PUBLIC        ?C?ULDIV
+  -------         ENDMOD        ?C?ULDIV
+
+  -------         MODULE        ?C?ULCMP
+  C:0256H         PUBLIC        ?C?ULCMP
+  -------         ENDMOD        ?C?ULCMP
+
+Program Size: data=25.0 xdata=0 code=904
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

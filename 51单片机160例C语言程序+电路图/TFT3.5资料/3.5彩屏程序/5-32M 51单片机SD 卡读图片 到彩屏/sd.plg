@@ -1,0 +1,17 @@
+<html>
+<body>
+<pre>
+<h1>礦ision2 Build Log</h1>
+<h2>Project:</h2>
+C:\Users\shifang\Desktop\TFT3.5 ili9327 资料\3.5测试程序\5-32M 51单片机SD 卡读图片 到彩屏\sd.uv2
+Project File Date:  02/05/2036
+
+<h2>Output:</h2>
+Build target 'Target 1'
+compiling sd.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_SDWRITEBLOCK?SD
+Program Size: data=47.0 xdata=512 code=1457
+creating hex file from "sd"...
+"sd" - 0 Error(s), 1 Warning(s).

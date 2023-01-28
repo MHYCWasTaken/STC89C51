@@ -1,0 +1,28 @@
+# Makefile for FP test programs.
+# Copyright (C) 1991 by Nicholas Wilt.	All rights reserved.
+
+# C uses large model by default.  All the assembler modules assume
+# large model also.
+MDL=l
+
+# Implicit rules.
+.c.obj:
+	bcc -v -O -G -Z -c -m$(MDL) $*.c
+
+.asm.obj:
+	tasm /mx/zi $<;
+
+# Explicit rule: build all three executables by default.
+all: testpow.exe testsum.exe testquad.exe
+
+# Explicit rules for the three executables.
+
+testpow.exe: testpow.obj pow.obj
+	tlink /v/c/map c0l testpow pow,testpow,,emu mathl cl
+
+testsum.exe: testsum.obj sumarr.obj
+	tlink /v/c/map c0l testsum sumarr,testsum,,emu mathl cl
+
+testquad.exe: testquad.obj quad.obj
+	tlink /v/c/map c0l testquad quad,testquad,,emu mathl cl
+

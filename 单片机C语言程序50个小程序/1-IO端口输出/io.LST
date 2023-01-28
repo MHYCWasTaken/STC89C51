@@ -1,0 +1,49 @@
+C51 COMPILER V7.06   IO                                                                    05/12/2009 23:50:31 PAGE 1   
+
+
+C51 COMPILER V7.06, COMPILATION OF MODULE IO
+OBJECT MODULE PLACED IN io.OBJ
+COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE io.c BROWSE DEBUG OBJECTEXTEND
+
+stmt level    source
+
+   1          /*-----------------------------------------------
+   2            名称：IO口高低电平控制
+   3            公司：上海浩豚电子科技有限公司
+   4            编写：师访
+   5            日期：2009.5
+   6            修改：无
+   7            内容：点亮P1口的一个LED灯
+   8                  该程序是单片机学习中最简单最基础的，
+   9                          通过程序了解如何控制端口的高低电平
+  10          ------------------------------------------------*/
+  11          #include<reg52.h> //包含头文件，一般情况不需要改动，头文件包含特殊功能寄存器的定义
+  12          /*------------------------------------------------
+  13                              主函数
+  14          ------------------------------------------------*/
+  15          void main (void)
+  16          {
+  17   1      
+  18   1      P1 = 0xFF;        //P1口全部为高电平，对应的LED灯全灭掉，ff换算成二进制是 1111 1111
+  19   1      
+  20   1      P1 = 0xfe;        //P1口的最低位点亮，可以更改数值是其他的灯点亮
+  21   1                        //0xfe是16进制，0x开头表示16进制数，fe换算成二进制是 1111 1110 
+  22   1      while (1)         //主循环
+  23   1        {
+  24   2                        //主循环中添加其他需要一直工作的程序
+  25   2        }
+  26   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =      8    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

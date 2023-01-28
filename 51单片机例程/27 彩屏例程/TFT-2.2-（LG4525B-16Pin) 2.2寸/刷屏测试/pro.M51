@@ -1,0 +1,313 @@
+BL51 BANKED LINKER/LOCATER V6.22                                                        12/16/2014  14:17:43  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
+D:\KEIL\C51\BIN\BL51.EXE STARTUP.obj, main.obj, lcd_driver.obj TO pro
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  STARTUP.obj (?C_STARTUP)
+  main.obj (MAIN)
+  lcd_driver.obj (LCD_DRIVER)
+
+
+LINK MAP OF MODULE:  pro (?C_STARTUP)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     0008H     UNIT         _DATA_GROUP_
+            IDATA   0010H     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     0236H     UNIT         ?PR?TFT_INIT?LCD_DRIVER
+            CODE    0239H     004DH     UNIT         ?PR?_TFT_SETWINDOW?LCD_DRIVER
+            CODE    0286H     003CH     UNIT         ?PR?MAIN?MAIN
+            CODE    02C2H     0031H     UNIT         ?PR?_TFT_CLEARSCREEN?LCD_DRIVER
+            CODE    02F3H     0024H     UNIT         ?PR?_TFT_WRITECMD?LCD_DRIVER
+            CODE    0317H     0024H     UNIT         ?PR?_TFT_WRITEDATA?LCD_DRIVER
+            CODE    033BH     000CH     UNIT         ?C_C51STARTUP
+
+
+
+OVERLAY MAP OF MODULE:   pro (?C_STARTUP)
+
+
+SEGMENT                                   DATA_GROUP 
+  +--> CALLED SEGMENT                   START    LENGTH
+-------------------------------------------------------
+?C_C51STARTUP                           -----    -----
+  +--> ?PR?MAIN?MAIN
+
+?PR?MAIN?MAIN                           -----    -----
+  +--> ?PR?TFT_INIT?LCD_DRIVER
+  +--> ?PR?_TFT_CLEARSCREEN?LCD_DRIVER
+
+?PR?TFT_INIT?LCD_DRIVER                 -----    -----
+  +--> ?PR?_TFT_WRITECMD?LCD_DRIVER
+  +--> ?PR?_TFT_WRITEDATA?LCD_DRIVER
+
+?PR?_TFT_WRITECMD?LCD_DRIVER            -----    -----
+  +--> ?PR?_TFT_WRITEDATA?LCD_DRIVER
+
+?PR?_TFT_CLEARSCREEN?LCD_DRIVER         0008H    0002H
+  +--> ?PR?_TFT_SETWINDOW?LCD_DRIVER
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/16/2014  14:17:43  PAGE 2
+
+
+  +--> ?PR?_TFT_WRITEDATA?LCD_DRIVER
+
+?PR?_TFT_SETWINDOW?LCD_DRIVER           000AH    0006H
+  +--> ?PR?_TFT_WRITECMD?LCD_DRIVER
+  +--> ?PR?_TFT_WRITEDATA?LCD_DRIVER
+
+
+
+SYMBOL TABLE OF MODULE:  pro (?C_STARTUP)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        ?C_STARTUP
+  C:033BH         SEGMENT       ?C_C51STARTUP
+  I:0010H         SEGMENT       ?STACK
+  C:0000H         PUBLIC        ?C_STARTUP
+  D:00E0H         SYMBOL        ACC
+  D:00F0H         SYMBOL        B
+  D:0083H         SYMBOL        DPH
+  D:0082H         SYMBOL        DPL
+  N:0000H         SYMBOL        IBPSTACK
+  N:0100H         SYMBOL        IBPSTACKTOP
+  N:0080H         SYMBOL        IDATALEN
+  C:033EH         SYMBOL        IDATALOOP
+  N:0000H         SYMBOL        PBPSTACK
+  N:0100H         SYMBOL        PBPSTACKTOP
+  N:0000H         SYMBOL        PDATALEN
+  N:0000H         SYMBOL        PDATASTART
+  N:0000H         SYMBOL        PPAGE
+  N:0000H         SYMBOL        PPAGEENABLE
+  D:00A0H         SYMBOL        PPAGE_SFR
+  D:0081H         SYMBOL        SP
+  C:033BH         SYMBOL        STARTUP1
+  N:0000H         SYMBOL        XBPSTACK
+  N:0000H         SYMBOL        XBPSTACKTOP
+  N:0000H         SYMBOL        XDATALEN
+  N:0000H         SYMBOL        XDATASTART
+  C:0000H         LINE#         126
+  C:033BH         LINE#         133
+  C:033DH         LINE#         134
+  C:033EH         LINE#         135
+  C:033FH         LINE#         136
+  C:0341H         LINE#         185
+  C:0344H         LINE#         196
+  -------         ENDMOD        ?C_STARTUP
+
+  -------         MODULE        MAIN
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:00A0H         PUBLIC        P2
+  D:00B0H         PUBLIC        P3
+  C:0286H         PUBLIC        main
+  -------         PROC          MAIN
+  C:0286H         LINE#         11
+  C:0286H         LINE#         12
+  C:0286H         LINE#         13
+  C:0289H         LINE#         15
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/16/2014  14:17:43  PAGE 3
+
+
+  C:0289H         LINE#         16
+  C:0289H         LINE#         17
+  C:028FH         LINE#         18
+  C:0296H         LINE#         19
+  C:029DH         LINE#         20
+  C:02A4H         LINE#         21
+  C:02ABH         LINE#         22
+  C:02B2H         LINE#         23
+  C:02B9H         LINE#         24
+  C:02C0H         LINE#         25
+  -------         ENDPROC       MAIN
+  -------         ENDMOD        MAIN
+
+  -------         MODULE        LCD_DRIVER
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  D:00B0H         PUBLIC        P3
+  C:02C2H         PUBLIC        _TFT_ClearScreen
+  B:00B0H.3       PUBLIC        TFT_RST
+  C:0320H         PUBLIC        _TFT_WriteData
+  C:0003H         PUBLIC        TFT_Init
+  B:00B0H.2       PUBLIC        TFT_RD
+  B:00A0H.7       PUBLIC        TFT_CS
+  C:02FCH         PUBLIC        _TFT_WriteCmd
+  B:00A0H.6       PUBLIC        TFT_RS
+  B:00A0H.5       PUBLIC        TFT_WR
+  C:0239H         PUBLIC        _TFT_SetWindow
+  C:02F3H         SYMBOL        L?0040
+  C:02F5H         SYMBOL        L?0041
+  -------         PROC          L?0039
+  -------         ENDPROC       L?0039
+  C:02F3H         SYMBOL        L?0040
+  C:02F5H         SYMBOL        L?0041
+  -------         PROC          _TFT_WRITECMD
+  D:0004H         SYMBOL        cmd
+  -------         DO            
+  D:0007H         SYMBOL        cmdH
+  D:0006H         SYMBOL        cmdL
+  -------         ENDDO         
+  C:02FCH         LINE#         10
+  C:0300H         LINE#         11
+  C:0300H         LINE#         13
+  C:0302H         LINE#         14
+  C:0304H         LINE#         16
+  C:0306H         LINE#         17
+  C:0308H         LINE#         19
+  C:030AH         LINE#         20
+  C:030CH         LINE#         22
+  C:030EH         LINE#         23
+  C:0310H         LINE#         25
+  C:0312H         LINE#         26
+  C:0314H         LINE#         28
+  C:0316H         LINE#         29
+  -------         ENDPROC       _TFT_WRITECMD
+  C:0317H         SYMBOL        L?0038
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/16/2014  14:17:43  PAGE 4
+
+
+  -------         PROC          L?0037
+  -------         ENDPROC       L?0037
+  C:0317H         SYMBOL        L?0038
+  -------         PROC          _TFT_WRITEDATA
+  D:0004H         SYMBOL        dat
+  -------         DO            
+  D:0007H         SYMBOL        datH
+  D:0006H         SYMBOL        datL
+  -------         ENDDO         
+  C:0320H         LINE#         38
+  C:0324H         LINE#         39
+  C:0324H         LINE#         41
+  C:0326H         LINE#         42
+  C:0328H         LINE#         44
+  C:032AH         LINE#         45
+  C:032CH         LINE#         47
+  C:032EH         LINE#         48
+  C:0330H         LINE#         50
+  C:0332H         LINE#         51
+  C:0334H         LINE#         53
+  C:0336H         LINE#         54
+  C:0338H         LINE#         56
+  C:033AH         LINE#         57
+  -------         ENDPROC       _TFT_WRITEDATA
+  -------         PROC          TFT_INIT
+  -------         DO            
+  D:0006H         SYMBOL        i
+  -------         ENDDO         
+  C:0003H         LINE#         66
+  C:0003H         LINE#         67
+  C:0003H         LINE#         70
+  C:0005H         LINE#         71
+  C:0012H         LINE#         72
+  C:0014H         LINE#         73
+  C:0021H         LINE#         74
+  C:0023H         LINE#         75
+  C:0030H         LINE#         77
+  C:0032H         LINE#         78
+  C:0040H         LINE#         79
+  C:004EH         LINE#         80
+  C:005CH         LINE#         81
+  C:006AH         LINE#         82
+  C:0078H         LINE#         83
+  C:0086H         LINE#         84
+  C:0093H         LINE#         85
+  C:00A1H         LINE#         86
+  C:00AEH         LINE#         87
+  C:00BCH         LINE#         88
+  C:00CAH         LINE#         89
+  C:00D7H         LINE#         90
+  C:00E4H         LINE#         91
+  C:00F2H         LINE#         92
+  C:0100H         LINE#         93
+  C:010EH         LINE#         94
+  C:011CH         LINE#         95
+  C:012AH         LINE#         96
+  C:0138H         LINE#         97
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/16/2014  14:17:43  PAGE 5
+
+
+  C:0146H         LINE#         98
+  C:0154H         LINE#         99
+  C:0162H         LINE#         101
+  C:0167H         LINE#         102
+  C:016CH         LINE#         103
+  C:0171H         LINE#         104
+  C:0176H         LINE#         105
+  C:0184H         LINE#         106
+  C:0192H         LINE#         108
+  C:01A0H         LINE#         109
+  C:01AEH         LINE#         110
+  C:01BCH         LINE#         111
+  C:01CAH         LINE#         112
+  C:01D8H         LINE#         113
+  C:01E3H         LINE#         114
+  C:01E8H         LINE#         115
+  C:01EDH         LINE#         116
+  C:01F2H         LINE#         117
+  C:01FCH         LINE#         119
+  C:020AH         LINE#         120
+  C:0218H         LINE#         122
+  C:0225H         LINE#         123
+  C:0232H         LINE#         124
+  -------         ENDPROC       TFT_INIT
+  -------         PROC          _TFT_SETWINDOW
+  D:0001H         SYMBOL        xStart
+  D:0005H         SYMBOL        yStart
+  D:0003H         SYMBOL        xEnd
+  D:000DH         SYMBOL        yEnd
+  -------         DO            
+  D:000EH         SYMBOL        x
+  D:0002H         SYMBOL        y
+  D:0082H         SYMBOL        xy
+  -------         ENDDO         
+  C:0239H         LINE#         134
+  C:023BH         LINE#         135
+  C:023BH         LINE#         138
+  C:0245H         LINE#         139
+  C:024DH         LINE#         140
+  C:0255H         LINE#         142
+  C:0263H         LINE#         143
+  C:0271H         LINE#         144
+  C:027FH         LINE#         150
+  -------         ENDPROC       _TFT_SETWINDOW
+  -------         PROC          _TFT_CLEARSCREEN
+  D:0008H         SYMBOL        color
+  -------         DO            
+  D:0002H         SYMBOL        i
+  D:0082H         SYMBOL        j
+  -------         ENDDO         
+  C:02C2H         LINE#         161
+  C:02C6H         LINE#         162
+  C:02C6H         LINE#         165
+  C:02D1H         LINE#         166
+  C:02D4H         LINE#         167
+  C:02D4H         LINE#         168
+  C:02D7H         LINE#         169
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/16/2014  14:17:43  PAGE 6
+
+
+  C:02D7H         LINE#         170
+  C:02DEH         LINE#         171
+  C:02E7H         LINE#         172
+  C:02F2H         LINE#         173
+  -------         ENDPROC       _TFT_CLEARSCREEN
+  -------         ENDMOD        LCD_DRIVER
+
+Program Size: data=17.0 xdata=0 code=839
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

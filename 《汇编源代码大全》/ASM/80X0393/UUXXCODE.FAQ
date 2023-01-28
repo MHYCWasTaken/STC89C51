@@ -1,0 +1,63 @@
+Fri 29 Jan 93  8:34
+By: Yousuf Khan
+To: All
+Re: FAQ: UUDecoding
+------------------------------------------------------------------------
+
+UUEncoding/Decoding is a method for representing a series of eight bit
+binary characters in a series of six bit equivalents. This is to allow
+transmission of all characters without using any characters that might
+be considered control characters by the transmission system. You may use
+UUEncoding to broadcast binary files over this Fidonet echo, provided
+that it isn't too large. In general, if you have to break up the encoded
+file over two or more messages, then it's probably too big. In that case
+you should make the binary file available for downloading or f'req'ing
+from a BBS system. Also the preferred method of transmission over the
+echo is assembler source code. If that is impractical, then you may
+encode the binary file in a Dos' Debug script format. And finally you
+may try UUEncoding, before going to the download/file request path.
+
+Below is a Debug script of a free UUDecoder, written by David
+Kirschbaum, so one may decode any UUEncoded scripts that might by
+transmitted over this echo:
+
+
+;; Look for UUD20.COM in the snippets
+
+
+Fri 29 Jan 93  8:34
+By: Yousuf Khan
+To: All
+Re: FAQ: UUEncoding
+------------------------------------------------------------------------
+
+Below you will see an example of what an UUEncoded script looks like.
+The example below is in fact an UUEncoding of a free UUEncoder program,
+written by David Kirschbaum. The complete archive, with executables,
+source code, and documentation is available from the author and many
+other sites. So after you've captured this message, you may use the free
+UUDecoder program from the previous message to decode the script below,
+and you will be able to make your own UUEncoded files from now on.
+
+To create the executable from the script, you would run the UUDecoder
+from the DOS command line like this:
+
+UUD20 script
+
+Where "script" is filename and extension of the script without the
+quotes.
+
+After creating the UUEncoder, you can begin creating UUEncoded files of
+your own, you would do this from the command line:
+
+UUE20 source > destination
+
+Where "source" is the filename and extension of whatever you are trying
+to encode, while the "destination" is the name of the final encoded
+script.
+
+Here's the script of the UUEncoder, to decode simply remove all
+descriptive text above the double line:
+
+
+;; Look for UUE20.COM in the snippets

@@ -1,0 +1,36 @@
+By: Inbar Raz
+Re: Resident dialer
+----------------------------------------------------------------------
+
+Hello everyone.
+
+Here is a little,  but great program I once wrote.  This is a resident 
+background dialer for the modem.  What you do is hit SysReq,  dial the 
+number you wish to call using either the  numeric  pad or the ordinary 
+digits, press Enter, and the modem dials the number.  Now you have two 
+possibilities:
+
+1. If you are calling someone voice,  you pick up the  phone and press 
+   any key except for  ESC.  The  modem hangs up and the  phone is  in 
+   charge.
+
+2. If you are trying to access a modem, you press ESC, and the program
+   returns control to the system,  without hanging the modem up.  This 
+   way you can go to your telecomm. program and run it, such as 'TELIX 
+   O', ('O' to NOT init.).
+
+The program is in very basic assembly,  and it was written quite  some 
+time ago, so don't expect to much of the source.
+
+= IMPORTANT =
+
+Don't forget to setup the program.  It is currently  set to work  with 
+COM2. If your modem is on another COM  port,  simple change  the  Port 
+definition to the appropriate - COM1 = 0, COM2 = 1 etc.
+
+Anopther thing is the dialing prefix. If your modem or phone line does 
+not support TONE dial, change the 'T' in DialPre1 to 'D'.
+
+Enjoy. Any comments will be gladly accepted.
+
+Inbar Raz

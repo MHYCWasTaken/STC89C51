@@ -1,0 +1,21 @@
+<html>
+<body>
+<pre>
+<h1>礦ision2 Build Log</h1>
+<h2>Project:</h2>
+C:\Users\shifang\Desktop\TFT3.5 ili9327 资料\3.5测试程序\2-TFT显示汉字2\tft.uv2
+Project File Date:  05/14/2013
+
+<h2>Output:</h2>
+Build target 'Target 1'
+compiling tft.c...
+linking...
+Program Size: data=52.0 xdata=0 code=5519
+creating hex file from ".\obj\tft"...
+".\obj\tft" - 0 Error(s), 0 Warning(s).
+Build target 'Target 1'
+compiling tft.c...
+linking...
+Program Size: data=52.0 xdata=0 code=5519
+creating hex file from ".\obj\tft"...
+".\obj\tft" - 0 Error(s), 0 Warning(s).

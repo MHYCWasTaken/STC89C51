@@ -1,0 +1,72 @@
+C51 COMPILER V7.50   继电芲                                                                08/30/2011 11:19:45 PAGE 1   
+
+
+C51 COMPILER V7.50, COMPILATION OF MODULE 继电芲
+OBJECT MODULE PLACED IN 继电器.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE 继电器.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          /********************************************************************
+   2          * 名称 : 继电器.c
+   3          * 功能 : 通过P1.1口来控制继电器的吸合和释放
+   4          /***********************************************************************/
+   5          #include <reg52.h>
+   6          #define uchar unsigned char
+   7          #define uint  unsigned int
+   8           
+   9          sbit key1=P3^2;//定义按键位置，按了P3.2后继电器吸合
+  10          sbit key2=P3^3;//定义按键位置，按了P3.3后继电器释放
+  11          sbit RELAY = P1^1;
+  12          
+  13          /********************************************************************
+  14          * 名称 : Delay_1ms()
+  15          * 功能 : 延时子程序，延时时间为 1ms * x
+  16          * 输入 : x (延时一毫秒的个数)
+  17          * 输出 : 无
+  18          ***********************************************************************/
+  19          void Delay(uint i)
+  20          {
+  21   1              uchar x,j;
+  22   1              for(j=0;j<i;j++)
+  23   1              for(x=0;x<=148;x++);    
+  24   1      }
+  25          
+  26          main()
+  27          {
+  28   1              while(1)
+  29   1              { 
+  30   2                      if(!key1)     //按下相应的按键
+  31   2              {
+  32   3                              Delay(15);
+  33   3                      if(!key1)     //去抖后是否按下相应的按键
+  34   3                          {
+  35   4                                      RELAY=1; //继电器吸合
+  36   4                              }
+  37   3                      }
+  38   2                      if(!key2)     //按下相应的按键
+  39   2              {
+  40   3                              Delay(15);
+  41   3                      if(!key2)     //去抖后是否按下相应的按键
+  42   3                              {
+  43   4                                      RELAY=0; //继电器释放
+  44   4                              }
+  45   3                      }
+  46   2          }
+  47   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     54    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+C51 COMPILER V7.50   继电芲                                                                08/30/2011 11:19:45 PAGE 2   
+
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

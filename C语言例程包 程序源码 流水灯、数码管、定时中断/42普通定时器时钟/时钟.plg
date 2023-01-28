@@ -1,0 +1,19 @@
+<html>
+<body>
+<pre>
+<h1>礦ision2 Build Log</h1>
+<h2>Project:</h2>
+F:\单片机\DOFLY\DY_mini80光盘资料\5、配套程序\c语言配套程序\40-普通定时器时钟\时钟.uv2
+Project File Date:  12/02/2008
+
+<h2>Output:</h2>
+Build target 'Target 1'
+compiling 时钟.c...
+时钟.C(95): error C202: 'KEY4': undefined identifier
+Target not created
+Build target 'Target 1'
+compiling 时钟.c...
+linking...
+Program Size: data=22.0 xdata=0 code=565
+creating hex file from "时钟"...
+"时钟" - 0 Error(s), 0 Warning(s).

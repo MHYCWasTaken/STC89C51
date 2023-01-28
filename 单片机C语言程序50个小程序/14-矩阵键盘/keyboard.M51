@@ -1,0 +1,151 @@
+BL51 BANKED LINKER/LOCATER V5.03                                                        05/13/2009  10:01:31  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V5.03, INVOKED BY:
+D:\KEIL\C51\BIN\BL51.EXE keyboard.obj TO keyboard RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  keyboard.obj (KEYBOARD)
+  D:\KEIL\C51\LIB\C51S.LIB (?C_STARTUP)
+  D:\KEIL\C51\LIB\C51S.LIB (?C?CCASE)
+  D:\KEIL\C51\LIB\C51S.LIB (?C_INIT)
+
+
+LINK MAP OF MODULE:  keyboard (KEYBOARD)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     0010H     UNIT         ?DT?KEYBOARD
+            DATA    0018H     0001H     UNIT         _DATA_GROUP_
+            IDATA   0019H     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     0091H     UNIT         ?PR?MAIN?KEYBOARD
+            CODE    0094H     008CH     UNIT         ?C_C51STARTUP
+            CODE    0120H     002FH     UNIT         ?PR?KEYSCAN?KEYBOARD
+            CODE    014FH     0026H     UNIT         ?C?LIB_CODE
+            CODE    0175H     0013H     UNIT         ?C_INITSEG
+            CODE    0188H     000BH     UNIT         ?PR?_DELAY?KEYBOARD
+
+
+
+OVERLAY MAP OF MODULE:   keyboard (KEYBOARD)
+
+
+SEGMENT                          DATA_GROUP 
+  +--> CALLED SEGMENT          START    LENGTH
+----------------------------------------------
+?C_C51STARTUP                  -----    -----
+  +--> ?PR?MAIN?KEYBOARD
+  +--> ?C_INITSEG
+
+?PR?MAIN?KEYBOARD              -----    -----
+  +--> ?PR?KEYSCAN?KEYBOARD
+
+?PR?KEYSCAN?KEYBOARD           0018H    0001H
+  +--> ?PR?_DELAY?KEYBOARD
+
+
+
+SYMBOL TABLE OF MODULE:  keyboard (KEYBOARD)
+
+  VALUE           TYPE          NAME
+BL51 BANKED LINKER/LOCATER V5.03                                                      05/13/2009  10:01:31  PAGE 2
+
+
+  ----------------------------------
+
+  -------         MODULE        KEYBOARD
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  D:00B0H         PUBLIC        P3
+  D:00A8H         PUBLIC        IE
+  D:00B8H         PUBLIC        IP
+  D:0008H         PUBLIC        dofly
+  C:0003H         PUBLIC        main
+  D:0098H         PUBLIC        SCON
+  D:0088H         PUBLIC        TCON
+  D:00C8H         PUBLIC        T2CON
+  C:0188H         PUBLIC        _delay
+  C:0120H         PUBLIC        keyscan
+  D:00D0H         PUBLIC        PSW
+  -------         PROC          MAIN
+  -------         DO            
+  D:0007H         SYMBOL        key
+  -------         ENDDO         
+  C:0003H         LINE#         24
+  C:0003H         LINE#         25
+  C:0003H         LINE#         27
+  C:0006H         LINE#         28
+  C:0006H         LINE#         29
+  C:0006H         LINE#         30
+  C:0009H         LINE#         31
+  C:0041H         LINE#         32
+  C:0041H         LINE#         33
+  C:0046H         LINE#         34
+  C:004BH         LINE#         35
+  C:0050H         LINE#         36
+  C:0055H         LINE#         37
+  C:005AH         LINE#         38
+  C:005FH         LINE#         39
+  C:0064H         LINE#         40
+  C:0069H         LINE#         41
+  C:006EH         LINE#         42
+  C:0073H         LINE#         43
+  C:0078H         LINE#         44
+  C:007DH         LINE#         45
+  C:0082H         LINE#         46
+  C:0088H         LINE#         47
+  C:008EH         LINE#         48
+  -------         ENDPROC       MAIN
+  -------         PROC          KEYSCAN
+  -------         DO            
+  D:0018H         SYMBOL        cord_h
+  D:0007H         SYMBOL        cord_l
+  -------         ENDDO         
+  C:0120H         LINE#         55
+  C:0120H         LINE#         56
+  C:0120H         LINE#         58
+  C:0123H         LINE#         59
+  C:0129H         LINE#         60
+BL51 BANKED LINKER/LOCATER V5.03                                                      05/13/2009  10:01:31  PAGE 3
+
+
+  C:012DH         LINE#         61
+  C:012DH         LINE#         62
+  C:0134H         LINE#         63
+  C:013AH         LINE#         64
+  C:013AH         LINE#         65
+  C:0140H         LINE#         66
+  C:0144H         LINE#         67
+  C:0148H         LINE#         68
+  C:014CH         LINE#         69
+  C:014CH         LINE#         70
+  C:014EH         LINE#         71
+  -------         ENDPROC       KEYSCAN
+  -------         PROC          _DELAY
+  D:0006H         SYMBOL        i
+  C:0188H         LINE#         75
+  C:0188H         LINE#         76
+  C:0188H         LINE#         77
+  C:0192H         LINE#         78
+  -------         ENDPROC       _DELAY
+  -------         ENDMOD        KEYBOARD
+
+  -------         MODULE        ?C?CCASE
+  C:014FH         PUBLIC        ?C?CCASE
+  -------         ENDMOD        ?C?CCASE
+
+Program Size: data=26.0 xdata=0 code=403
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

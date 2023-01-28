@@ -1,0 +1,420 @@
+C51 COMPILER V7.06   TFT                                                                   02/24/2014 10:56:58 PAGE 1   
+
+
+C51 COMPILER V7.06, COMPILATION OF MODULE TFT
+OBJECT MODULE PLACED IN .\obj\tft.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE src\tft.c BROWSE DEBUG OBJECTEXTEND PRINT(.\listing\tft.lst) OBJECT(.\obj\t
+                    -ft.obj)
+
+stmt level    source
+
+   1          /*------------------------------------------------
+   2                          包含头文件
+   3          ------------------------------------------------*/
+   4          #include"reg52.h"
+   5          #include"tft.h"
+   6          /*------------------------------------------------
+   7                               定义单片机引脚
+   8          ------------------------------------------------*/
+   9          sbit CS=P2^2;           //片选
+  10          sbit RES=P2^1;          //复位
+  11          sbit RS=P2^4;           //数据/命令选择
+  12          sbit RW=P2^5;
+  13          #define DataPort P0                   //数据口使用DataPort
+  14          //unsigned char code pic[];
+  15          #define X_MAX 240
+  16          #define Y_MAX 400
+  17          /*------------------------------------------------
+  18                                  清屏函数
+  19          ------------------------------------------------*/
+  20          void ClearScreen(unsigned int bColor)
+  21          {
+  22   1       unsigned int i,j;
+  23   1       LCD_SetPos(0,X_MAX-1,0,Y_MAX-1);//
+  24   1       for (i=0;i<Y_MAX;i++)
+  25   1              {
+  26   2              
+  27   2                 for (j=0;j<X_MAX;j++)
+  28   2                     Write_Data_U16(bColor);
+  29   2      
+  30   2              }
+  31   1      }
+  32          
+  33          /*------------------------------------------------
+  34                       写8x16字符函数
+  35          ------------------------------------------------*/
+  36          #include "8X16.h"
+  37          void LCD_PutChar8x16(unsigned short x, unsigned short y, char c, unsigned int fColor, unsigned int bColor)
+  38          {
+  39   1       unsigned int i,j;
+  40   1       LCD_SetPos(x,x+8-1,y,y+16-1);
+  41   1       for(i=0; i<16;i++) {
+  42   2                      unsigned char m=Font8x16[c*16+i];
+  43   2                      for(j=0;j<8;j++) {
+  44   3                              if((m&0x80)==0x80) {
+  45   4                                      Write_Data_U16(fColor);
+  46   4                                      }
+  47   3                              else {
+  48   4                                      Write_Data_U16(bColor);
+  49   4                                      }
+  50   3                              m<<=1;
+  51   3                              }
+  52   2                      }
+  53   1      }
+  54          
+C51 COMPILER V7.06   TFT                                                                   02/24/2014 10:56:58 PAGE 2   
+
+  55          /*------------------------------------------------
+  56                        写字符串函数
+  57          ------------------------------------------------*/
+  58          void LCD_PutChar(unsigned short x, unsigned short y, char c, unsigned int fColor, unsigned int bColor) {
+  59   1      
+  60   1                      LCD_PutChar8x16( x, y, c, fColor, bColor );
+  61   1              }
+  62          
+  63          /*------------------------------------------------
+  64                       写32x31汉字函数
+  65          ------------------------------------------------*/
+  66          #include "GB3231.h"     //
+  67          
+  68          void PutGB1616(unsigned short x, unsigned short  y, unsigned char c[2], unsigned int fColor,unsigned int b
+             -Color){
+  69   1              unsigned int i,j,k;
+  70   1      
+  71   1              LCD_SetPos(x,  x+32-1,y, y+31-1);
+  72   1      
+  73   1              for (k=0;k<64;k++) { //64标示自建汉字库中的个数，循环查询内码
+  74   2                if ((codeGB_16[k].Index[0]==c[0])&&(codeGB_16[k].Index[1]==c[1])){ 
+  75   3              for(i=0;i<124;i++) {
+  76   4                        unsigned short m=codeGB_16[k].Msk[i];
+  77   4                        for(j=0;j<8;j++) {
+  78   5                              if((m&0x80)==0x80) {
+  79   6                                      Write_Data_U16(fColor);
+  80   6                                      }
+  81   5                              else {
+  82   6                                      Write_Data_U16(bColor);
+  83   6                                      }
+  84   5                              m<<=1;
+  85   5                              } 
+  86   4                        }
+  87   3                      }  
+  88   2                }     
+  89   1              }
+  90          /*------------------------------------------------
+  91                          写字符串函数
+  92          ------------------------------------------------*/
+  93          void LCD_PutString(unsigned short x, unsigned short y, unsigned char *s, unsigned int fColor, unsigned int
+             - bColor) {
+  94   1               unsigned char l=0;
+  95   1              while(*s) {
+  96   2                      if( *s < 0x80) 
+  97   2                          {
+  98   3                              LCD_PutChar(x+l*8,y,*s,fColor,bColor);
+  99   3                              s++;l++;
+ 100   3                              }
+ 101   2                      else
+ 102   2                          {
+ 103   3                              PutGB1616(x+l*8,y,(unsigned char*)s,fColor,bColor);
+ 104   3                              s+=2;l+=4;
+ 105   3                              }
+ 106   2                      }
+ 107   1              }
+ 108          /*------------------------------------------------
+ 109                        指定区域显示指定RGB颜色
+ 110          ------------------------------------------------*/
+ 111          void Show_RGB (unsigned int x0,unsigned int x1,unsigned int y0,unsigned int y1,unsigned int Color)
+ 112          {
+ 113   1              unsigned int i,j;
+ 114   1              LCD_SetPos(x0,x1,y0,y1);
+C51 COMPILER V7.06   TFT                                                                   02/24/2014 10:56:58 PAGE 3   
+
+ 115   1              for (i=y0;i<=y1;i++)
+ 116   1              {
+ 117   2                 for (j=x0;j<=x1;j++)
+ 118   2                     Write_Data_U16(Color);
+ 119   2              }
+ 120   1      }
+ 121          
+ 122          /*------------------------------------------------
+ 123                          显示彩条
+ 124          ------------------------------------------------*/
+ 125          void show_colour_bar (void)
+ 126          
+ 127          {
+ 128   1              unsigned char GAP=50;
+ 129   1              int V,H;
+ 130   1              LCD_SetPos(0,X_MAX-1,0,Y_MAX-1);
+ 131   1      
+ 132   1              for(H=0;H<X_MAX;H++)
+ 133   1              {
+ 134   2                      for(V=0;V<GAP*1;V++)
+ 135   2                      Write_Data_U16(0xf800);
+ 136   2              }
+ 137   1      
+ 138   1              for(H=0;H<X_MAX;H++)
+ 139   1              {
+ 140   2                      for(V=GAP*1;V<GAP*2;V++)
+ 141   2                      Write_Data_U16(0x07e0);
+ 142   2              }
+ 143   1      
+ 144   1              for(H=0;H<X_MAX;H++)
+ 145   1              {
+ 146   2                      for(V=GAP*2;V<GAP*3;V++)
+ 147   2                      Write_Data_U16(0x001f);
+ 148   2              }
+ 149   1      
+ 150   1              for(H=0;H<X_MAX;H++)
+ 151   1              {
+ 152   2                      for(V=GAP*3;V<GAP*4;V++)
+ 153   2                      Write_Data_U16(0xffe0);
+ 154   2              }
+ 155   1      
+ 156   1              for(H=0;H<X_MAX;H++)
+ 157   1              {
+ 158   2                      for(V=GAP*4;V<GAP*5;V++)
+ 159   2                      Write_Data_U16(0xf81f);
+ 160   2              }
+ 161   1      
+ 162   1              for(H=0;H<X_MAX;H++)
+ 163   1              {
+ 164   2                      for(V=GAP*5;V<GAP*6;V++)
+ 165   2                      Write_Data_U16(0x07ff);
+ 166   2              }
+ 167   1      
+ 168   1              for(H=0;H<X_MAX;H++)
+ 169   1              {
+ 170   2                      for(V=GAP*6;V<GAP*7;V++)
+ 171   2                      Write_Data_U16(0xffff);
+ 172   2              }
+ 173   1      
+ 174   1              for(H=0;H<X_MAX;H++)
+ 175   1              {
+ 176   2                      for(V=GAP*7;V<GAP*8;V++)
+C51 COMPILER V7.06   TFT                                                                   02/24/2014 10:56:58 PAGE 4   
+
+ 177   2                      Write_Data_U16(0x0000);
+ 178   2              }
+ 179   1      }
+ 180          /*------------------------------------------------
+ 181                       显示图片函数
+ 182          ------------------------------------------------*/
+ 183          /*void show_photo(void)
+ 184          {
+ 185                  unsigned char j;
+ 186                  unsigned int i;
+ 187                  unsigned long s=0;
+ 188          
+ 189                  LCD_SetPos(0,240,0,320);//320x240
+ 190          
+ 191                  for (i=0;i<75;i++)
+ 192                  {
+ 193                  for (j=0;j<240;j++)
+ 194                  Write_Data_U16(0xffff);
+ 195                          
+ 196                  }
+ 197          
+ 198                  for (i=0;i<170;i++)
+ 199                  {
+ 200                  for (j=0;j<55;j++)
+ 201                          Write_Data_U16(0xffff);
+ 202          
+ 203                          for (j=0;j<130;j++)
+ 204                          Write_Data_U16(pic[s++],pic[s++]);
+ 205                          
+ 206                          for (j=0;j<55;j++)
+ 207                          Write_Data_U16(0xffff);
+ 208                  }
+ 209          
+ 210              for (i=0;i<75;i++)
+ 211                  {
+ 212                  for (j=0;j<240;j++)
+ 213                  Write_Data_U16(0xffff);
+ 214                          
+ 215                  }
+ 216          }
+ 217          */
+ 218          /*------------------------------------------------
+ 219                        写16位数据函数
+ 220          ------------------------------------------------*/
+ 221          void  Write_Data_U16(unsigned int y)
+ 222          {
+ 223   1              unsigned char m,n;
+ 224   1              m=y>>8;
+ 225   1              n=y;
+ 226   1              LCD_Write_Data(m);
+ 227   1          LCD_Write_Data(n);
+ 228   1      
+ 229   1      }
+ 230          /*------------------------------------------------
+ 231                          写指令函数
+ 232          ------------------------------------------------*/
+ 233          void LCD_Write_Command(unsigned char u)
+ 234          {
+ 235   1              
+ 236   1              CS=0;
+ 237   1              RS=0;
+ 238   1              DataPort=u;     
+C51 COMPILER V7.06   TFT                                                                   02/24/2014 10:56:58 PAGE 5   
+
+ 239   1              RW=0;
+ 240   1              RW=1;
+ 241   1              CS=1;
+ 242   1      }
+ 243          
+ 244          /*------------------------------------------------
+ 245                           写数据函数
+ 246          ------------------------------------------------*/
+ 247          void LCD_Write_Data(unsigned char u)
+ 248          {       
+ 249   1              CS=0;
+ 250   1              RS=1;
+ 251   1              DataPort=u;     
+ 252   1              RW=0;
+ 253   1              RW=1;
+ 254   1              CS=1;
+ 255   1      }
+ 256          
+ 257          WriteCom(a,b)
+ 258          {
+ 259   1      LCD_Write_Command(a);
+ 260   1      LCD_Write_Command(b);
+ 261   1      }
+ 262          
+ 263          WriteData(a,b)
+ 264          {
+ 265   1      LCD_Write_Data(a);
+ 266   1      LCD_Write_Data(b);
+ 267   1      }
+ 268          /*------------------------------------------------
+ 269                          延时函数
+ 270          ------------------------------------------------*/
+ 271          void delayms(unsigned int count)
+ 272          {
+ 273   1          int i,j;                                                                                
+ 274   1          for(i=0;i<count;i++)                                                                    
+ 275   1             {
+ 276   2                   for(j=0;j<260;j++);
+ 277   2             }                                                                                     
+ 278   1      }
+ 279          
+ 280          
+ 281          
+ 282          /*------------------------------------------------
+ 283                          液晶初始化代码
+ 284          ------------------------------------------------*/
+ 285          
+ 286          void TFT_Initial(void)
+ 287          { 
+ 288   1      // VCI=2.80V
+ 289   1      //************* Reset LCD Driver ****************//
+ 290   1      RES = 1;
+ 291   1      delayms(1); // delaymsms 1ms
+ 292   1      RES = 0;
+ 293   1      delayms(10); // delaymsms 10ms // This delaymsms time is necessary
+ 294   1      RES = 1;
+ 295   1      delayms(50); // delaymsms 50 ms
+ 296   1       // Synchronization after reset//////////
+ 297   1      ////////////////////////////////////////////
+ 298   1      LCD_Write_Command(0x11); //Exit Sleep
+ 299   1      delayms(100);
+ 300   1      LCD_Write_Command(0xD1);
+C51 COMPILER V7.06   TFT                                                                   02/24/2014 10:56:58 PAGE 6   
+
+ 301   1      LCD_Write_Data (0x00);
+ 302   1      LCD_Write_Data (0x71);
+ 303   1      LCD_Write_Data (0x19);
+ 304   1      LCD_Write_Command(0xD0);
+ 305   1      LCD_Write_Data (0x07);
+ 306   1      LCD_Write_Data (0x01);
+ 307   1      LCD_Write_Data (0x08);
+ 308   1      LCD_Write_Command(0x36);
+ 309   1      LCD_Write_Data (0x48);
+ 310   1      LCD_Write_Command(0x3A);
+ 311   1      LCD_Write_Data (0x05);
+ 312   1      LCD_Write_Command(0xC1);
+ 313   1      LCD_Write_Data (0x10);
+ 314   1      LCD_Write_Data (0x10);
+ 315   1      LCD_Write_Data (0x02);
+ 316   1      LCD_Write_Data (0x02);
+ 317   1      LCD_Write_Command(0xC0); //Set Default Gamma
+ 318   1      LCD_Write_Data (0x00);
+ 319   1      LCD_Write_Data (0x35);
+ 320   1      LCD_Write_Data (0x00);
+ 321   1      LCD_Write_Data (0x00);
+ 322   1      LCD_Write_Data (0x01);
+ 323   1      LCD_Write_Data (0x02);
+ 324   1      LCD_Write_Command(0xC5); //Set frame rate
+ 325   1      LCD_Write_Data (0x04);
+ 326   1      LCD_Write_Command(0xD2); //power setting
+ 327   1      LCD_Write_Data (0x01);
+ 328   1      LCD_Write_Data (0x44);
+ 329   1      LCD_Write_Command(0xC8); //Set Gamma
+ 330   1      LCD_Write_Data (0x04);
+ 331   1      LCD_Write_Data (0x67);
+ 332   1      LCD_Write_Data (0x35);
+ 333   1      LCD_Write_Data (0x04);
+ 334   1      LCD_Write_Data (0x08);
+ 335   1      LCD_Write_Data (0x06);
+ 336   1      LCD_Write_Data (0x24);
+ 337   1      LCD_Write_Data (0x01);
+ 338   1      LCD_Write_Data (0x37);
+ 339   1      LCD_Write_Data (0x40);
+ 340   1      LCD_Write_Data (0x03);
+ 341   1      LCD_Write_Data (0x10);
+ 342   1      LCD_Write_Data (0x08);
+ 343   1      LCD_Write_Data (0x80);
+ 344   1      LCD_Write_Data (0x00);
+ 345   1      LCD_Write_Command(0x2A); 
+ 346   1      LCD_Write_Data (0x00);
+ 347   1      LCD_Write_Data (0x00);
+ 348   1      LCD_Write_Data (X_MAX>>8);
+ 349   1      LCD_Write_Data (X_MAX);
+ 350   1      LCD_Write_Command(0x2B); 
+ 351   1      LCD_Write_Data (0x00);
+ 352   1      LCD_Write_Data (0x00);
+ 353   1      LCD_Write_Data (Y_MAX>>8);
+ 354   1      LCD_Write_Data (Y_MAX);
+ 355   1      LCD_Write_Command(0x29); //display on      
+ 356   1      LCD_Write_Command(0x2C); //display on
+ 357   1      delayms(100);
+ 358   1      
+ 359   1      }
+ 360          
+ 361          /*------------------------------------------------
+ 362          函数名称:LCD_DefineDispWindow
+C51 COMPILER V7.06   TFT                                                                   02/24/2014 10:56:58 PAGE 7   
+
+ 363          功    能:定义显示窗体
+ 364          参    数:x0:  窗体中X坐标中较小者
+ 365                   x1:  窗体中X坐标中较大者
+ 366                   y0:  窗体中Y坐标中较小者
+ 367                   y1:  窗体中Y坐标中较大者 
+ 368          返 回 值:无
+ 369          ------------------------------------------------*/
+ 370          static void LCD_SetPos(unsigned int x0,unsigned int x1,unsigned int y0,unsigned int y1)
+ 371          {
+ 372   1      
+ 373   1      WriteCom(0x00,0x2A);
+ 374   1      WriteData(x0>>8,x0);
+ 375   1      WriteData(x1>>8,x1);
+ 376   1      WriteCom(0x00,0x2B);
+ 377   1      WriteData(y0>>8,y0);
+ 378   1      WriteData(y1>>8,y1);
+ 379   1      WriteCom(0x00,0x2C);
+ 380   1      
+ 381   1      
+ 382   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1736    ----
+   CONSTANT SIZE    =   3318    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      88
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

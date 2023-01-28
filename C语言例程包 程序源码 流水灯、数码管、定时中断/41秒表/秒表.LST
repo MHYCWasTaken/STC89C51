@@ -1,0 +1,125 @@
+C51 COMPILER V7.06   √Î_Ì                                                                  12/06/2008 20:25:25 PAGE 1   
+
+
+C51 COMPILER V7.06, COMPILATION OF MODULE √Î_Ì
+OBJECT MODULE PLACED IN √Î±Ì.OBJ
+COMPILER INVOKED BY: d:\Keil2\C51\BIN\C51.EXE √Î±Ì.c BROWSE DEBUG OBJECTEXTEND
+
+stmt level    source
+
+   1          /*
+   2          1°¢≥Ã–Úƒøµƒ£∫ π”√∂® ±∆˜—ßœ∞√Î±Ìº∆ ±£¨÷–∂œ0øÿ÷∆◊ﬂ±Ì£¨÷–∂œ1øÿ÷∆«Â¡„ 
+   3          2°¢”≤º˛“™«Û£∫ ˝¬Îπ‹°¢æß’Ò12M
+   4          */
+   5          #include <reg52.h>
+   6          
+   7          code unsigned char tab[]=
+   8                                  {0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f}; 
+   9                                  //π≤“ı ˝¬Îπ‹ 0-9 
+  10          
+  11          unsigned char Dis_Shiwei;//∂®“Â ÆŒª
+  12          unsigned char Dis_Gewei; //∂®“Â∏ˆŒª
+  13          unsigned char S_Dis_Shiwei;//∂®“Â√Î ÆŒª
+  14          unsigned char S_Dis_Gewei; //∂®“Â√Î∏ˆŒª
+  15          unsigned char second,msecond;
+  16          
+  17          void CLR(void);
+  18          void delay(unsigned int cnt)
+  19          {
+  20   1       while(--cnt);
+  21   1      }
+  22          
+  23          main()
+  24          {
+  25   1      EX0=1;//Õ‚≤ø÷–∂œ0…Ë÷√
+  26   1      IT0=1;
+  27   1      
+  28   1      EX1=1;//Õ‚≤ø÷–∂œ1…Ë÷√
+  29   1      IT1=1;
+  30   1      
+  31   1      TMOD |=0x01;//∂® ±∆˜…Ë÷√ 10ms in 12M crystal
+  32   1      TH0=0xd8;
+  33   1      TL0=0xf0;
+  34   1      ET0=1;  //¥Úø™÷–∂œ
+  35   1      TR0=0;
+  36   1      
+  37   1      EA=1;
+  38   1      CLR();
+  39   1      while(1)
+  40   1        {
+  41   2        P0=S_Dis_Shiwei;//œ‘ æ√Î ÆŒª
+  42   2        P2=1;
+  43   2        delay(300);//∂Ã‘›—” ±
+  44   2        P0=S_Dis_Gewei; //œ‘ æ√Î∏ˆŒª
+  45   2        P2=2;
+  46   2        delay(300);
+  47   2        P0=0x40; //œ‘ æ√Î∏ˆŒª
+  48   2        P2=3;
+  49   2        delay(300);
+  50   2        P0=Dis_Shiwei;//œ‘ æ ÆŒª
+  51   2        P2=4;
+  52   2        delay(300);//∂Ã‘›—” ±
+  53   2        P0=Dis_Gewei; //œ‘ æ∏ˆŒª
+  54   2        P2=5;
+  55   2        delay(300);
+C51 COMPILER V7.06   √Î_Ì                                                                  12/06/2008 20:25:25 PAGE 2   
+
+  56   2        }
+  57   1      }
+  58          /********************************/
+  59          /*      ∂® ±÷–∂œ                */
+  60          /********************************/
+  61          void tim(void) interrupt 1 using 1
+  62          {
+  63   1      
+  64   1      TH0=0xd8;//÷ÿ–¬∏≥÷µ
+  65   1      TL0=0xf0;
+  66   1      msecond++;
+  67   1      if (msecond==100)
+  68   1          {
+  69   2          msecond=0;
+  70   2          second++;//√Îº”1
+  71   2              if(second==100)
+  72   2                 second=0;
+  73   2              S_Dis_Shiwei=tab[second/10];// ÆŒªœ‘ æ÷µ¥¶¿Ì
+  74   2          S_Dis_Gewei=tab[second%10]; //∏ˆŒªœ‘ æ¥¶¿Ì
+  75   2      
+  76   2              }
+  77   1          Dis_Shiwei=tab[msecond/10];// ÆŒªœ‘ æ÷µ¥¶¿Ì
+  78   1          Dis_Gewei=tab[msecond%10]; //∏ˆŒªœ‘ æ¥¶¿Ì
+  79   1      
+  80   1      }
+  81          void ISR_INT0(void) interrupt 0 using 1
+  82          {
+  83   1       TR0=!TR0; //¿˚”√Õ‚≤ø÷–∂œ¥Úø™∫Õπÿ±’∂® ±∆˜0 ”√”⁄ø™ º∫ÕÕ£÷πº∆ ±
+  84   1      
+  85   1      }
+  86          void ISR_INT1(void) interrupt 2 using 1
+  87          {
+  88   1      if(TR0==0)//Õ£÷π ±≤≈ø…“‘«Â¡„
+  89   1         CLR();
+  90   1      }
+  91          
+  92          void CLR(void)
+  93          {
+  94   1       second=0; //¿˚”√Õ‚≤ø÷–∂œ«Â¡„
+  95   1       msecond=0;
+  96   1       Dis_Shiwei=tab[msecond/10];// ÆŒªœ‘ æ÷µ¥¶¿Ì
+  97   1       Dis_Gewei=tab[msecond%10]; //∏ˆŒªœ‘ æ¥¶¿Ì
+  98   1       S_Dis_Shiwei=tab[second/10];// ÆŒªœ‘ æ÷µ¥¶¿Ì
+  99   1       S_Dis_Gewei=tab[second%10]; //∏ˆŒªœ‘ æ¥¶¿Ì
+ 100   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    262    ----
+   CONSTANT SIZE    =     10    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      6    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

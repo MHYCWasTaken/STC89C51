@@ -1,0 +1,74 @@
+By Craig Allsop
+
+I figured I might as well give everyone the macros from my source that 
+display the copper bars.  (They were  written for Tasm,  Ideal  mode - 
+but are easily converted) - I reveal all!
+
+macro   waithorz                ; DX = 3DAh!
+        local   a,b
+a:      in      al,dx
+        rcr     al,1
+        jc      a
+b:      in      al,dx
+        rcr     al,1
+        jnc     b
+endm
+
+macro   waitvert
+        local   a,b
+a:      in      al,dx
+        test    al,8
+        jnz     a
+b:      in      al,dx
+        test    al,8
+        jz      b
+endm
+
+macro   copper                  ; SI = Colour table, CX = # of Colours
+        local   a               ; BL = Palette to change
+        mov     ah,0c9h
+        mov     dl,3
+a:      mov     dl,0c8h
+        mov     al,bl
+        out     dx,al           ; Select palette
+        inc     dl
+        outsb
+        outsb                   ; Send first 2 values
+        lodsb                   ; Get next one ready
+        mov     bh,al           ; and hang onto it
+        mov     dl,0dah
+        waithorz                ; Wait for the horz. retrace
+        mov     dl,ah
+        mov     al,bh
+        out     dx,al           ; Send last value (Causes static!)
+        dec     cx
+        jnz     a               ; Continue...
+endm
+
+
+To use them, requires a 'waitvert' before using 'copper' to execute it, 
+and 'waitvert' requires dx = 3dah. Simple really. Eg:
+
+        mov     si, <address of palette>
+        mov     cx, <number of colours/lines>
+        mov     bl, <palette to change>
+        mov     dx, 3dah
+        waitvert
+        copper
+
+You will notice that I send two values before waiting for the retrace, 
+because the  VGA only loads them into a buffer,  and only updates  the 
+palette registers when it gets the last value,  which is also when you 
+get the static 'dot' appearing on the screen.  Since I'm doing it this 
+way,  on slow machines it works perfectly,  and on faster machines you 
+get static on the right side  of the  screen,  but you can  remove the 
+overscan on the right side to fix that problem.
+
+Regards,
+Craig.
+
+If anyone uses the above macros, or modify the above code for suitable
+functions in another lanugage, then be my guest,but please give credit 
+where its due, and mention my name  or my alias  'Daemon' - the  above 
+macros must conatin this paragraph in any source and are Public Domain 
+in all other respects.

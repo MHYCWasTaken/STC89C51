@@ -1,0 +1,81 @@
+C51 COMPILER V7.50   羅水灯                                                                08/17/2011 14:32:21 PAGE 1   
+
+
+C51 COMPILER V7.50, COMPILATION OF MODULE 羅水灯
+OBJECT MODULE PLACED IN 流水灯.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE 流水灯.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          /********************************************************************
+   2          * 文件名  ： 流水灯.c
+   3          * 描述    :  该程序实现LED的流水灯显示。
+   4                                   该程序用于学习 LED流水灯 的控制方法。   
+   5          * 创建人  ： 东流，2009年8月27日
+   6          * 版本号  ： 1.0
+   7          ***********************************************************************/
+   8          #include<reg52.h>
+   9          #define uchar unsigned char
+  10          #define uint  unsigned int
+  11          
+  12          /********************************************************************
+  13          * 名称 : Delay()
+  14          * 功能 : 延时,延时时间为 10ms * del
+  15          * 输入 : del
+  16          * 输出 : 无
+  17          ***********************************************************************/
+  18          void Delay(uint del)
+  19          {
+  20   1              uint i,j;
+  21   1              for(i=0; i<del; i++)
+  22   1              for(j=0; j<1827; j++)   
+  23   1              ;
+  24   1      }
+  25          
+  26          /********************************************************************
+  27          * 名称 : Main()
+  28          * 功能 : 实现灯的闪烁
+  29          * 输入 : 无
+  30          * 输出 : 无
+  31          * 说明 ：也可以使用例1的的方法来关闭数码管
+  32          ***********************************************************************/
+  33          void Main(void)
+  34          {
+  35   1              uchar i, temp;
+  36   1              while(1)
+  37   1              {
+  38   2                      temp = 0x7f;                            
+  39   2                      for(i=0; i<7; i++)                      
+  40   2                      {
+  41   3                              temp = temp >> 1;                       //值右移一位
+  42   3                              temp = temp | 0x80;             
+  43   3                              P0 = temp;                                      //把值赋给P0口
+  44   3                              Delay(15);                                      //延时0.15秒
+  45   3                      }
+  46   2                      temp = 0xfe;
+  47   2                      for(i=0; i<7; i++)
+  48   2                      {
+  49   3                              temp = temp << 1;                       //值左移一位
+  50   3                              temp = temp | 0x01;             
+  51   3                              P0 = temp;                              //把值赋给P0口
+  52   3                              Delay(15);                                      //延时0.15秒
+  53   3                      }
+  54   2      
+  55   2              }
+C51 COMPILER V7.50   羅水灯                                                                08/17/2011 14:32:21 PAGE 2   
+
+  56   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     86    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       1
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

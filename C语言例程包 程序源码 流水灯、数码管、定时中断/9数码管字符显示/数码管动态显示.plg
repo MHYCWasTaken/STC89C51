@@ -1,0 +1,16 @@
+<html>
+<body>
+<pre>
+<h1>礦ision3 Build Log</h1>
+<h2>Project:</h2>
+C:\Documents and Settings\Administrator\桌面\程序代码\9数码管字符显示\数码管动态显示.uv2
+Project File Date:  08/18/2011
+
+<h2>Output:</h2>
+Build target 'Target 1'
+assembling STARTUP.A51...
+compiling 动态显示.c...
+linking...
+Program Size: data=9.0 xdata=0 code=87
+creating hex file from "数码管动态显示"...
+"数码管动态显示" - 0 Error(s), 0 Warning(s).

@@ -1,0 +1,78 @@
+C51 COMPILER V7.06   RS232                                                                 05/13/2009 12:33:33 PAGE 1   
+
+
+C51 COMPILER V7.06, COMPILATION OF MODULE RS232
+OBJECT MODULE PLACED IN rs232.OBJ
+COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE rs232.c BROWSE DEBUG OBJECTEXTEND
+
+stmt level    source
+
+   1           
+   2          /*-----------------------------------------------
+   3            名称：LCD1602
+   4            公司：上海浩豚电子科技有限公司
+   5            网站：www.doflye.cn
+   6            编写：师访
+   7            日期：2009.5
+   8            修改：无
+   9            内容：连接好串口或者usb转串口至电脑，下载该程序，打开电源
+  10                  打开串口调试程序，将波特率设置为9600，无奇偶校验
+  11                  晶振11.0592MHz，发送和接收使用的格式相同，如都使用
+  12                  字符型格式，在发送框输入 hello，I Love MCU ，在接
+  13                  收框中同样可以看到相同字符，说明设置和通信正确
+  14          ------------------------------------------------*/
+  15          
+  16          #include<reg52.h> //包含头文件，一般情况不需要改动，头文件包含特殊功能寄存器的定义                        
+  17          
+  18                                        
+  19          /******************************************************************/
+  20          /*                   主函数                                       */
+  21          /******************************************************************/
+  22          void main (void)
+  23          {
+  24   1      
+  25   1      
+  26   1          SCON  = 0x50;                       /* SCON: 模式 1, 8-bit UART, 使能接收         */
+  27   1          TMOD |= 0x20;               /* TMOD: timer 1, mode 2, 8-bit reload        */
+  28   1          TH1   = 0xFD;               /* TH1:  reload value for 9600 baud @ 11.0592MHz   */
+  29   1          TR1   = 1;                  /* TR1:  timer 1 run                          */
+  30   1          EA    = 1;                  /*打开总中断*/
+  31   1          ES    = 1;                  /*打开串口中断*/
+  32   1      
+  33   1      while (1)                       /*主循环不做任何动作*/
+  34   1          {
+  35   2          }
+  36   1      }
+  37          /******************************************************************/
+  38          /*                  串口中断程序                                  */
+  39          /******************************************************************/
+  40          void UART_SER (void) interrupt 4 //串行中断服务程序
+  41          {
+  42   1          unsigned char Temp;          //定义临时变量 
+  43   1         
+  44   1         if(RI)                        //判断是接收中断产生
+  45   1           {
+  46   2                RI=0;                      //标志位清零
+  47   2                Temp=SBUF;                 //读入缓冲区的值
+  48   2                P1=Temp;                   //把值输出到P1口，用于观察
+  49   2            SBUF=Temp;                 //把接收到的值再发回电脑端
+  50   2               }
+  51   1         if(TI)                        //如果是发送标志位，清零
+  52   1           TI=0;
+  53   1      } 
+
+
+C51 COMPILER V7.06   RS232                                                                 05/13/2009 12:33:33 PAGE 2   
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     45    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
